@@ -4302,6 +4302,22 @@ int ext4_get_projid(struct inode *inode, kprojid_t *projid)
 	*projid = EXT4_I(inode)->i_projid;
 	return 0;
 }
+static blkcnt_t ext4_inode_blocks(struct ext4_inode *raw_inode,
+					struct ext4_inode_info *ei)
+{
+	blkcnt_t i_blocks ;
+	struct super_block *sb = ei->vfs_inode.i_sb;
+
+	if (EXT4_HAS_RO_COMPAT_FEATURE(sb,
+				EXT4_FEATURE_RO_COMPAT_HUGE_FILE)) {
+		/* we are using combined 48 bit field */
+		i_blocks = ((u64)le16_to_cpu(raw_inode->i_blocks_high)) << 32 |
+					le32_to_cpu(raw_inode->i_blocks_lo);
+		return i_blocks;
+	} else {
+		return le32_to_cpu(raw_inode->i_blocks_lo);
+	}
+}
 
 struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
 {
@@ -4704,6 +4720,43 @@ static void ext4_update_other_inodes_time(struct super_block *sb,
 	}
 }
 
+static int ext4_inode_blocks_set(handle_t *handle,
+				struct ext4_inode *raw_inode,
+				struct ext4_inode_info *ei)
+{
+	struct inode *inode = &(ei->vfs_inode);
+	u64 i_blocks = inode->i_blocks;
+	struct super_block *sb = inode->i_sb;
+	int err = 0;
+
+	if (i_blocks <= ~0U) {
+		/*
+		 * i_blocks can be represnted in a 32 bit variable
+		 * as multiple of 512 bytes
+		 */
+		raw_inode->i_blocks_lo   = cpu_to_le32((u32)i_blocks);
+		raw_inode->i_blocks_high = 0;
+	} else if (i_blocks <= 0xffffffffffffULL) {
+		/*
+		 * i_blocks can be represented in a 48 bit variable
+		 * as multiple of 512 bytes
+		 */
+		err = ext4_update_rocompat_feature(handle, sb,
+					    EXT4_FEATURE_RO_COMPAT_HUGE_FILE);
+		if (err)
+			goto  err_out;
+		/* i_block is stored in the split  48 bit fields */
+		raw_inode->i_blocks_lo   = cpu_to_le32((u32)i_blocks);
+		raw_inode->i_blocks_high = cpu_to_le16(i_blocks >> 32);
+	} else {
+		ext4_error(sb, __FUNCTION__,
+				"Wrong inode i_blocks count  %llu\n",
+				(unsigned long long)inode->i_blocks);
+	}
+err_out:
+	return err;
+}
+
 /*
  * Post the struct inode info into an on-disk inode location in the
  * buffer-cache.  This gobbles the caller's reference to the
@@ -4771,6 +4824,7 @@ static int ext4_do_update_inode(handle_t *handle,
 		spin_unlock(&ei->i_raw_lock);
 		goto out_brelse;
 	}
+
 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
 	raw_inode->i_flags = cpu_to_le32(ei->i_flags & 0xFFFFFFFF);
 	if (likely(!test_opt2(inode->i_sb, HURD_COMPAT)))
