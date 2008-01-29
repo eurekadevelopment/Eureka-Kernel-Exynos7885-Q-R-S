@@ -2532,6 +2532,7 @@ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 	loff_t res = EXT4_NDIR_BLOCKS;
 	int meta_blocks;
 	loff_t upper_limit;
+
 	/* This is calculated to be the largest file size for a dense, block
 	 * mapped file such that the file's total number of 512-byte sectors,
 	 * including data and all indirect blocks, does not exceed (2^48 - 1).
@@ -2540,11 +2541,11 @@ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 	 * number of 512-byte sectors of the file.
 	 */
 
-	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64)) {
+	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64){
 		/*
-		 * !has_huge_files or CONFIG_LBDAF not enabled implies that
-		 * the inode i_block field represents total file blocks in
-		 * 2^32 512-byte sectors == size of vfs inode i_blocks * 8
+		 * CONFIG_LSF is not enabled implies the inode
+		 * i_block represent total blocks in 512 bytes
+		 * 32 == size of vfs inode i_blocks * 8
 		 */
 		upper_limit = (1LL << 32) - 1;
 
@@ -2559,7 +2560,6 @@ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 		 * file system block size
 		 */
 		upper_limit = (1LL << 48) - 1;
-
 	}
 
 	/* indirect blocks */
@@ -3630,6 +3630,21 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			 le32_to_cpu(es->s_log_cluster_size));
 		goto failed_mount;
 	}
+
+	if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_HUGE_FILE)) {
+		/*
+		 * Large file size enabled file system can only be
+		 * mount if kernel is build with CONFIG_LSF
+		 */
+		if (sizeof(root->i_blocks) < sizeof(u64) &&
+				!(sb->s_flags & MS_RDONLY)) {
+			printk(KERN_ERR "EXT4-fs: %s: Filesystem with huge "
+					"files cannot be mounted read-write "
+					"without CONFIG_LSF.\n", sb->s_id);
+			goto failed_mount;
+		}
+	}
+	blocksize = BLOCK_SIZE << le32_to_cpu(es->s_log_block_size);
 
 	if (le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) > (blocksize / 4)) {
 		ext4_msg(sb, KERN_ERR,
