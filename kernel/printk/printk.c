@@ -1640,6 +1640,7 @@ static void call_console_drivers(int level,
 	if (!console_drivers)
 		return;
 
+	migrate_disable();
 	for_each_console(con) {
 		if (exclusive_console && con != exclusive_console)
 			continue;
@@ -1655,6 +1656,7 @@ static void call_console_drivers(int level,
 		else
 			con->write(con, text, len);
 	}
+	migrate_enable();
 }
 
 /*
@@ -1715,6 +1717,15 @@ static inline int can_use_console(unsigned int cpu)
 static int console_trylock_for_printk(void)
 {
 	unsigned int cpu = smp_processor_id();
+#ifdef CONFIG_PREEMPT_RT_FULL
+	int lock = !early_boot_irqs_disabled && (preempt_count() == 0) &&
+		!irqs_disabled();
+#else
+	int lock = 1;
+#endif
+
+	if (!lock)
+		return 0;
 
 	if (!console_trylock())
 		return 0;
@@ -2086,8 +2097,7 @@ asmlinkage int vprintk_emit(int facility, int level,
 		 * console_sem which would prevent anyone from printing to
 		 * console
 		 */
-		preempt_disable();
-
+		migrate_disable();
 		/*
 		 * Try to acquire and then immediately release the console
 		 * semaphore.  The release will print out buffers and wake up
@@ -2095,7 +2105,7 @@ asmlinkage int vprintk_emit(int facility, int level,
 		 */
 		if (console_trylock_for_printk())
 			console_unlock();
-		preempt_enable();
+		migrate_enable();
 		lockdep_on();
 	}
 
@@ -2478,11 +2488,16 @@ static void console_cont_flush(char *text, size_t size)
 		goto out;
 
 	len = cont_print_text(text, size);
+#ifdef CONFIG_PREEMPT_RT_FULL
+	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
+	call_console_drivers(cont.level, NULL, 0, text, len);
+#else
 	raw_spin_unlock(&logbuf_lock);
 	stop_critical_timings();
 	call_console_drivers(cont.level, NULL, 0, text, len);
 	start_critical_timings();
 	local_irq_restore(flags);
+#endif
 	return;
 out:
 	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
@@ -2594,13 +2609,17 @@ skip:
 		console_idx = log_next(console_idx);
 		console_seq++;
 		console_prev = msg->flags;
+#ifdef CONFIG_PREEMPT_RT_FULL
+		raw_spin_unlock_irqrestore(&logbuf_lock, flags);
+		call_console_drivers(level, ext_text, ext_len, text, len);
+#else
 		raw_spin_unlock(&logbuf_lock);
 
 		stop_critical_timings();	/* don't trace print latency */
 		call_console_drivers(level, ext_text, ext_len, text, len);
 		start_critical_timings();
 		local_irq_restore(flags);
-
+#endif
 		if (do_cond_resched)
 			cond_resched();
 	}
