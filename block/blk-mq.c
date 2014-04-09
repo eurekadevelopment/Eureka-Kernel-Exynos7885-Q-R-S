@@ -1402,7 +1402,9 @@ static blk_qc_t blk_sq_make_request(struct request_queue *q, struct bio *bio)
 		blk_mq_put_ctx(data.ctx);
 
 		if (request_count >= BLK_MAX_REQUEST_COUNT) {
+			spin_unlock(&data.ctx->cpu_lock);
 			blk_flush_plug_list(plug, false);
+			spin_lock(&data.ctx->cpu_lock);
 			trace_block_plug(q);
 		}
 
@@ -1604,6 +1606,7 @@ static int blk_mq_hctx_cpu_offline(struct blk_mq_hw_ctx *hctx, int cpu)
 		blk_mq_hctx_clear_pending(hctx, ctx);
 	}
 	spin_unlock(&ctx->lock);
+	__blk_mq_put_ctx(ctx);
 
 	if (list_empty(&tmp))
 		return NOTIFY_OK;
@@ -1798,6 +1801,7 @@ static void blk_mq_init_cpu_queues(struct request_queue *q,
 		memset(__ctx, 0, sizeof(*__ctx));
 		__ctx->cpu = i;
 		spin_lock_init(&__ctx->lock);
+		spin_lock_init(&__ctx->cpu_lock);
 		INIT_LIST_HEAD(&__ctx->rq_list);
 		__ctx->queue = q;
 
