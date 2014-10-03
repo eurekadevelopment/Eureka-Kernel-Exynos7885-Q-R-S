@@ -69,4 +69,7 @@ void gb_connection_bind_protocol(struct gb_connection *connection);
 void gb_connection_latency_tag_enable(struct gb_connection *connection);
 void gb_connection_latency_tag_disable(struct gb_connection *connection);
 
+__printf(2, 3)
+void gb_connection_err(struct gb_connection *connection, const char *fmt, ...);
+
 #endif /* __CONNECTION_H */
