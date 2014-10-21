@@ -325,6 +325,7 @@ int gb_battery_device_init(struct gb_connection *connection)
 		return -ENOMEM;
 
 	gb->connection = connection;	// FIXME refcount!
+	connection->private = gb;
 
 	/* Check the version */
 	retval = get_version(gb);
