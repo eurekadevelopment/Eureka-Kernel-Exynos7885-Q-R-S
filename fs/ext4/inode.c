@@ -4696,7 +4696,6 @@ static void ext4_update_other_inodes_time(struct super_block *sb,
 	 * (assuming 4k blocks and 256 byte inodes) is (n*16 + 1).
 	 */
 	ino = orig_ino & ~(inodes_per_block - 1);
-
 	for (i = 0; i < inodes_per_block; i++, ino++, buf += inode_size) {
 		if (ino == orig_ino)
 			continue;
@@ -4823,7 +4822,6 @@ static int ext4_do_update_inode(handle_t *handle,
 	if (EXT4_INODE_SIZE(inode->i_sb) > EXT4_GOOD_OLD_INODE_SIZE &&
 	    EXT4_FITS_IN_INODE(raw_inode, ei, i_projid))
 		raw_inode->i_projid = cpu_to_le32(i_projid);
-
 	ext4_inode_csum_set(inode, raw_inode, ei);
 	spin_unlock(&ei->i_raw_lock);
 	if (inode->i_sb->s_flags & MS_LAZYTIME)
