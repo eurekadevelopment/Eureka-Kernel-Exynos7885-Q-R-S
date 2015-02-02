@@ -1041,13 +1041,9 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
 	/* For undo access buffer must have data copied */
 	if (undo && !jh->b_committed_data)
 		goto out;
-<<<<<<< HEAD
+
 	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
 	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
-=======
-	if (jh->b_transaction != handle->h_transaction &&
-	    jh->b_next_transaction != handle->h_transaction)
->>>>>>> f41683a204ea... Merge tag 'ext4_for_linus_stable' of git://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4
 		goto out;
 	/*
 	 * There are two reasons for the barrier here:
@@ -1220,10 +1216,6 @@ int jbd2_journal_get_undo_access(handle_t *handle, struct buffer_head *bh)
 	struct journal_head *jh;
 	char *committed_data = NULL;
 
-<<<<<<< HEAD
-=======
-	JBUFFER_TRACE(jh, "entry");
->>>>>>> f41683a204ea... Merge tag 'ext4_for_linus_stable' of git://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4
 	if (jbd2_write_access_granted(handle, bh, true))
 		return 0;
 
