@@ -1835,7 +1835,7 @@ static void drbd_ldev_destroy(struct drbd_device *device)
 	device->act_log = NULL;
 
 	__acquire(local);
-	drbd_free_ldev(device->ldev);
+	drbd_backing_dev_free(device, device->ldev);
 	device->ldev = NULL;
 	__release(local);
 
