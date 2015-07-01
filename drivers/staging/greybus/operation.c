@@ -32,6 +32,9 @@ static DEFINE_MUTEX(gb_message_mutex);
  */
 static DEFINE_SPINLOCK(gb_operations_lock);
 
+static int gb_operation_response_send(struct gb_operation *operation,
+					int errno);
+
 /*
  * Set an operation's result.
  *
@@ -667,7 +670,8 @@ EXPORT_SYMBOL_GPL(gb_operation_request_send_sync);
  * it can simply supply the result errno; this function will
  * allocate the response message if necessary.
  */
-int gb_operation_response_send(struct gb_operation *operation, int errno)
+static int gb_operation_response_send(struct gb_operation *operation,
+					int errno)
 {
 	struct gb_connection *connection = operation->connection;
 	int ret;
@@ -703,7 +707,6 @@ int gb_operation_response_send(struct gb_operation *operation, int errno)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(gb_operation_response_send);
 
 /*
  * This function is called when a message send request has completed.
