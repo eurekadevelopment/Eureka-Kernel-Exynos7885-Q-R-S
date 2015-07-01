@@ -88,6 +88,8 @@ struct gb_message {
 	void				*buffer;
 };
 
+#define GB_OPERATION_FLAG_INCOMING		BIT(0)
+
 /*
  * A Greybus operation is a remote procedure call performed over a
  * connection between two UniPro interfaces.
@@ -112,8 +114,9 @@ struct gb_operation {
 	struct gb_connection	*connection;
 	struct gb_message	*request;
 	struct gb_message	*response;
-	u8			type;
 
+	unsigned long		flags;
+	u8			type;
 	u16			id;
 	int			errno;		/* Operation result */
 
@@ -124,6 +127,12 @@ struct gb_operation {
 	struct kref		kref;
 	struct list_head	links;		/* connection->operations */
 };
+
+static inline bool
+gb_operation_is_incoming(struct gb_operation *operation)
+{
+	return operation->flags & GB_OPERATION_FLAG_INCOMING;
+}
 
 void gb_connection_recv(struct gb_connection *connection,
 					void *data, size_t size);
