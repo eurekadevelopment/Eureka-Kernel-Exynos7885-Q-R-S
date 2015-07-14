@@ -930,6 +930,7 @@ EXPORT_SYMBOL_GPL(gb_operation_cancel);
  * @request_size: size of @request
  * @response: pointer to a memory buffer to copy the response to
  * @response_size: the size of @response.
+ * @timeout: operation timeout in milliseconds
  *
  * This function implements a simple synchronous Greybus operation.  It sends
  * the provided operation request and waits (sleeps) until the corresponding
@@ -944,9 +945,10 @@ EXPORT_SYMBOL_GPL(gb_operation_cancel);
  *
  * If there is an error, the response buffer is left alone.
  */
-int gb_operation_sync(struct gb_connection *connection, int type,
-		      void *request, int request_size,
-		      void *response, int response_size)
+int gb_operation_sync_timeout(struct gb_connection *connection, int type,
+				void *request, int request_size,
+				void *response, int response_size,
+				unsigned int timeout)
 {
 	struct gb_operation *operation;
 	int ret;
@@ -964,7 +966,7 @@ int gb_operation_sync(struct gb_connection *connection, int type,
 	if (request_size)
 		memcpy(operation->request->payload, request, request_size);
 
-	ret = gb_operation_request_send_sync(operation);
+	ret = gb_operation_request_send_sync_timeout(operation, timeout);
 	if (ret) {
 		dev_err(&connection->dev, "synchronous operation failed: %d\n",
 			ret);
@@ -978,7 +980,7 @@ int gb_operation_sync(struct gb_connection *connection, int type,
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(gb_operation_sync);
+EXPORT_SYMBOL_GPL(gb_operation_sync_timeout);
 
 int __init gb_operation_init(void)
 {
