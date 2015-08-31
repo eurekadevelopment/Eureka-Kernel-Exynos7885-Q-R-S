@@ -322,7 +322,7 @@ int gb_connection_init(struct gb_connection *connection)
 			dev_err(&connection->dev,
 				"Failed to connect CPort-%d (%d)\n",
 				cport_id, ret);
-			return 0;
+			return ret;
 		}
 	}
 
