@@ -11,6 +11,9 @@
 
 #include "greybus.h"
 
+EXPORT_TRACEPOINT_SYMBOL_GPL(gb_host_device_send);
+EXPORT_TRACEPOINT_SYMBOL_GPL(gb_host_device_recv);
+
 /* Allow greybus to be disabled at boot if needed */
 static bool nogreybus;
 #ifdef MODULE
