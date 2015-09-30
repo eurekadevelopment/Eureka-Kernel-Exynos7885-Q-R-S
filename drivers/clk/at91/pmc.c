@@ -12,7 +12,6 @@
 #include <linux/clkdev.h>
 #include <linux/clk/at91_pmc.h>
 #include <linux/of.h>
-#include <linux/of_address.h>
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
 
@@ -20,8 +19,14 @@
 
 #include "pmc.h"
 
-void __iomem *at91_pmc_base;
-EXPORT_SYMBOL_GPL(at91_pmc_base);
+struct at91_pmc_caps {
+	u32 available_irqs;
+};
+
+struct at91_pmc {
+	struct regmap *regmap;
+	const struct at91_pmc_caps *caps;
+};
 
 int of_at91_get_clk_range(struct device_node *np, const char *propname,
 			  struct clk_range *range)
@@ -99,10 +104,7 @@ static void __init of_at91_pmc_setup(struct device_node *np,
 				     const struct at91_pmc_caps *caps)
 {
 	struct at91_pmc *pmc;
-	void __iomem *regbase = of_iomap(np, 0);
 	struct regmap *regmap;
-
-	at91_pmc_base = regbase;
 
 	regmap = syscon_node_to_regmap(np);
 	if (IS_ERR(regmap))
