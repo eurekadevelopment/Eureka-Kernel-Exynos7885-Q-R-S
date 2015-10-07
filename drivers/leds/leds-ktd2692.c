@@ -491,6 +491,10 @@ static int ktd2692_probe(struct platform_device *pdev)
 	global_dev = &pdev->dev;
 
 	LED_INFO("KTD2692_LED Probe\n");
+	led_cdev->max_brightness = led_cfg.max_brightness;
+	led_cdev->brightness_set = ktd2692_led_brightness_set;
+	led_cdev->brightness_set_blocking = ktd2692_led_brightness_set_sync;
+	led_cdev->flags |= LED_CORE_SUSPENDRESUME | LED_DEV_CAP_FLASH;
 
 	global_ktd2692data->is_torch_enable = false;
 
