@@ -2269,7 +2269,7 @@ intel_fb_align_height(struct drm_device *dev, unsigned int height,
 					       fb_format_modifier, 0));
 }
 
-static int
+static void
 intel_fill_fb_ggtt_view(struct i915_ggtt_view *view, struct drm_framebuffer *fb,
 			const struct drm_plane_state *plane_state)
 {
@@ -2279,10 +2279,10 @@ intel_fill_fb_ggtt_view(struct i915_ggtt_view *view, struct drm_framebuffer *fb,
 	*view = i915_ggtt_view_normal;
 
 	if (!plane_state)
-		return 0;
+		return;
 
 	if (!intel_rotation_90_or_270(plane_state->rotation))
-		return 0;
+		return;
 
 	*view = i915_ggtt_view_rotated;
 
@@ -2309,8 +2309,6 @@ intel_fill_fb_ggtt_view(struct i915_ggtt_view *view, struct drm_framebuffer *fb,
 		info->size_uv = info->width_pages_uv * info->height_pages_uv *
 				PAGE_SIZE;
 	}
-
-	return 0;
 }
 
 static unsigned int intel_linear_alignment(struct drm_i915_private *dev_priv)
@@ -2364,9 +2362,7 @@ intel_pin_and_fence_fb_obj(struct drm_plane *plane,
 		return -EINVAL;
 	}
 
-	ret = intel_fill_fb_ggtt_view(&view, fb, plane_state);
-	if (ret)
-		return ret;
+	intel_fill_fb_ggtt_view(&view, fb, plane_state);
 
 	/* Note that the w/a also requires 64 PTE of padding following the
 	 * bo. We currently fill all unused PTE with the shadow page and so
@@ -2429,12 +2425,10 @@ static void intel_unpin_fb_obj(struct drm_framebuffer *fb,
 {
 	struct drm_i915_gem_object *obj = intel_fb_obj(fb);
 	struct i915_ggtt_view view;
-	int ret;
 
 	WARN_ON(!mutex_is_locked(&obj->base.dev->struct_mutex));
 
-	ret = intel_fill_fb_ggtt_view(&view, fb, plane_state);
-	WARN_ONCE(ret, "Couldn't get view from plane state!");
+	intel_fill_fb_ggtt_view(&view, fb, plane_state);
 
 	if (view.type == I915_GGTT_VIEW_NORMAL)
 		i915_gem_object_unpin_fence(obj);
