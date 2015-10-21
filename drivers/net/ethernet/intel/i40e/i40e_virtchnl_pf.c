@@ -1626,7 +1626,8 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 
 		if (!f) {
 			dev_err(&pf->pdev->dev,
-				"Unable to add VF MAC filter\n");
+				"Unable to add MAC filter %pM for VF %d\n",
+				 al->list[i].addr, vf->vf_id);
 			ret = I40E_ERR_PARAM;
 			spin_unlock_bh(&vsi->mac_filter_list_lock);
 			goto error_param;
@@ -1636,7 +1637,8 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 
 	/* program the updated filter list */
 	if (i40e_sync_vsi_filters(vsi, false))
-		dev_err(&pf->pdev->dev, "Unable to program VF MAC filters\n");
+		dev_err(&pf->pdev->dev, "Unable to program VF %d MAC filters\n",
+			vf->vf_id);
 
 error_param:
 	/* send the response to the VF */
@@ -1672,8 +1674,8 @@ static int i40e_vc_del_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 	for (i = 0; i < al->num_elements; i++) {
 		if (is_broadcast_ether_addr(al->list[i].addr) ||
 		    is_zero_ether_addr(al->list[i].addr)) {
-			dev_err(&pf->pdev->dev, "invalid VF MAC addr %pM\n",
-				al->list[i].addr);
+			dev_err(&pf->pdev->dev, "Invalid MAC addr %pM for VF %d\n",
+				al->list[i].addr, vf->vf_id);
 			ret = I40E_ERR_INVALID_MAC_ADDR;
 			goto error_param;
 		}
@@ -1703,7 +1705,8 @@ static int i40e_vc_del_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 
 	/* program the updated filter list */
 	if (i40e_sync_vsi_filters(vsi, false))
-		dev_err(&pf->pdev->dev, "Unable to program VF MAC filters\n");
+		dev_err(&pf->pdev->dev, "Unable to program VF %d MAC filters\n",
+			vf->vf_id);
 
 error_param:
 	/* send the response to the VF */
@@ -1757,8 +1760,8 @@ static int i40e_vc_add_vlan_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 
 		if (ret)
 			dev_err(&pf->pdev->dev,
-				"Unable to add VF vlan filter %d, error %d\n",
-				vfl->vlan_id[i], ret);
+				"Unable to add VLAN filter %d for VF %d, error %d\n",
+				vfl->vlan_id[i], vf->vf_id, ret);
 	}
 
 error_param:
@@ -1809,8 +1812,8 @@ static int i40e_vc_remove_vlan_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
 
 		if (ret)
 			dev_err(&pf->pdev->dev,
-				"Unable to delete VF vlan filter %d, error %d\n",
-				vfl->vlan_id[i], ret);
+				"Unable to delete VLAN filter %d for VF %d, error %d\n",
+				vfl->vlan_id[i], vf->vf_id, ret);
 	}
 
 error_param:
