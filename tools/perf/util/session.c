@@ -17,6 +17,7 @@
 #include "asm/bug.h"
 #include "auxtrace.h"
 #include "thread-stack.h"
+#include "stat.h"
 
 static int perf_session__deliver_event(struct perf_session *session,
 				       union perf_event *event,
@@ -220,6 +221,9 @@ static int process_event_synth_event_update_stub(struct perf_tool *tool __maybe_
 						 struct perf_evlist **pevlist
 						 __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_event_update(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
@@ -321,6 +325,9 @@ int process_event_thread_map_stub(struct perf_tool *tool __maybe_unused,
 				  union perf_event *event __maybe_unused,
 				  struct perf_session *session __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_thread_map(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
@@ -330,6 +337,9 @@ int process_event_cpu_map_stub(struct perf_tool *tool __maybe_unused,
 			       union perf_event *event __maybe_unused,
 			       struct perf_session *session __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_cpu_map(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
@@ -339,6 +349,9 @@ int process_event_stat_config_stub(struct perf_tool *tool __maybe_unused,
 				   union perf_event *event __maybe_unused,
 				   struct perf_session *session __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_stat_config(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
@@ -348,6 +361,9 @@ static int process_stat_stub(struct perf_tool *tool __maybe_unused,
 			     struct perf_session *perf_session
 			     __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_stat(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
@@ -357,6 +373,9 @@ static int process_stat_round_stub(struct perf_tool *tool __maybe_unused,
 				   struct perf_session *perf_session
 				   __maybe_unused)
 {
+	if (dump_trace)
+		perf_event__fprintf_stat_round(event, stdout);
+
 	dump_printf(": unhandled!\n");
 	return 0;
 }
