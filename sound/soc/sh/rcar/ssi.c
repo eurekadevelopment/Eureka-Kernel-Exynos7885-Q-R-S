@@ -106,6 +106,16 @@ int rsnd_ssi_use_busif(struct rsnd_dai_stream *io)
 	return use_busif;
 }
 
+static void rsnd_ssi_status_clear(struct rsnd_mod *mod)
+{
+	rsnd_mod_write(mod, SSISR, 0);
+}
+
+static u32 rsnd_ssi_status_get(struct rsnd_mod *mod)
+{
+	return rsnd_mod_read(mod, SSISR);
+}
+
 static void rsnd_ssi_status_check(struct rsnd_mod *mod,
 				  u32 bit)
 {
@@ -115,7 +125,7 @@ static void rsnd_ssi_status_check(struct rsnd_mod *mod,
 	int i;
 
 	for (i = 0; i < 1024; i++) {
-		status = rsnd_mod_read(mod, SSISR);
+		status = rsnd_ssi_status_get(mod);
 		if (status & bit)
 			return;
 
@@ -255,7 +265,7 @@ static void rsnd_ssi_hw_start(struct rsnd_ssi *ssi,
 		rsnd_mod_write(mod, SSIWSR, CONT);
 
 	/* clear error status */
-	rsnd_mod_write(mod, SSISR, 0);
+	rsnd_ssi_status_clear(mod);
 
 	ssi->usrcnt++;
 
@@ -416,17 +426,20 @@ static int rsnd_ssi_hw_params(struct rsnd_mod *mod,
 	return 0;
 }
 
-static void rsnd_ssi_record_error(struct rsnd_ssi *ssi, u32 status)
+static u32 rsnd_ssi_record_error(struct rsnd_ssi *ssi)
 {
 	struct rsnd_mod *mod = rsnd_mod_get(ssi);
+	u32 status = rsnd_ssi_status_get(mod);
 
 	/* under/over flow error */
 	if (status & (UIRQ | OIRQ)) {
 		ssi->err++;
 
 		/* clear error status */
-		rsnd_mod_write(mod, SSISR, 0);
+		rsnd_ssi_status_clear(mod);
 	}
+
+	return status;
 }
 
 static int rsnd_ssi_start(struct rsnd_mod *mod,
@@ -452,7 +465,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
 
 	rsnd_ssi_irq_disable(mod);
 
-	rsnd_ssi_record_error(ssi, rsnd_mod_read(mod, SSISR));
+	rsnd_ssi_record_error(ssi);
 
 	rsnd_ssi_hw_stop(io, ssi);
 
@@ -477,7 +490,7 @@ static void __rsnd_ssi_interrupt(struct rsnd_mod *mod,
 	if (!rsnd_io_is_working(io))
 		goto rsnd_ssi_interrupt_out;
 
-	status = rsnd_mod_read(mod, SSISR);
+	status = rsnd_ssi_record_error(ssi);
 
 	/* PIO only */
 	if (!is_dma && (status & DIRQ)) {
@@ -516,8 +529,6 @@ static void __rsnd_ssi_interrupt(struct rsnd_mod *mod,
 		rsnd_ssi_stop(mod, io, priv);
 		rsnd_ssi_start(mod, io, priv);
 	}
-
-	rsnd_ssi_record_error(ssi, status);
 
 	if (ssi->err > 1024) {
 		rsnd_ssi_irq_disable(mod);
