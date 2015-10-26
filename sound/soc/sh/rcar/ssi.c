@@ -614,7 +614,7 @@ static int rsnd_ssi_dma_remove(struct rsnd_mod *mod,
 	struct device *dev = rsnd_priv_to_dev(priv);
 	int irq = ssi->info->irq;
 
-	rsnd_dma_quit(io, rsnd_ssi_to_dma(ssi));
+	rsnd_dma_quit(rsnd_ssi_to_dma(ssi), io, priv);
 
 	/* Do nothing if non SSI (= SSI parent, multi SSI) mod */
 	if (pure_ssi_mod != mod)
@@ -654,7 +654,7 @@ static int rsnd_ssi_dma_start(struct rsnd_mod *mod,
 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
 	struct rsnd_mod *dma = rsnd_ssi_to_dma(ssi);
 
-	rsnd_dma_start(io, dma);
+	rsnd_dma_start(dma, io, priv);
 
 	rsnd_ssi_start(mod, io, priv);
 
@@ -670,7 +670,7 @@ static int rsnd_ssi_dma_stop(struct rsnd_mod *mod,
 
 	rsnd_ssi_stop(mod, io, priv);
 
-	rsnd_dma_stop(io, dma);
+	rsnd_dma_stop(dma, io, priv);
 
 	return 0;
 }
