@@ -64,6 +64,7 @@ struct rsnd_ssi {
 	struct rsnd_ssi_platform_info *info; /* rcar_snd.h */
 	struct rsnd_ssi *parent;
 	struct rsnd_mod mod;
+	struct rsnd_dma *dma;
 
 	u32 cr_own;
 	u32 cr_clk;
@@ -78,6 +79,7 @@ struct rsnd_ssi {
 		((pos) = ((struct rsnd_ssi *)(priv)->ssi + i));		\
 	     i++)
 
+#define rsnd_ssi_to_dma(mod) ((ssi)->dma)
 #define rsnd_ssi_nr(priv) ((priv)->ssi_nr)
 #define rsnd_mod_to_ssi(_mod) container_of((_mod), struct rsnd_ssi, mod)
 #define rsnd_ssi_pio_available(ssi) ((ssi)->info->irq > 0)
@@ -554,9 +556,9 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
 	if (ret)
 		return ret;
 
-	ret = rsnd_dma_init(
-		io, rsnd_mod_to_dma(mod),
-		dma_id);
+	ssi->dma = rsnd_dma_init(io, mod, dma_id);
+	if (IS_ERR(ssi->dma))
+		return PTR_ERR(ssi->dma);
 
 	return ret;
 }
@@ -570,7 +572,7 @@ static int rsnd_ssi_dma_remove(struct rsnd_mod *mod,
 	struct device *dev = rsnd_priv_to_dev(priv);
 	int irq = ssi->info->irq;
 
-	rsnd_dma_quit(io, rsnd_mod_to_dma(mod));
+	rsnd_dma_quit(io, rsnd_ssi_to_dma(ssi));
 
 	/* Do nothing if non SSI (= SSI parent, multi SSI) mod */
 	if (pure_ssi_mod != mod)
@@ -607,7 +609,8 @@ static int rsnd_ssi_dma_start(struct rsnd_mod *mod,
 			      struct rsnd_dai_stream *io,
 			      struct rsnd_priv *priv)
 {
-	struct rsnd_dma *dma = rsnd_mod_to_dma(mod);
+	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+	struct rsnd_dma *dma = rsnd_ssi_to_dma(ssi);
 
 	rsnd_dma_start(io, dma);
 
@@ -620,7 +623,8 @@ static int rsnd_ssi_dma_stop(struct rsnd_mod *mod,
 			     struct rsnd_dai_stream *io,
 			     struct rsnd_priv *priv)
 {
-	struct rsnd_dma *dma = rsnd_mod_to_dma(mod);
+	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+	struct rsnd_dma *dma = rsnd_ssi_to_dma(ssi);
 
 	rsnd_ssi_stop(mod, io, priv);
 
