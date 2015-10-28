@@ -282,7 +282,6 @@ err:
 }
 
 static int netup_unidvb_queue_setup(struct vb2_queue *vq,
-				    const void *parg,
 				    unsigned int *nbuffers,
 				    unsigned int *nplanes,
 				    unsigned int sizes[],
