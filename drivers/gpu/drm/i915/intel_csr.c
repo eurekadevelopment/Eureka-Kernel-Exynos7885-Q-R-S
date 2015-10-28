@@ -388,7 +388,7 @@ out:
 			 CSR_VERSION_MAJOR(csr->version),
 			 CSR_VERSION_MINOR(csr->version));
 	} else {
-		i915_firmware_load_error_print(csr->fw_path, 0);
+		DRM_ERROR("Failed to load DMC firmware, disabling rpm\n");
 	}
 
 	release_firmware(fw);
@@ -432,8 +432,10 @@ void intel_csr_ucode_init(struct drm_device *dev)
 				      &dev_priv->dev->pdev->dev,
 				      GFP_KERNEL, dev_priv,
 				      finish_csr_load);
+
 	if (ret)
-		i915_firmware_load_error_print(csr->fw_path, ret);
+		DRM_ERROR("Failed to load DMC firmware, disabling rpm (%d)\n",
+			  ret);
 }
 
 /**
