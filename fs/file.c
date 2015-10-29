@@ -30,9 +30,9 @@ extern void check_fd_invalid_close(int fd, struct task_struct *cur, struct files
 
 int sysctl_nr_open __read_mostly = 1024*1024;
 int sysctl_nr_open_min = BITS_PER_LONG;
-/* our max() is unusable in constant expressions ;-/ */
-#define __const_max(x, y) ((x) < (y) ? (x) : (y))
-int sysctl_nr_open_max = __const_max(INT_MAX, ~(size_t)0/sizeof(void *)) &
+/* our min() is unusable in constant expressions ;-/ */
+#define __const_min(x, y) ((x) < (y) ? (x) : (y))
+int sysctl_nr_open_max = __const_min(INT_MAX, ~(size_t)0/sizeof(void *)) &
 			 -BITS_PER_LONG;
 
 #ifdef CONFIG_SEC_DEBUG_FILE_LEAK
