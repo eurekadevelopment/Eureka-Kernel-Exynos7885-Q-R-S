@@ -2002,6 +2002,7 @@ static void ath10k_peer_assoc_h_basic(struct ath10k *ar,
 
 static void ath10k_peer_assoc_h_crypto(struct ath10k *ar,
 				       struct ieee80211_vif *vif,
+				       struct ieee80211_sta *sta,
 				       struct wmi_peer_assoc_complete_arg *arg)
 {
 	struct ieee80211_bss_conf *info = &vif->bss_conf;
@@ -2042,6 +2043,11 @@ static void ath10k_peer_assoc_h_crypto(struct ath10k *ar,
 	if (wpaie) {
 		ath10k_dbg(ar, ATH10K_DBG_WMI, "%s: wpa ie found\n", __func__);
 		arg->peer_flags |= WMI_PEER_NEED_GTK_2_WAY;
+	}
+
+	if (sta->mfp &&
+	    test_bit(ATH10K_FW_FEATURE_MFP_SUPPORT, ar->fw_features)) {
+		arg->peer_flags |= ar->wmi.peer_flags->pmf;
 	}
 }
 
@@ -2513,7 +2519,7 @@ static int ath10k_peer_assoc_prepare(struct ath10k *ar,
 	memset(arg, 0, sizeof(*arg));
 
 	ath10k_peer_assoc_h_basic(ar, vif, sta, arg);
-	ath10k_peer_assoc_h_crypto(ar, vif, arg);
+	ath10k_peer_assoc_h_crypto(ar, vif, sta, arg);
 	ath10k_peer_assoc_h_rates(ar, vif, sta, arg);
 	ath10k_peer_assoc_h_ht(ar, vif, sta, arg);
 	ath10k_peer_assoc_h_vht(ar, vif, sta, arg);
