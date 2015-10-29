@@ -227,6 +227,15 @@ static const struct i2c_algorithm bcm2835_i2c_algo = {
 	.functionality	= bcm2835_i2c_func,
 };
 
+/*
+ * This HW was reported to have problems with clock stretching:
+ * http://www.advamation.com/knowhow/raspberrypi/rpi-i2c-bug.html
+ * https://www.raspberrypi.org/forums/viewtopic.php?p=146272
+ */
+static const struct i2c_adapter_quirks bcm2835_i2c_quirks = {
+	.flags = I2C_AQ_NO_CLK_STRETCH,
+};
+
 static int bcm2835_i2c_probe(struct platform_device *pdev)
 {
 	struct bcm2835_i2c_dev *i2c_dev;
@@ -298,6 +307,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
 	adap->algo = &bcm2835_i2c_algo;
 	adap->dev.parent = &pdev->dev;
 	adap->dev.of_node = pdev->dev.of_node;
+	adap->quirks = &bcm2835_i2c_quirks;
 
 	/*
 	 * Disable the hardware clock stretching timeout. SMBUS
