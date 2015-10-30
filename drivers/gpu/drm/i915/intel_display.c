@@ -4856,6 +4856,9 @@ static void ironlake_crtc_enable(struct drm_crtc *crtc)
 		return;
 
 	if (intel_crtc->config->has_pch_encoder)
+		intel_set_pch_fifo_underrun_reporting(dev_priv, pipe, false);
+
+	if (intel_crtc->config->has_pch_encoder)
 		intel_prepare_shared_dpll(intel_crtc);
 
 	if (intel_crtc->config->has_dp_encoder)
@@ -4936,6 +4939,10 @@ static void haswell_crtc_enable(struct drm_crtc *crtc)
 
 	if (WARN_ON(intel_crtc->active))
 		return;
+
+	if (intel_crtc->config->has_pch_encoder)
+		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
+						      false);
 
 	if (intel_crtc_to_shared_dpll(intel_crtc))
 		intel_enable_shared_dpll(intel_crtc);
@@ -5084,6 +5091,8 @@ static void ironlake_crtc_disable(struct drm_crtc *crtc)
 
 		ironlake_fdi_pll_disable(intel_crtc);
 	}
+
+	intel_set_pch_fifo_underrun_reporting(dev_priv, pipe, true);
 }
 
 static void haswell_crtc_disable(struct drm_crtc *crtc)
@@ -5131,6 +5140,10 @@ static void haswell_crtc_disable(struct drm_crtc *crtc)
 	for_each_encoder_on_crtc(dev, crtc, encoder)
 		if (encoder->post_disable)
 			encoder->post_disable(encoder);
+
+	if (intel_crtc->config->has_pch_encoder)
+		intel_set_pch_fifo_underrun_reporting(dev_priv, TRANSCODER_A,
+						      true);
 }
 
 static void i9xx_pfit_enable(struct intel_crtc *crtc)
