@@ -177,9 +177,6 @@ static void hfa384x_usbin_rx(wlandevice_t *wlandev, struct sk_buff *skb);
 
 static void hfa384x_usbin_info(wlandevice_t *wlandev, hfa384x_usbin_t *usbin);
 
-static void
-hfa384x_usbout_tx(wlandevice_t *wlandev, hfa384x_usbout_t *usbout);
-
 static void hfa384x_usbin_ctlx(hfa384x_t *hw, hfa384x_usbin_t *usbin,
 			       int urb_status);
 
@@ -3671,7 +3668,6 @@ static void hfa384x_usbin_info(wlandevice_t *wlandev, hfa384x_usbin_t *usbin)
 static void hfa384x_usbout_callback(struct urb *urb)
 {
 	wlandevice_t *wlandev = urb->context;
-	hfa384x_usbout_t *usbout = urb->transfer_buffer;
 
 #ifdef DEBUG_USB
 	dbprint_urb(urb);
@@ -3680,7 +3676,7 @@ static void hfa384x_usbout_callback(struct urb *urb)
 	if (wlandev && wlandev->netdev) {
 		switch (urb->status) {
 		case 0:
-			hfa384x_usbout_tx(wlandev, usbout);
+			prism2sta_ev_alloc(wlandev);
 			break;
 
 		case -EPIPE:
@@ -4032,30 +4028,6 @@ static int hfa384x_usbctlx_submit(hfa384x_t *hw, hfa384x_usbctlx_t *ctlx)
 	hfa384x_usbctlxq_run(hw);
 
 	return 0;
-}
-
-/*----------------------------------------------------------------
-* hfa384x_usbout_tx
-*
-* At this point we have finished a send of a frame.  Mark the URB
-* as available and call ev_alloc to notify higher layers we're
-* ready for more.
-*
-* Arguments:
-*	wlandev		wlan device
-*	usbout		ptr to the usb transfer buffer
-*
-* Returns:
-*	nothing
-*
-* Side effects:
-*
-* Call context:
-*	interrupt
-----------------------------------------------------------------*/
-static void hfa384x_usbout_tx(wlandevice_t *wlandev, hfa384x_usbout_t *usbout)
-{
-	prism2sta_ev_alloc(wlandev);
 }
 
 /*----------------------------------------------------------------
