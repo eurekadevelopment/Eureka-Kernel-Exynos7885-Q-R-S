@@ -168,7 +168,7 @@ long compat_ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 		data32 = compat_ptr(arg);
 		data = compat_alloc_user_space(sizeof(*data));
-		if (data == NULL)
+		if (!data)
 			return -EFAULT;
 
 		err = compat_get_ion_allocation_data(data32, data);
@@ -187,7 +187,7 @@ long compat_ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 		data32 = compat_ptr(arg);
 		data = compat_alloc_user_space(sizeof(*data));
-		if (data == NULL)
+		if (!data)
 			return -EFAULT;
 
 		err = compat_get_ion_handle_data(data32, data);
@@ -204,7 +204,7 @@ long compat_ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 		data32 = compat_ptr(arg);
 		data = compat_alloc_user_space(sizeof(*data));
-		if (data == NULL)
+		if (!data)
 			return -EFAULT;
 
 		err = compat_get_ion_custom_data(data32, data);
