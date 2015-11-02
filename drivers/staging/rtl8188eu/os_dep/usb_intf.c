@@ -234,7 +234,7 @@ static int rtw_suspend(struct usb_interface *pusb_intf, pm_message_t message)
 	struct net_device *pnetdev = padapter->pnetdev;
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct pwrctrl_priv *pwrpriv = &padapter->pwrctrlpriv;
-	u32 start_time = jiffies;
+	unsigned long start_time = jiffies;
 
 	pr_debug("==> %s (%s:%d)\n", __func__, current->comm, current->pid);
 
@@ -289,7 +289,7 @@ static int rtw_suspend(struct usb_interface *pusb_intf, pm_message_t message)
 
 exit:
 	pr_debug("<===  %s .............. in %dms\n", __func__,
-		 rtw_get_passing_time_ms(start_time));
+		 jiffies_to_msecs(jiffies - start_time));
 
 	return 0;
 }
@@ -299,7 +299,7 @@ static int rtw_resume_process(struct adapter *padapter)
 	struct net_device *pnetdev;
 	struct pwrctrl_priv *pwrpriv = NULL;
 	int ret = -1;
-	u32 start_time = jiffies;
+	unsigned long start_time = jiffies;
 
 	pr_debug("==> %s (%s:%d)\n", __func__, current->comm, current->pid);
 
@@ -330,7 +330,7 @@ exit:
 	if (pwrpriv)
 		pwrpriv->bInSuspend = false;
 	pr_debug("<===  %s return %d.............. in %dms\n", __func__,
-		ret, rtw_get_passing_time_ms(start_time));
+		ret, jiffies_to_msecs(jiffies - start_time));
 
 	return ret;
 }
