@@ -90,7 +90,6 @@ struct greybus_host_device {
 	struct list_head interfaces;
 	struct list_head connections;
 	struct ida cport_id_map;
-	u8 device_id;
 
 	/* Host device buffer constraints */
 	size_t buffer_size_max;
