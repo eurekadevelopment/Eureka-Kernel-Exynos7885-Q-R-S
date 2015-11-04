@@ -1120,6 +1120,8 @@ static int intel_logical_ring_workarounds_emit(struct drm_i915_gem_request *req)
 		batch[__index] = (cmd);					\
 	} while (0)
 
+#define wa_ctx_emit_reg(batch, index, reg) \
+	wa_ctx_emit((batch), (index), (reg))
 
 /*
  * In this WA we need to set GEN8_L3SQCREG4[21:21] and reset it after
@@ -1154,12 +1156,12 @@ static inline int gen8_emit_flush_coherentl3_wa(struct intel_engine_cs *ring,
 
 	wa_ctx_emit(batch, index, (MI_STORE_REGISTER_MEM_GEN8 |
 				   MI_SRM_LRM_GLOBAL_GTT));
-	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit_reg(batch, index, GEN8_L3SQCREG4);
 	wa_ctx_emit(batch, index, ring->scratch.gtt_offset + 256);
 	wa_ctx_emit(batch, index, 0);
 
 	wa_ctx_emit(batch, index, MI_LOAD_REGISTER_IMM(1));
-	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit_reg(batch, index, GEN8_L3SQCREG4);
 	wa_ctx_emit(batch, index, l3sqc4_flush);
 
 	wa_ctx_emit(batch, index, GFX_OP_PIPE_CONTROL(6));
@@ -1172,7 +1174,7 @@ static inline int gen8_emit_flush_coherentl3_wa(struct intel_engine_cs *ring,
 
 	wa_ctx_emit(batch, index, (MI_LOAD_REGISTER_MEM_GEN8 |
 				   MI_SRM_LRM_GLOBAL_GTT));
-	wa_ctx_emit(batch, index, GEN8_L3SQCREG4);
+	wa_ctx_emit_reg(batch, index, GEN8_L3SQCREG4);
 	wa_ctx_emit(batch, index, ring->scratch.gtt_offset + 256);
 	wa_ctx_emit(batch, index, 0);
 
@@ -1357,7 +1359,7 @@ static int gen9_init_perctx_bb(struct intel_engine_cs *ring,
 	if ((IS_SKYLAKE(dev) && (INTEL_REVID(dev) <= SKL_REVID_B0)) ||
 	    (IS_BROXTON(dev) && (INTEL_REVID(dev) == BXT_REVID_A0))) {
 		wa_ctx_emit(batch, index, MI_LOAD_REGISTER_IMM(1));
-		wa_ctx_emit(batch, index, GEN9_SLICE_COMMON_ECO_CHICKEN0);
+		wa_ctx_emit_reg(batch, index, GEN9_SLICE_COMMON_ECO_CHICKEN0);
 		wa_ctx_emit(batch, index,
 			    _MASKED_BIT_ENABLE(DISABLE_PIXEL_MASK_CAMMING));
 		wa_ctx_emit(batch, index, MI_NOOP);
