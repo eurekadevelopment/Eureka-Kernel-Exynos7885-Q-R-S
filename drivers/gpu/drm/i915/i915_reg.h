@@ -627,7 +627,7 @@ enum punit_power_well {
 	PUNIT_POWER_WELL_DPIO_RX1		= 11,
 	PUNIT_POWER_WELL_DPIO_CMN_D		= 12,
 
-	PUNIT_POWER_WELL_NUM,
+	PUNIT_POWER_WELL_ALWAYS_ON,
 };
 
 enum skl_disp_power_wells {
@@ -638,6 +638,8 @@ enum skl_disp_power_wells {
 	SKL_DISP_PW_DDI_D,
 	SKL_DISP_PW_1 = 14,
 	SKL_DISP_PW_2,
+
+	SKL_DISP_PW_ALWAYS_ON,
 };
 
 #define SKL_POWER_WELL_STATE(pw) (1 << ((pw) * 2))
