@@ -375,7 +375,7 @@ static int __proc_dobitmasks(void *data, int write,
 	} else {
 		rc = cfs_trace_copyin_string(tmpstr, tmpstrlen, buffer, nob);
 		if (rc < 0) {
-			cfs_trace_free_string_buffer(tmpstr, tmpstrlen);
+			kfree(tmpstr);
 			return rc;
 		}
 
@@ -385,7 +385,7 @@ static int __proc_dobitmasks(void *data, int write,
 			*mask |= D_EMERG;
 	}
 
-	cfs_trace_free_string_buffer(tmpstr, tmpstrlen);
+	kfree(tmpstr);
 	return rc;
 }
 
