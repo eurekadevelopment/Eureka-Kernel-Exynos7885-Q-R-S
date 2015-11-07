@@ -856,6 +856,14 @@ done:
 	return ret;
 }
 
+/* return true if the device available for general use */
+static int usable_device(struct hfi1_devdata *dd)
+{
+	struct hfi1_pportdata *ppd = dd->pport;
+
+	return driver_lstate(ppd) == IB_PORT_ACTIVE;
+}
+
 static int get_user_context(struct file *fp, struct hfi1_user_info *uinfo,
 			    int devno, unsigned alg)
 {
@@ -885,7 +893,11 @@ static int get_user_context(struct file *fp, struct hfi1_user_info *uinfo,
 
 			for (dev = 0; dev < devmax; dev++) {
 				pdd = hfi1_lookup(dev);
-				if (pdd && pdd->freectxts &&
+				if (!pdd)
+					continue;
+				if (!usable_device(pdd))
+					continue;
+				if (pdd->freectxts &&
 				    pdd->freectxts > free) {
 					dd = pdd;
 					free = pdd->freectxts;
@@ -894,7 +906,11 @@ static int get_user_context(struct file *fp, struct hfi1_user_info *uinfo,
 		} else {
 			for (dev = 0; dev < devmax; dev++) {
 				pdd = hfi1_lookup(dev);
-				if (pdd && pdd->freectxts) {
+				if (!pdd)
+					continue;
+				if (!usable_device(pdd))
+					continue;
+				if (pdd->freectxts) {
 					dd = pdd;
 					break;
 				}
@@ -919,7 +935,6 @@ static int find_shared_ctxt(struct file *fp,
 	for (ndev = 0; ndev < devmax; ndev++) {
 		struct hfi1_devdata *dd = hfi1_lookup(ndev);
 
-		/* device portion of usable() */
 		if (!(dd && (dd->flags & HFI1_PRESENT) && dd->kregbase))
 			continue;
 		for (i = dd->first_user_ctxt; i < dd->num_rcv_contexts; i++) {
