@@ -1853,9 +1853,9 @@ static void rcu_gp_slow(struct rcu_state *rsp, int delay)
 }
 
 /*
- * Initialize a new grace period.  Return 0 if no grace period required.
+ * Initialize a new grace period.  Return false if no grace period required.
  */
-static int rcu_gp_init(struct rcu_state *rsp)
+static bool rcu_gp_init(struct rcu_state *rsp)
 {
 	unsigned long oldmask;
 	struct rcu_data *rdp;
@@ -1866,7 +1866,7 @@ static int rcu_gp_init(struct rcu_state *rsp)
 	if (!READ_ONCE(rsp->gp_flags)) {
 		/* Spurious wakeup, tell caller to go back to sleep.  */
 		raw_spin_unlock_irq(&rnp->lock);
-		return 0;
+		return false;
 	}
 	WRITE_ONCE(rsp->gp_flags, 0); /* Clear all flags: New grace period. */
 
@@ -1876,7 +1876,7 @@ static int rcu_gp_init(struct rcu_state *rsp)
 		 * Not supposed to be able to happen.
 		 */
 		raw_spin_unlock_irq(&rnp->lock);
-		return 0;
+		return false;
 	}
 
 	/* Advance to a new grace period and initialize state. */
@@ -1968,7 +1968,7 @@ static int rcu_gp_init(struct rcu_state *rsp)
 		WRITE_ONCE(rsp->gp_activity, jiffies);
 	}
 
-	return 1;
+	return true;
 }
 
 /*
