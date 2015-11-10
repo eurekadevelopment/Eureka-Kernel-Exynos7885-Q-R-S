@@ -180,9 +180,9 @@ extern u64 nr_running_integral(unsigned int cpu);
 extern void calc_global_load(unsigned long ticks);
 
 #if defined(CONFIG_SMP) && defined(CONFIG_NO_HZ_COMMON)
-extern void update_cpu_load_nohz(void);
+extern void update_cpu_load_nohz(int active);
 #else
-static inline void update_cpu_load_nohz(void) { }
+static inline void update_cpu_load_nohz(int active) { }
 #endif
 
 extern unsigned long get_parent_ip(unsigned long addr);
