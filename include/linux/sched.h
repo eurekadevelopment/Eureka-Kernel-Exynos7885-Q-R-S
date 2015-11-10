@@ -186,9 +186,9 @@ extern int register_hmp_task_migration_notifier(struct notifier_block *nb);
 extern void calc_global_load(unsigned long ticks);
 
 #if defined(CONFIG_SMP) && defined(CONFIG_NO_HZ_COMMON)
-extern void update_cpu_load_nohz(void);
+extern void update_cpu_load_nohz(int active);
 #else
-static inline void update_cpu_load_nohz(void) { }
+static inline void update_cpu_load_nohz(int active) { }
 #endif
 
 extern unsigned long get_parent_ip(unsigned long addr);
