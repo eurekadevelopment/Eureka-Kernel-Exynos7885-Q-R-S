@@ -4372,7 +4372,7 @@ static void start_discovery_complete(struct hci_dev *hdev, u8 status,
 			hdev->discovery.scan_duration = timeout;
 		}
 
-		queue_delayed_work(hdev->workqueue,
+		queue_delayed_work(hdev->req_workqueue,
 				   &hdev->le_scan_disable, timeout);
 	}
 
@@ -8398,7 +8398,7 @@ static void restart_le_scan(struct hci_dev *hdev)
 		       hdev->discovery.scan_duration))
 		return;
 
-	queue_delayed_work(hdev->workqueue, &hdev->le_scan_restart,
+	queue_delayed_work(hdev->req_workqueue, &hdev->le_scan_restart,
 			   DISCOV_LE_RESTART_DELAY);
 }
 
