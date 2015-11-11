@@ -1841,6 +1841,8 @@ int hci_dev_do_close(struct hci_dev *hdev)
 
 	hci_req_unlock(hdev);
 
+	hci_request_cancel_all(hdev);
+
 	hci_dev_put(hdev);
 	return 0;
 }
@@ -3392,6 +3394,8 @@ struct hci_dev *hci_alloc_dev(void)
 	init_waitqueue_head(&hdev->req_wait_q);
 
 	INIT_DELAYED_WORK(&hdev->cmd_timer, hci_cmd_timeout);
+
+	hci_request_setup(hdev);
 
 	hci_init_sysfs(hdev);
 	discovery_init(hdev);
