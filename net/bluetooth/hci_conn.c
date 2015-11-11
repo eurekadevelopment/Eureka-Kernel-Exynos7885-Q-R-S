@@ -815,6 +815,12 @@ struct hci_conn *hci_connect_le(struct hci_dev *hdev, bdaddr_t *dst,
 		return ERR_PTR(-EOPNOTSUPP);
 	}
 
+	/* Since the controller supports only one LE connection attempt at a
+	 * time, we return -EBUSY if there is any connection attempt running.
+	 */
+	if (hci_lookup_le_connect(hdev))
+		return ERR_PTR(-EBUSY);
+
 	/* Some devices send ATT messages as soon as the physical link is
 	 * established. To be able to handle these ATT messages, the user-
 	 * space first establishes the connection and then starts the pairing
@@ -837,12 +843,6 @@ struct hci_conn *hci_connect_le(struct hci_dev *hdev, bdaddr_t *dst,
 			goto done;
 		}
 	}
-
-	/* Since the controller supports only one LE connection attempt at a
-	 * time, we return -EBUSY if there is any connection attempt running.
-	 */
-	if (hci_lookup_le_connect(hdev))
-		return ERR_PTR(-EBUSY);
 
 	/* When given an identity address with existing identity
 	 * resolving key, the connection needs to be established
