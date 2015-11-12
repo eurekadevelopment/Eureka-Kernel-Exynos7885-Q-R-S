@@ -139,7 +139,6 @@ ofpart_none:
 }
 
 static struct mtd_part_parser ofpart_parser = {
-	.owner = THIS_MODULE,
 	.parse_fn = parse_ofpart_partitions,
 	.name = "ofpart",
 };
@@ -199,7 +198,6 @@ static int parse_ofoldpart_partitions(struct mtd_info *master,
 }
 
 static struct mtd_part_parser ofoldpart_parser = {
-	.owner = THIS_MODULE,
 	.parse_fn = parse_ofoldpart_partitions,
 	.name = "ofoldpart",
 };
