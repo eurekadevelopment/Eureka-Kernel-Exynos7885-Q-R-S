@@ -191,7 +191,7 @@ static void __init fpu__init_task_struct_size(void)
  */
 static void __init fpu__init_system_xstate_size_legacy(void)
 {
-	static int on_boot_cpu = 1;
+	static int on_boot_cpu __initdata = 1;
 
 	WARN_ON_FPU(!on_boot_cpu);
 	on_boot_cpu = 0;
@@ -244,7 +244,7 @@ u64 __init fpu__get_supported_xfeatures_mask(void)
 /* Legacy code to initialize eager fpu mode. */
 static void __init fpu__init_system_ctx_switch(void)
 {
-	static bool on_boot_cpu = 1;
+	static bool on_boot_cpu __initdata = 1;
 
 	WARN_ON_FPU(!on_boot_cpu);
 	on_boot_cpu = 0;
