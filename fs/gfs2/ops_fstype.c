@@ -914,8 +914,7 @@ fail_qc_i:
 fail_ut_i:
 	iput(sdp->sd_sc_inode);
 fail:
-	if (pn)
-		iput(pn);
+	iput(pn);
 	return error;
 }
 
