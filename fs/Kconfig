@@ -85,6 +85,16 @@ config FILE_LOCKING
 
 source "fs/crypto/Kconfig"
 
+config MANDATORY_FILE_LOCKING
+	bool "Enable Mandatory file locking"
+	depends on FILE_LOCKING
+	default y
+	help
+	  This option enables files appropriately marked files on appropriely
+	  mounted filesystems to support mandatory locking.
+
+	  To the best of my knowledge this is dead code that no one cares about.
+
 source "fs/notify/Kconfig"
 
 source "fs/quota/Kconfig"
