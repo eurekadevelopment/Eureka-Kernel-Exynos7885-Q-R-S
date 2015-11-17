@@ -67,6 +67,8 @@ int test__kmod_path__parse(int subtest);
 int test__thread_map(int subtest);
 int test__llvm(int subtest);
 int test__bpf(int subtest);
+const char *test__bpf_subtest_get_desc(int subtest);
+int test__bpf_subtest_get_nr(void);
 int test_session_topology(int subtest);
 
 #if defined(__arm__) || defined(__aarch64__)
