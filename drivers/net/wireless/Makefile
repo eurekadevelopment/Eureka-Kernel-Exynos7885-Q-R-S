@@ -42,7 +42,5 @@ obj-$(CONFIG_VIRT_WIFI)	+= virt_wifi.o
 
 obj-$(CONFIG_WL_TI)	+= ti/
 
-obj-$(CONFIG_MWIFIEX)	+= mwifiex/
-
 obj-$(CONFIG_RSI_91X)	+= rsi/
 obj-$(CONFIG_SCSC_WLAN)	+= scsc/
