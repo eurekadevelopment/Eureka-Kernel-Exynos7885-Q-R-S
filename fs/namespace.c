@@ -3663,9 +3663,9 @@ bool is_path_reachable(struct mount *mnt, struct dentry *dentry,
 #endif
 }
 
-int path_is_under(struct path *path1, struct path *path2)
+bool path_is_under(struct path *path1, struct path *path2)
 {
-	int res;
+	bool res;
 	read_seqlock_excl(&mount_lock);
 	res = is_path_reachable(real_mount(path1->mnt), path1->dentry, path2);
 	read_sequnlock_excl(&mount_lock);
