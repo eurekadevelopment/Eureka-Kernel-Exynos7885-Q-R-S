@@ -1099,10 +1099,7 @@ reuse_rx:
 
 		skb_mark_napi_id(skb, &fp->napi);
 
-		if (bnx2x_fp_ll_polling(fp))
-			netif_receive_skb(skb);
-		else
-			napi_gro_receive(&fp->napi, skb);
+		napi_gro_receive(&fp->napi, skb);
 next_rx:
 		rx_buf->data = NULL;
 
@@ -1877,7 +1874,6 @@ static void bnx2x_napi_enable_cnic(struct bnx2x *bp)
 	int i;
 
 	for_each_rx_queue_cnic(bp, i) {
-		bnx2x_fp_busy_poll_init(&bp->fp[i]);
 		napi_enable(&bnx2x_fp(bp, i, napi));
 	}
 }
@@ -1887,7 +1883,6 @@ static void bnx2x_napi_enable(struct bnx2x *bp)
 	int i;
 
 	for_each_eth_queue(bp, i) {
-		bnx2x_fp_busy_poll_init(&bp->fp[i]);
 		napi_enable(&bnx2x_fp(bp, i, napi));
 	}
 }
@@ -1898,8 +1893,6 @@ static void bnx2x_napi_disable_cnic(struct bnx2x *bp)
 
 	for_each_rx_queue_cnic(bp, i) {
 		napi_disable(&bnx2x_fp(bp, i, napi));
-		while (!bnx2x_fp_ll_disable(&bp->fp[i]))
-			usleep_range(1000, 2000);
 	}
 }
 
@@ -1909,8 +1902,6 @@ static void bnx2x_napi_disable(struct bnx2x *bp)
 
 	for_each_eth_queue(bp, i) {
 		napi_disable(&bnx2x_fp(bp, i, napi));
-		while (!bnx2x_fp_ll_disable(&bp->fp[i]))
-			usleep_range(1000, 2000);
 	}
 }
 
@@ -3243,9 +3234,6 @@ static int bnx2x_poll(struct napi_struct *napi, int budget)
 			return 0;
 		}
 #endif
-		if (!bnx2x_fp_lock_napi(fp))
-			return budget;
-
 		for_each_cos_in_tx_queue(fp, cos)
 			if (bnx2x_tx_queue_has_work(fp->txdata_ptr[cos]))
 				bnx2x_tx_int(bp, fp->txdata_ptr[cos]);
@@ -3254,13 +3242,9 @@ static int bnx2x_poll(struct napi_struct *napi, int budget)
 			work_done += bnx2x_rx_int(fp, budget - work_done);
 
 			/* must not complete if we consumed full budget */
-			if (work_done >= budget) {
-				bnx2x_fp_unlock_napi(fp);
+			if (work_done >= budget)
 				break;
-			}
 		}
-
-		bnx2x_fp_unlock_napi(fp);
 
 		/* Fall out from the NAPI loop if needed */
 		if (!(bnx2x_has_rx_work(fp) || bnx2x_has_tx_work(fp))) {
@@ -3304,32 +3288,6 @@ static int bnx2x_poll(struct napi_struct *napi, int budget)
 
 	return work_done;
 }
-
-#ifdef CONFIG_NET_RX_BUSY_POLL
-/* must be called with local_bh_disable()d */
-int bnx2x_low_latency_recv(struct napi_struct *napi)
-{
-	struct bnx2x_fastpath *fp = container_of(napi, struct bnx2x_fastpath,
-						 napi);
-	struct bnx2x *bp = fp->bp;
-	int found = 0;
-
-	if ((bp->state == BNX2X_STATE_CLOSED) ||
-	    (bp->state == BNX2X_STATE_ERROR) ||
-	    (bp->dev->features & (NETIF_F_LRO | NETIF_F_GRO)))
-		return LL_FLUSH_FAILED;
-
-	if (!bnx2x_fp_lock_poll(fp))
-		return LL_FLUSH_BUSY;
-
-	if (bnx2x_has_rx_work(fp))
-		found = bnx2x_rx_int(fp, 4);
-
-	bnx2x_fp_unlock_poll(fp);
-
-	return found;
-}
-#endif
 
 /* we split the first BD into headers and data BDs
  * to ease the pain of our fellow microcode engineers
