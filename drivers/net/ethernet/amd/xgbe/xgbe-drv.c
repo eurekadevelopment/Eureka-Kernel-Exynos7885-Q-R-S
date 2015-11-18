@@ -2062,7 +2062,6 @@ skip_data:
 		skb->dev = netdev;
 		skb->protocol = eth_type_trans(skb, netdev);
 		skb_record_rx_queue(skb, channel->queue_index);
-		skb_mark_napi_id(skb, napi);
 
 		napi_gro_receive(napi, skb);
 
