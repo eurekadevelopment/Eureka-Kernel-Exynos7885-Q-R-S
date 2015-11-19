@@ -330,3 +330,4 @@ bool current_is_async(void)
 
 	return worker && worker->current_func == async_run_entry_fn;
 }
+EXPORT_SYMBOL_GPL(current_is_async);
