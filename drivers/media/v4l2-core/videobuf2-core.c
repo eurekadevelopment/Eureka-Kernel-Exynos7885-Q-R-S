@@ -137,25 +137,6 @@ static void __vb2_buf_dmabuf_put(struct vb2_buffer *vb)
 }
 
 /**
- * __setup_lengths() - setup initial lengths for every plane in
- * every buffer on the queue
- */
-static void __setup_lengths(struct vb2_queue *q, unsigned int n)
-{
-	unsigned int buffer, plane;
-	struct vb2_buffer *vb;
-
-	for (buffer = q->num_buffers; buffer < q->num_buffers + n; ++buffer) {
-		vb = q->bufs[buffer];
-		if (!vb)
-			continue;
-
-		for (plane = 0; plane < vb->num_planes; ++plane)
-			vb->planes[plane].length = q->plane_sizes[plane];
-	}
-}
-
-/**
  * __setup_offsets() - setup unique offsets ("cookies") for every plane in
  * every buffer on the queue
  */
@@ -201,7 +182,7 @@ static void __setup_offsets(struct vb2_queue *q, unsigned int n)
 static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 			     unsigned int num_buffers, unsigned int num_planes)
 {
-	unsigned int buffer;
+	unsigned int buffer, plane;
 	struct vb2_buffer *vb;
 	int ret;
 
@@ -229,6 +210,8 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		vb->index = q->num_buffers + buffer;
 		vb->type = q->type;
 		vb->memory = memory;
+		for (plane = 0; plane < num_planes; ++plane)
+			vb->planes[plane].length = q->plane_sizes[plane];
 
 		/* Allocate video buffer memory for the MMAP type */
 		if (memory == VB2_MEMORY_MMAP) {
@@ -257,7 +240,6 @@ static int __vb2_queue_alloc(struct vb2_queue *q, enum vb2_memory memory,
 		q->bufs[q->num_buffers + buffer] = vb;
 	}
 
-	__setup_lengths(q, buffer);
 	if (memory == VB2_MEMORY_MMAP)
 		__setup_offsets(q, buffer);
 
