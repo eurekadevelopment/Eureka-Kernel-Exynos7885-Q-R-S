@@ -513,6 +513,7 @@ static struct sh_eth_cpu_data r8a777x_data = {
 	.hw_swap	= 1,
 };
 
+#ifdef CONFIG_OF
 /* R8A7790/1 */
 static struct sh_eth_cpu_data r8a779x_data = {
 	.set_duplex	= sh_eth_set_duplex,
@@ -538,6 +539,7 @@ static struct sh_eth_cpu_data r8a779x_data = {
 	.hw_swap	= 1,
 	.rmiimode	= 1,
 };
+#endif /* CONFIG_OF */
 
 static void sh_eth_set_rate_sh7724(struct net_device *ndev)
 {
@@ -3342,10 +3344,6 @@ static struct platform_device_id sh_eth_id_table[] = {
 	{ "r7s72100-ether", (kernel_ulong_t)&r7s72100_data },
 	{ "r8a7740-gether", (kernel_ulong_t)&r8a7740_data },
 	{ "r8a777x-ether", (kernel_ulong_t)&r8a777x_data },
-	{ "r8a7790-ether", (kernel_ulong_t)&r8a779x_data },
-	{ "r8a7791-ether", (kernel_ulong_t)&r8a779x_data },
-	{ "r8a7793-ether", (kernel_ulong_t)&r8a779x_data },
-	{ "r8a7794-ether", (kernel_ulong_t)&r8a779x_data },
 	{ }
 };
 MODULE_DEVICE_TABLE(platform, sh_eth_id_table);
