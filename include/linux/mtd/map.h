@@ -137,7 +137,9 @@
 #endif
 
 #ifndef map_bankwidth
+#ifdef CONFIG_MTD
 #warning "No CONFIG_MTD_MAP_BANK_WIDTH_xx selected. No NOR chip support can work"
+#endif
 static inline int map_bankwidth(void *map)
 {
 	BUG();
