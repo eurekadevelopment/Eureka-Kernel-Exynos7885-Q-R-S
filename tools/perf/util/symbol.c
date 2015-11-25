@@ -1874,7 +1874,8 @@ static const char * const vmlinux_paths_upd[] = {
 	"/boot/vmlinux-%s",
 	"/usr/lib/debug/boot/vmlinux-%s",
 	"/lib/modules/%s/build/vmlinux",
-	"/usr/lib/debug/lib/modules/%s/vmlinux"
+	"/usr/lib/debug/lib/modules/%s/vmlinux",
+	"/usr/lib/debug/boot/vmlinux-%s.debug"
 };
 
 static int vmlinux_path__add(const char *new_entry)
