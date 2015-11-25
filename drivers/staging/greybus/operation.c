@@ -187,7 +187,8 @@ static void gb_message_cancel(struct gb_message *message)
 
 static void gb_operation_request_handle(struct gb_operation *operation)
 {
-	struct gb_protocol *protocol = operation->connection->protocol;
+	struct gb_connection *connection = operation->connection;
+	struct gb_protocol *protocol = connection->protocol;
 	int status;
 	int ret;
 
@@ -197,18 +198,18 @@ static void gb_operation_request_handle(struct gb_operation *operation)
 	if (protocol->request_recv) {
 		status = protocol->request_recv(operation->type, operation);
 	} else {
-		dev_err(&operation->connection->bundle->dev,
-			"unexpected incoming request type 0x%02hhx\n",
-			operation->type);
+		dev_err(&connection->hd->dev,
+			"%s: unexpected incoming request of type 0x%02hhx\n",
+			connection->name, operation->type);
 
 		status = -EPROTONOSUPPORT;
 	}
 
 	ret = gb_operation_response_send(operation, status);
 	if (ret) {
-		dev_err(&operation->connection->bundle->dev,
-			"failed to send response %d for type 0x%02hhx: %d\n",
-			status, operation->type, ret);
+		dev_err(&connection->hd->dev,
+			"%s: failed to send response %d for type 0x%02hhx: %d\n",
+			connection->name, status, operation->type, ret);
 			return;
 	}
 }
@@ -724,7 +725,7 @@ static int gb_operation_response_send(struct gb_operation *operation,
 
 	/* Record the result */
 	if (!gb_operation_result_set(operation, errno)) {
-		dev_err(&connection->bundle->dev, "request result already set\n");
+		dev_err(&connection->hd->dev, "request result already set\n");
 		return -EIO;	/* Shouldn't happen */
 	}
 
@@ -772,9 +773,9 @@ void greybus_message_sent(struct greybus_host_device *hd,
 	 */
 	if (message == operation->response) {
 		if (status) {
-			dev_err(&connection->bundle->dev,
-				"error sending response type 0x%02hhx: %d\n",
-				operation->type, status);
+			dev_err(&connection->hd->dev,
+				"%s: error sending response 0x%02hhx: %d\n",
+				connection->name, operation->type, status);
 		}
 		gb_operation_put_active(operation);
 		gb_operation_put(operation);
@@ -801,8 +802,9 @@ static void gb_connection_recv_request(struct gb_connection *connection,
 	operation = gb_operation_create_incoming(connection, operation_id,
 						type, data, size);
 	if (!operation) {
-		dev_err(&connection->bundle->dev,
-			"can't create incoming operation\n");
+		dev_err(&connection->hd->dev,
+			"%s: can't create incoming operation\n",
+			connection->name);
 		return;
 	}
 
@@ -834,17 +836,19 @@ static void gb_connection_recv_response(struct gb_connection *connection,
 
 	operation = gb_operation_find_outgoing(connection, operation_id);
 	if (!operation) {
-		dev_err(&connection->bundle->dev,
-			"unexpected response 0x%04hx received\n", operation_id);
+		dev_err(&connection->hd->dev,
+			"%s: unexpected response id 0x%04hx received\n",
+			connection->name, operation_id);
 		return;
 	}
 
 	message = operation->response;
 	message_size = sizeof(*message->header) + message->payload_size;
 	if (!errno && size != message_size) {
-		dev_err(&connection->bundle->dev,
-			"malformed response of type 0x%02hhx received (%zu != %zu)\n",
-			message->header->type, size, message_size);
+		dev_err(&connection->hd->dev,
+			"%s: malformed response 0x%02hhx received (%zu != %zu)\n",
+			connection->name, message->header->type, size,
+			message_size);
 		errno = -EMSGSIZE;
 	}
 
@@ -870,17 +874,18 @@ void gb_connection_recv(struct gb_connection *connection,
 				void *data, size_t size)
 {
 	struct gb_operation_msg_hdr header;
-	struct device *dev = &connection->bundle->dev;
+	struct device *dev = &connection->hd->dev;
 	size_t msg_size;
 	u16 operation_id;
 
 	if (connection->state != GB_CONNECTION_STATE_ENABLED) {
-		dev_warn(dev, "dropping %zu received bytes\n", size);
+		dev_warn(dev, "%s: dropping %zu received bytes\n",
+				connection->name, size);
 		return;
 	}
 
 	if (size < sizeof(header)) {
-		dev_err(dev, "short message received\n");
+		dev_err(dev, "%s: short message received\n", connection->name);
 		return;
 	}
 
@@ -889,9 +894,9 @@ void gb_connection_recv(struct gb_connection *connection,
 	msg_size = le16_to_cpu(header.size);
 	if (size < msg_size) {
 		dev_err(dev,
-			"incomplete message 0x%04hx of type 0x%02hhx received (%zu < %zu)\n",
-			le16_to_cpu(header.operation_id), header.type, size,
-			msg_size);
+			"%s: incomplete message 0x%04hx of type 0x%02hhx received (%zu < %zu)\n",
+			connection->name, le16_to_cpu(header.operation_id),
+			header.type, size, msg_size);
 		return;		/* XXX Should still complete operation */
 	}
 
@@ -974,9 +979,9 @@ int gb_operation_sync_timeout(struct gb_connection *connection, int type,
 
 	ret = gb_operation_request_send_sync_timeout(operation, timeout);
 	if (ret) {
-		dev_err(&connection->bundle->dev,
-			"synchronous operation of type 0x%02hhx failed: %d\n",
-			type, ret);
+		dev_err(&connection->hd->dev,
+			"%s: synchronous operation of type 0x%02hhx failed: %d\n",
+			connection->name, type, ret);
 	} else {
 		if (response_size) {
 			memcpy(response, operation->response->payload,
