@@ -363,6 +363,8 @@ struct drm_file {
 	struct list_head event_list;
 	int event_space;
 
+	struct mutex event_read_lock;
+
 	struct drm_prime_file_private prime;
 };
 
