@@ -341,6 +341,7 @@ SECTIONS
 		__brk_limit = .;
 	}
 
+	. = ALIGN(PAGE_SIZE);
 	_end = .;
 
         STABS_DEBUG
