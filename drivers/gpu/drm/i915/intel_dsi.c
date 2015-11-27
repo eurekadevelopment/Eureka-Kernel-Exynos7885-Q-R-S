@@ -458,6 +458,8 @@ static void intel_dsi_enable(struct intel_encoder *encoder)
 	intel_panel_enable_backlight(intel_dsi->attached_connector);
 }
 
+static void intel_dsi_prepare(struct intel_encoder *intel_encoder);
+
 static void intel_dsi_pre_enable(struct intel_encoder *encoder)
 {
 	struct drm_device *dev = encoder->base.dev;
@@ -469,6 +471,9 @@ static void intel_dsi_pre_enable(struct intel_encoder *encoder)
 	u32 tmp;
 
 	DRM_DEBUG_KMS("\n");
+
+	intel_dsi_prepare(encoder);
+	intel_enable_dsi_pll(encoder);
 
 	/* Panel Enable over CRC PMIC */
 	if (intel_dsi->gpio_panel)
@@ -1025,15 +1030,6 @@ static void intel_dsi_prepare(struct intel_encoder *intel_encoder)
 	}
 }
 
-static void intel_dsi_pre_pll_enable(struct intel_encoder *encoder)
-{
-	DRM_DEBUG_KMS("\n");
-
-	intel_dsi_prepare(encoder);
-	intel_enable_dsi_pll(encoder);
-
-}
-
 static enum drm_connector_status
 intel_dsi_detect(struct drm_connector *connector, bool force)
 {
@@ -1153,9 +1149,7 @@ void intel_dsi_init(struct drm_device *dev)
 
 	drm_encoder_init(dev, encoder, &intel_dsi_funcs, DRM_MODE_ENCODER_DSI);
 
-	/* XXX: very likely not all of these are needed */
 	intel_encoder->compute_config = intel_dsi_compute_config;
-	intel_encoder->pre_pll_enable = intel_dsi_pre_pll_enable;
 	intel_encoder->pre_enable = intel_dsi_pre_enable;
 	intel_encoder->enable = intel_dsi_enable_nop;
 	intel_encoder->disable = intel_dsi_pre_disable;
