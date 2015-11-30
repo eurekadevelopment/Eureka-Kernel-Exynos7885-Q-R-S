@@ -328,8 +328,7 @@ static inline u64 timekeeping_delta_to_ns(struct tk_read_base *tkr,
 {
 	u64 nsec;
 
-	nsec = delta * tkr->mult + tkr->xtime_nsec;
-	nsec >>= tkr->shift;
+	nsec = (delta * tkr->mult + tkr->xtime_nsec) >> tkr->shift;
 
 	/* If arch requires, add in get_arch_timeoffset() */
 	return nsec + arch_gettimeoffset();
