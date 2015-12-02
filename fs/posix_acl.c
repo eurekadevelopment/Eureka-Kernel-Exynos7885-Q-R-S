@@ -800,8 +800,6 @@ posix_acl_xattr_get(const struct xattr_handler *handler,
 	struct posix_acl *acl;
 	int error;
 
-	if (strcmp(name, "") != 0)
-		return -EINVAL;
 	if (!IS_POSIXACL(d_backing_inode(dentry)))
 		return -EOPNOTSUPP;
 	if (d_is_symlink(dentry))
@@ -853,6 +851,17 @@ posix_acl_xattr_set(const struct xattr_handler *handler,
 	if (strcmp(name, "") != 0)
 		return -EINVAL;
 
+	if (!IS_POSIXACL(inode))
+		return -EOPNOTSUPP;
+	if (!inode->i_op->set_acl)
+		return -EOPNOTSUPP;
+
+	if (handler->flags == ACL_TYPE_DEFAULT && !S_ISDIR(inode->i_mode))
+		return value ? -EACCES : 0;
+	if (!inode_owner_or_capable(inode))
+		return -EPERM;
+>>>>>>> 98e9cb5711c6... vfs: Distinguish between full xattr names and proper prefixes
+
 	if (value) {
 		acl = posix_acl_from_xattr(&init_user_ns, value, size);
 		if (IS_ERR(acl))
@@ -868,7 +877,7 @@ posix_acl_xattr_list(const struct xattr_handler *handler,
 		     struct dentry *dentry, char *list, size_t list_size,
 		     const char *name, size_t name_len)
 {
-	const char *xname = handler->prefix;
+	const char *xname = handler->name;
 	size_t size;
 
 	if (!IS_POSIXACL(d_backing_inode(dentry)))
@@ -881,7 +890,9 @@ posix_acl_xattr_list(const struct xattr_handler *handler,
 }
 
 const struct xattr_handler posix_acl_access_xattr_handler = {
+
 	.prefix = POSIX_ACL_XATTR_ACCESS,
+	.name = XATTR_NAME_POSIX_ACL_ACCESS,
 	.flags = ACL_TYPE_ACCESS,
 	.list = posix_acl_xattr_list,
 	.get = posix_acl_xattr_get,
@@ -890,7 +901,9 @@ const struct xattr_handler posix_acl_access_xattr_handler = {
 EXPORT_SYMBOL_GPL(posix_acl_access_xattr_handler);
 
 const struct xattr_handler posix_acl_default_xattr_handler = {
+
 	.prefix = POSIX_ACL_XATTR_DEFAULT,
+	.name = XATTR_NAME_POSIX_ACL_DEFAULT,
 	.flags = ACL_TYPE_DEFAULT,
 	.list = posix_acl_xattr_list,
 	.get = posix_acl_xattr_get,
