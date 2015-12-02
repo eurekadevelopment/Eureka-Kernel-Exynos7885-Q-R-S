@@ -59,8 +59,6 @@ int generic_setxattr(struct dentry *dentry, const char *name, const void *value,
 int generic_removexattr(struct dentry *dentry, const char *name);
 ssize_t vfs_getxattr_alloc(struct dentry *dentry, const char *name,
 			   char **xattr_value, size_t size, gfp_t flags);
-int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
-		  const char *value, size_t size, gfp_t flags);
 
 static inline const char *xattr_prefix(const struct xattr_handler *handler)
 {
