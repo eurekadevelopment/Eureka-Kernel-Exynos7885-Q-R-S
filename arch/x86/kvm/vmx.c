@@ -5134,7 +5134,7 @@ static void vmx_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 	seg_setup(VCPU_SREG_CS);
 	vmcs_write16(GUEST_CS_SELECTOR, 0xf000);
-	vmcs_write32(GUEST_CS_BASE, 0xffff0000);
+	vmcs_writel(GUEST_CS_BASE, 0xffff0000ul);
 
 	seg_setup(VCPU_SREG_DS);
 	seg_setup(VCPU_SREG_ES);
@@ -5170,7 +5170,7 @@ static void vmx_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 	vmcs_write32(GUEST_ACTIVITY_STATE, GUEST_ACTIVITY_ACTIVE);
 	vmcs_write32(GUEST_INTERRUPTIBILITY_INFO, 0);
-	vmcs_write32(GUEST_PENDING_DBG_EXCEPTIONS, 0);
+	vmcs_writel(GUEST_PENDING_DBG_EXCEPTIONS, 0);
 
 	setup_msrs(vmx);
 
@@ -8045,7 +8045,7 @@ static void dump_vmcs(void)
 	u32 pin_based_exec_ctrl = vmcs_read32(PIN_BASED_VM_EXEC_CONTROL);
 	u32 secondary_exec_control = 0;
 	unsigned long cr4 = vmcs_readl(GUEST_CR4);
-	u64 efer = vmcs_readl(GUEST_IA32_EFER);
+	u64 efer = vmcs_read64(GUEST_IA32_EFER);
 	int i, n;
 
 	if (cpu_has_secondary_exec_ctrls())
@@ -10415,7 +10415,7 @@ static void prepare_vmcs12(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
 	 * Additionally, restore L2's PDPTR to vmcs12.
 	 */
 	if (enable_ept) {
-		vmcs12->guest_cr3 = vmcs_read64(GUEST_CR3);
+		vmcs12->guest_cr3 = vmcs_readl(GUEST_CR3);
 		vmcs12->guest_pdptr0 = vmcs_read64(GUEST_PDPTR0);
 		vmcs12->guest_pdptr1 = vmcs_read64(GUEST_PDPTR1);
 		vmcs12->guest_pdptr2 = vmcs_read64(GUEST_PDPTR2);
