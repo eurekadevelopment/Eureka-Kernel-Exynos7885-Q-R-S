@@ -8475,7 +8475,11 @@ static void cpu_cgroup_css_free(struct cgroup_subsys_state *css)
 	sched_free_group(tg);
 }
 
-static void cpu_cgroup_fork(struct task_struct *task, void *private)
+/*
+ * This is called before wake_up_new_task(), therefore we really only
+ * have to set its group bits, all the other stuff does not apply.
+ */
+static void cpu_cgroup_fork(struct task_struct *task)
 {
 	sched_move_task(task);
 }
