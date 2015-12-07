@@ -4926,6 +4926,10 @@ static long ext4_zero_range(struct file *file, loff_t offset,
 		flags |= (EXT4_GET_BLOCKS_CONVERT_UNWRITTEN |
 			  EXT4_EX_NOCACHE);
 
+		/* Wait all existing dio workers, newcomers will block on i_mutex */
+		ext4_inode_block_unlocked_dio(inode);
+		inode_dio_wait(inode);
+
 		/*
 		 * Prevent page faults from reinstantiating pages we have
 		 * released from page cache.
@@ -4936,6 +4940,7 @@ static long ext4_zero_range(struct file *file, loff_t offset,
 			up_write(&EXT4_I(inode)->i_mmap_sem);
 			goto out_dio;
 		}
+
 		/* Now release the pages and zero block aligned part of pages */
 		truncate_pagecache_range(inode, start, end - 1);
 		inode->i_mtime = inode->i_ctime = ext4_current_time(inode);
@@ -5619,6 +5624,7 @@ int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
 	 * page cache.
 	 */
 	down_write(&EXT4_I(inode)->i_mmap_sem);
+
 	/*
 	 * Need to round down offset to be aligned with page size boundary
 	 * for page size > block size.
@@ -5640,6 +5646,7 @@ int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
 					   LLONG_MAX);
 	if (ret)
 		goto out_mmap;
+
 	truncate_pagecache(inode, ioffset);
 
 	credits = ext4_writepage_trans_blocks(inode);
@@ -5769,6 +5776,7 @@ int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
 	 * page cache.
 	 */
 	down_write(&EXT4_I(inode)->i_mmap_sem);
+
 	/*
 	 * Need to round down to align start offset to page size boundary
 	 * for page size > block size.
@@ -5779,6 +5787,7 @@ int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
 			LLONG_MAX);
 	if (ret)
 		goto out_mmap;
+
 	truncate_pagecache(inode, ioffset);
 
 	credits = ext4_writepage_trans_blocks(inode);
