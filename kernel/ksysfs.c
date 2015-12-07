@@ -153,6 +153,7 @@ static ssize_t fscaps_show(struct kobject *kobj,
 }
 KERNEL_ATTR_RO(fscaps);
 
+#ifndef CONFIG_TINY_RCU
 int rcu_expedited;
 static ssize_t rcu_expedited_show(struct kobject *kobj,
 				  struct kobj_attribute *attr, char *buf)
@@ -186,6 +187,7 @@ static ssize_t rcu_normal_store(struct kobject *kobj,
 	return count;
 }
 KERNEL_ATTR_RW(rcu_normal);
+#endif /* #ifndef CONFIG_TINY_RCU */
 
 /*
  * Make /sys/kernel/notes give the raw contents of our kernel .notes section.
@@ -228,10 +230,9 @@ static struct attribute * kernel_attrs[] = {
 	&kexec_crash_size_attr.attr,
 	&vmcoreinfo_attr.attr,
 #endif
+#ifndef CONFIG_TINY_RCU
 	&rcu_expedited_attr.attr,
 	&rcu_normal_attr.attr,
-#ifdef CONFIG_PREEMPT_RT_FULL
-	&realtime_attr.attr,
 #endif
 	NULL
 };
