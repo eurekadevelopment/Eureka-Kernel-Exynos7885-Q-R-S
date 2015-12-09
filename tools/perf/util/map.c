@@ -744,6 +744,7 @@ int map_groups__clone(struct map_groups *mg,
 		if (new == NULL)
 			goto out_unlock;
 		map_groups__insert(mg, new);
+		map__put(new);
 	}
 
 	err = 0;
