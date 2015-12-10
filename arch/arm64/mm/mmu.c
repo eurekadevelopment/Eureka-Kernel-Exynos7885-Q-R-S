@@ -694,6 +694,9 @@ void __init paging_init(void)
 	/* Ensure the zero page is visible to the page table walker */
 	dsb(ishst);
 
+	/* Ensure the zero page is visible to the page table walker */
+	dsb(ishst);
+
 	/*
 	 * We only reuse the PGD from the swapper_pg_dir, not the pud + pmd
 	 * allocated with it.
