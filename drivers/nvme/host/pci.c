@@ -2984,6 +2984,15 @@ static void nvme_remove_namespaces(struct nvme_dev *dev)
 {
 	struct nvme_ns *ns, *next;
 
+	if (nvme_io_incapable(dev)) {
+		/*
+		 * If the device is not capable of IO (surprise hot-removal,
+		 * for example), we need to quiesce prior to deleting the
+		 * namespaces. This will end outstanding requests and prevent
+		 * attempts to sync dirty data.
+		 */
+		nvme_dev_shutdown(dev);
+	}
 	list_for_each_entry_safe(ns, next, &dev->namespaces, list)
 		nvme_ns_remove(ns);
 }
