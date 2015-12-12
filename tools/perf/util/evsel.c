@@ -36,6 +36,7 @@ static struct {
 	bool cloexec;
 	bool clockid;
 	bool clockid_wrong;
+	bool lbr_flags;
 } perf_missing_features;
 
 static clockid_t clockid;
@@ -580,7 +581,9 @@ perf_evsel__config_callgraph(struct perf_evsel *evsel,
 			} else {
 				perf_evsel__set_sample_bit(evsel, BRANCH_STACK);
 				attr->branch_sample_type = PERF_SAMPLE_BRANCH_USER |
-							PERF_SAMPLE_BRANCH_CALL_STACK;
+							PERF_SAMPLE_BRANCH_CALL_STACK |
+							PERF_SAMPLE_BRANCH_NO_CYCLES |
+							PERF_SAMPLE_BRANCH_NO_FLAGS;
 			}
 		} else
 			 pr_warning("Cannot use LBR callstack with branch stack. "
@@ -1344,6 +1347,9 @@ fallback_missing_features:
 		evsel->attr.mmap2 = 0;
 	if (perf_missing_features.exclude_guest)
 		evsel->attr.exclude_guest = evsel->attr.exclude_host = 0;
+	if (perf_missing_features.lbr_flags)
+		evsel->attr.branch_sample_type &= ~(PERF_SAMPLE_BRANCH_NO_FLAGS |
+				     PERF_SAMPLE_BRANCH_NO_CYCLES);
 retry_sample_id:
 	if (perf_missing_features.sample_id_all)
 		evsel->attr.sample_id_all = 0;
@@ -1462,6 +1468,12 @@ try_fallback:
 	} else if (!perf_missing_features.sample_id_all) {
 		perf_missing_features.sample_id_all = true;
 		goto retry_sample_id;
+	} else if (!perf_missing_features.lbr_flags &&
+			(evsel->attr.branch_sample_type &
+			 (PERF_SAMPLE_BRANCH_NO_CYCLES |
+			  PERF_SAMPLE_BRANCH_NO_FLAGS))) {
+		perf_missing_features.lbr_flags = true;
+		goto fallback_missing_features;
 	}
 
 out_close:
