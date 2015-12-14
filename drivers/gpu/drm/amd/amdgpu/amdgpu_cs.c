@@ -165,6 +165,37 @@ static int amdgpu_cs_user_fence_chunk(struct amdgpu_cs_parser *p,
 	return 0;
 }
 
+static int amdgpu_cs_user_fence_chunk(struct amdgpu_cs_parser *p,
+				      struct drm_amdgpu_cs_chunk_fence *fence_data)
+{
+	struct drm_gem_object *gobj;
+	uint32_t handle;
+
+	handle = fence_data->handle;
+	gobj = drm_gem_object_lookup(p->adev->ddev, p->filp,
+				     fence_data->handle);
+	if (gobj == NULL)
+		return -EINVAL;
+
+	p->uf.bo = amdgpu_bo_ref(gem_to_amdgpu_bo(gobj));
+	p->uf.offset = fence_data->offset;
+
+	if (amdgpu_ttm_tt_has_userptr(p->uf.bo->tbo.ttm)) {
+		drm_gem_object_unreference_unlocked(gobj);
+		return -EINVAL;
+	}
+
+	p->uf_entry.robj = amdgpu_bo_ref(p->uf.bo);
+	p->uf_entry.prefered_domains = AMDGPU_GEM_DOMAIN_GTT;
+	p->uf_entry.allowed_domains = AMDGPU_GEM_DOMAIN_GTT;
+	p->uf_entry.priority = 0;
+	p->uf_entry.tv.bo = &p->uf_entry.robj->tbo;
+	p->uf_entry.tv.shared = true;
+
+	drm_gem_object_unreference_unlocked(gobj);
+	return 0;
+}
+
 int amdgpu_cs_parser_init(struct amdgpu_cs_parser *p, void *data)
 {
 	union drm_amdgpu_cs *cs = data;
