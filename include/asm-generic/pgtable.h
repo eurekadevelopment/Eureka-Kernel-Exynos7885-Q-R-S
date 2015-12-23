@@ -595,12 +595,19 @@ static inline int track_pfn_copy(struct vm_area_struct *vma)
 }
 
 /*
- * untrack_pfn_vma is called while unmapping a pfnmap for a region.
+ * untrack_pfn is called while unmapping a pfnmap for a region.
  * untrack can be called for a specific region indicated by pfn and size or
  * can be for the entire vma (in which case pfn, size are zero).
  */
 static inline void untrack_pfn(struct vm_area_struct *vma,
 			       unsigned long pfn, unsigned long size)
+{
+}
+
+/*
+ * untrack_pfn_moved is called while mremapping a pfnmap for a new region.
+ */
+static inline void untrack_pfn_moved(struct vm_area_struct *vma)
 {
 }
 #else
@@ -612,6 +619,7 @@ extern int track_pfn_insert(struct vm_area_struct *vma, pgprot_t *prot,
 extern int track_pfn_copy(struct vm_area_struct *vma);
 extern void untrack_pfn(struct vm_area_struct *vma, unsigned long pfn,
 			unsigned long size);
+extern void untrack_pfn_moved(struct vm_area_struct *vma);
 #endif
 
 #ifdef CONFIG_UKSM
