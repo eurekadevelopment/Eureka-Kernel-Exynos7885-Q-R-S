@@ -1188,6 +1188,7 @@ static const struct dquot_operations ext4_quota_operations = {
 	.alloc_dquot	= dquot_alloc,
 	.destroy_dquot	= dquot_destroy,
 	.get_next_id	= dquot_get_next_id,
+	.get_projid	= ext4_get_projid,
 };
 
 static const struct quotactl_ops ext4_qctl_operations = {
