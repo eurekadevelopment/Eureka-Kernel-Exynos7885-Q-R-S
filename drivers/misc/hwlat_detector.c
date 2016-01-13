@@ -600,7 +600,7 @@ static ssize_t  debug_enable_fwrite(struct file *filp,
 
 	buf[sizeof(buf)-1] = '\0';			/* just in case */
 	err = kstrtoul(buf, 10, &val);
-	if (0 != err)
+	if (err)
 		return -EINVAL;
 
 	if (val) {
@@ -905,7 +905,7 @@ static ssize_t  debug_width_fwrite(struct file *filp,
 
 	buf[U64STR_SIZE-1] = '\0';			/* just in case */
 	err = kstrtoull(buf, 10, &val);
-	if (0 != err)
+	if (err)
 		return -EINVAL;
 
 	mutex_lock(&data.lock);
@@ -989,7 +989,7 @@ static ssize_t  debug_window_fwrite(struct file *filp,
 
 	buf[U64STR_SIZE-1] = '\0';			/* just in case */
 	err = kstrtoull(buf, 10, &val);
-	if (0 != err)
+	if (err)
 		return -EINVAL;
 
 	mutex_lock(&data.lock);
@@ -1182,11 +1182,11 @@ static int detector_init(void)
 	pr_info(BANNER "version %s\n", VERSION);
 
 	ret = init_stats();
-	if (0 != ret)
+	if (ret)
 		goto out;
 
 	ret = init_debugfs();
-	if (0 != ret)
+	if (ret)
 		goto err_stats;
 
 	if (enabled)
