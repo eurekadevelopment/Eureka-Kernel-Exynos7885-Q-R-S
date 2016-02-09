@@ -213,6 +213,7 @@ struct key {
 extern struct key *key_alloc(struct key_type *type,
 			     const char *desc,
 			     kuid_t uid, kgid_t gid,
+#define KEY_ALLOC_BUILT_IN	0x0008	/* Key is built into kernel */
 			     const struct cred *cred,
 			     key_perm_t perm,
 			     unsigned long flags);
