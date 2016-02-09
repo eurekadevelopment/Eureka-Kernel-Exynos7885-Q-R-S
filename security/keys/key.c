@@ -290,6 +290,8 @@ struct key *key_alloc(struct key_type *type, const char *desc,
 	key->datalen = type->def_datalen;
 	key->uid = uid;
 	key->gid = gid;
+	if (flags & KEY_ALLOC_BUILT_IN)
+		key->flags |= 1 << KEY_FLAG_BUILTIN;
 	key->perm = perm;
 
 	if (!(flags & KEY_ALLOC_NOT_IN_QUOTA))
