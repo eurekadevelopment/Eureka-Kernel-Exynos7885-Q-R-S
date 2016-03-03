@@ -1438,6 +1438,11 @@ static void css_clear_dir(struct cgroup_subsys_state *css,
 	struct cgroup *cgrp = cgrp_override ?: css->cgroup;
 	struct cftype *cfts;
 
+	if (!(css->flags & CSS_VISIBLE))
+		return;
+
+	css->flags &= ~CSS_VISIBLE;
+
 	list_for_each_entry(cfts, &css->ss->cfts, node)
 		cgroup_addrm_files(css, cgrp, cfts, false);
 }
@@ -1456,6 +1461,9 @@ static int css_populate_dir(struct cgroup_subsys_state *css,
 	struct cftype *cfts, *failed_cfts;
 	int ret;
 
+	if (css->flags & CSS_VISIBLE)
+		return 0;
+
 	if (!css->ss) {
 		if (cgroup_on_dfl(cgrp))
 			cfts = cgroup_dfl_base_files;
@@ -1472,6 +1480,9 @@ static int css_populate_dir(struct cgroup_subsys_state *css,
 			goto err;
 		}
 	}
+
+	css->flags |= CSS_VISIBLE;
+
 	return 0;
 err:
 	list_for_each_entry(cfts, &css->ss->cfts, node) {
@@ -3548,7 +3559,7 @@ static int cgroup_apply_cftypes(struct cftype *cfts, bool is_add)
 	css_for_each_descendant_pre(css, cgroup_css(root, ss)) {
 		struct cgroup *cgrp = css->cgroup;
 
-		if (cgroup_is_dead(cgrp))
+		if (!(css->flags & CSS_VISIBLE))
 			continue;
 
 		ret = cgroup_addrm_files(css, cgrp, cfts, is_add);
