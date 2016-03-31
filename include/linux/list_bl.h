@@ -37,8 +37,19 @@ struct hlist_bl_head {
 struct hlist_bl_node {
 	struct hlist_bl_node *next, **pprev;
 };
+
 #define INIT_HLIST_BL_HEAD(ptr) \
 	((ptr)->first = NULL)
+
+#ifdef CONFIG_PREEMPT_RT_BASE
+#define INIT_HLIST_BL_HEAD(h)		\
+do {					\
+	(h)->first = NULL;		\
+	raw_spin_lock_init(&(h)->lock);	\
+} while (0)
+#else
+#define INIT_HLIST_BL_HEAD(h) (h)->first = NULL
+#endif
 
 static inline void INIT_HLIST_BL_NODE(struct hlist_bl_node *h)
 {
