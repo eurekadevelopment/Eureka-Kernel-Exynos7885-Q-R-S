@@ -118,6 +118,7 @@ extern struct cpumask hmp_fast_cpu_mask;
 #define num_possible_cpus()	1U
 #define num_present_cpus()	1U
 #define num_active_cpus()	1U
+#define num_isolated_cpus()	0U
 #define cpu_online(cpu)		((cpu) == 0)
 #define cpu_possible(cpu)	((cpu) == 0)
 #define cpu_present(cpu)	((cpu) == 0)
@@ -758,6 +759,7 @@ extern const DECLARE_BITMAP(cpu_all_bits, NR_CPUS);
 #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
 #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
 #define for_each_present_cpu(cpu)  for_each_cpu((cpu), cpu_present_mask)
+#define for_each_isolated_cpu(cpu) for_each_cpu((cpu), cpu_isolated_mask)
 
 /* Wrappers for arch boot code to manipulate normally-constant masks */
 void set_cpu_possible(unsigned int cpu, bool possible);
