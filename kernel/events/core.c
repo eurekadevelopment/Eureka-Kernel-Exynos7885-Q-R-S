@@ -7232,6 +7232,10 @@ static int perf_event_set_bpf_prog(struct perf_event *event, u32 prog_fd)
 	    event->attr.type == PERF_TYPE_SOFTWARE)
 		return perf_event_set_bpf_handler(event, prog_fd);
 
+	if (event->attr.type == PERF_TYPE_HARDWARE ||
+	    event->attr.type == PERF_TYPE_SOFTWARE)
+		return perf_event_set_bpf_handler(event, prog_fd);
+
 	if (event->attr.type != PERF_TYPE_TRACEPOINT)
 		return -EINVAL;
 
@@ -8089,7 +8093,7 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 	if (!overflow_handler && parent_event) {
 		overflow_handler = parent_event->overflow_handler;
 		context = parent_event->overflow_handler_context;
-#if 0
+#ifdef CONFIG_BPF_SYSCALL
 		if (overflow_handler == bpf_overflow_handler) {
 			struct bpf_prog *prog = bpf_prog_inc(parent_event->prog);
 
