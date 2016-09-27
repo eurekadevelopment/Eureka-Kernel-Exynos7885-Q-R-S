@@ -1079,7 +1079,8 @@ static int jfs_symlink(struct inode *dip, struct dentry *dentry,
  * FUNCTION:	rename a file or directory
  */
 static int jfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-	       struct inode *new_dir, struct dentry *new_dentry)
+		      struct inode *new_dir, struct dentry *new_dentry,
+		      unsigned int flags)
 {
 	struct btstack btstack;
 	ino_t ino;
@@ -1098,6 +1099,8 @@ static int jfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	s64 new_size = 0;
 	int commit_flag;
 
+	if (flags & ~RENAME_NOREPLACE)
+		return -EINVAL;
 
 	jfs_info("jfs_rename: %pd %pd", old_dentry, new_dentry);
 
@@ -1536,7 +1539,7 @@ const struct inode_operations jfs_dir_inode_operations = {
 	.mkdir		= jfs_mkdir,
 	.rmdir		= jfs_rmdir,
 	.mknod		= jfs_mknod,
-	.rename		= jfs_rename,
+	.rename2	= jfs_rename,
 	.setxattr	= jfs_setxattr,
 	.getxattr	= jfs_getxattr,
 	.listxattr	= jfs_listxattr,
