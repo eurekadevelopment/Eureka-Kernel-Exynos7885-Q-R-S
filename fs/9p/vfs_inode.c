@@ -1433,7 +1433,7 @@ static const struct inode_operations v9fs_dir_inode_operations_dotu = {
 	.mkdir = v9fs_vfs_mkdir,
 	.rmdir = v9fs_vfs_rmdir,
 	.mknod = v9fs_vfs_mknod,
-	.rename2 = v9fs_vfs_rename,
+	.rename = v9fs_vfs_rename,
 	.getattr = v9fs_vfs_getattr,
 	.setattr = v9fs_vfs_setattr,
 };
@@ -1446,7 +1446,7 @@ static const struct inode_operations v9fs_dir_inode_operations = {
 	.mkdir = v9fs_vfs_mkdir,
 	.rmdir = v9fs_vfs_rmdir,
 	.mknod = v9fs_vfs_mknod,
-	.rename2 = v9fs_vfs_rename,
+	.rename = v9fs_vfs_rename,
 	.getattr = v9fs_vfs_getattr,
 	.setattr = v9fs_vfs_setattr,
 };
