@@ -4412,11 +4412,8 @@ int vfs_rename2(struct vfsmount *mnt,
 	if (error)
 		return error;
 
-	if (!old_dir->i_op->rename && !old_dir->i_op->rename2)
+	if (!old_dir->i_op->rename2)
 		return -EPERM;
-
-	if (flags && !old_dir->i_op->rename2)
-		return -EINVAL;
 
 	/*
 	 * If we are going to change the parent - check write permissions,
@@ -4471,14 +4468,8 @@ int vfs_rename2(struct vfsmount *mnt,
 		if (error)
 			goto out;
 	}
-	if (!old_dir->i_op->rename2) {
-		error = old_dir->i_op->rename(old_dir, old_dentry,
-					      new_dir, new_dentry);
-	} else {
-		WARN_ON_ONCE(old_dir->i_op->rename != NULL);
-		error = old_dir->i_op->rename2(old_dir, old_dentry,
-					       new_dir, new_dentry, flags);
-	}
+	error = old_dir->i_op->rename2(old_dir, old_dentry,
+				       new_dir, new_dentry, flags);
 	if (error)
 		goto out;
 
