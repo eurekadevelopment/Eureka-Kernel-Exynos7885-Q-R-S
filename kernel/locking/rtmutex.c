@@ -1000,13 +1000,12 @@ static inline void rt_spin_lock_fastlock(struct rt_mutex *lock,
 		slowfn(lock, do_mig_dis);
 }
 
-static inline void rt_spin_lock_fastunlock(struct rt_mutex *lock,
-					   void  (*slowfn)(struct rt_mutex *lock))
+static inline int rt_spin_lock_fastunlock(struct rt_mutex *lock,
+					   int  (*slowfn)(struct rt_mutex *lock))
 {
 	if (likely(rt_mutex_cmpxchg_release(lock, current, NULL)))
-		return;
-	else
-		slowfn(lock);
+		return 0;
+	return slowfn(lock);
 }
 #ifdef CONFIG_SMP
 /*
@@ -1149,7 +1148,7 @@ static void mark_wakeup_next_waiter(struct wake_q_head *wake_q,
 /*
  * Slow path to release a rt_mutex spin_lock style
  */
-static void  noinline __sched rt_spin_lock_slowunlock(struct rt_mutex *lock)
+static int noinline __sched rt_spin_lock_slowunlock(struct rt_mutex *lock)
 {
 	WAKE_Q(wake_q);
 	WAKE_Q(wake_sleeper_q);
@@ -1161,7 +1160,7 @@ static void  noinline __sched rt_spin_lock_slowunlock(struct rt_mutex *lock)
 	if (!rt_mutex_has_waiters(lock)) {
 		lock->owner = NULL;
 		raw_spin_unlock(&lock->wait_lock);
-		return;
+		return 0;
 	}
 
 	mark_wakeup_next_waiter(&wake_q, &wake_sleeper_q, lock);
@@ -1172,6 +1171,31 @@ static void  noinline __sched rt_spin_lock_slowunlock(struct rt_mutex *lock)
 
 	/* Undo pi boosting.when necessary */
 	rt_mutex_adjust_prio(current);
+	return 0;
+}
+
+static int noinline __sched rt_spin_lock_slowunlock_no_deboost(struct rt_mutex *lock)
+{
+	unsigned long flags;
+	WAKE_Q(wake_q);
+	WAKE_Q(wake_sleeper_q);
+
+	raw_spin_lock_irqsave(&lock->wait_lock, flags);
+
+	debug_rt_mutex_unlock(lock);
+
+	if (!rt_mutex_has_waiters(lock)) {
+		lock->owner = NULL;
+		raw_spin_unlock_irqrestore(&lock->wait_lock, flags);
+		return 0;
+	}
+
+	mark_wakeup_next_waiter(&wake_q, &wake_sleeper_q, lock);
+
+	raw_spin_unlock_irqrestore(&lock->wait_lock, flags);
+	wake_up_q(&wake_q);
+	wake_up_q_sleeper(&wake_sleeper_q);
+	return 1;
 }
 
 void __lockfunc rt_spin_lock__no_mg(spinlock_t *lock)
@@ -1225,6 +1249,17 @@ void __lockfunc rt_spin_unlock(spinlock_t *lock)
 	migrate_enable();
 }
 EXPORT_SYMBOL(rt_spin_unlock);
+
+int __lockfunc rt_spin_unlock_no_deboost(spinlock_t *lock)
+{
+	int ret;
+
+	/* NOTE: we always pass in '1' for nested, for simplicity */
+	spin_release(&lock->dep_map, 1, _RET_IP_);
+	ret = rt_spin_lock_fastunlock(&lock->lock, rt_spin_lock_slowunlock_no_deboost);
+	migrate_enable();
+	return ret;
+}
 
 void __lockfunc __rt_spin_unlock(struct rt_mutex *lock)
 {
