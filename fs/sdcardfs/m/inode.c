@@ -487,7 +487,8 @@ out_unlock:
  * superblock-level name-space lock for renames and copy-ups.
  */
 static int sdcardfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-			 struct inode *new_dir, struct dentry *new_dentry, unsigned int flags)
+			 struct inode *new_dir, struct dentry *new_dentry,
+			 unsigned int flags)
 {
 	int err = 0;
 	struct dentry *lower_old_dentry = NULL;
@@ -500,6 +501,9 @@ static int sdcardfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	struct path lower_old_path, lower_new_path;
 	struct sdcardfs_inode_info *new_dir_info = SDCARDFS_I(new_dir);
 	const struct cred *saved_cred = NULL;
+
+	if (flags)
+		return -EINVAL;
 
 	if (!check_caller_access_to_name(old_dir, old_dentry->d_name.name) ||
 		!check_caller_access_to_name(new_dir, new_dentry->d_name.name)) {
@@ -878,7 +882,7 @@ const struct inode_operations sdcardfs_dir_iops = {
 	.unlink		= sdcardfs_unlink,
 	.mkdir		= sdcardfs_mkdir,
 	.rmdir		= sdcardfs_rmdir,
-	.rename2	= sdcardfs_rename,
+	.rename		= sdcardfs_rename,
 	.setattr	= sdcardfs_setattr,
 	.getattr	= sdcardfs_getattr,
 #ifdef SDCARD_FS_XATTR
