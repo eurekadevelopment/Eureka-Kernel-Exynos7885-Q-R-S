@@ -12,17 +12,6 @@
 #include <linux/restart_block.h>
 
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-struct thread_info {
-	u32			flags;		/* low level flags */
-};
-
-#define INIT_THREAD_INFO(tsk)			\
-{						\
-	.flags		= 0,			\
-}
-#endif
-
-#ifdef CONFIG_THREAD_INFO_IN_TASK
 /*
  * For CONFIG_THREAD_INFO_IN_TASK kernels we need <asm/current.h> for the
  * definition of current, but for !CONFIG_THREAD_INFO_IN_TASK kernels,
