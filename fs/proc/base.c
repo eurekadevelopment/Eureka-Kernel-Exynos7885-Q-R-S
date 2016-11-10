@@ -1720,7 +1720,8 @@ const struct inode_operations proc_pid_link_inode_operations = {
 
 /* building an inode */
 
-struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *task, umode_t mode)
+struct inode *proc_pid_make_inode(struct super_block * sb,
+				  struct task_struct *task, umode_t mode)
 {
 	struct inode * inode;
 	struct proc_inode *ei;
@@ -2080,8 +2081,8 @@ proc_map_files_instantiate(struct inode *dir, struct dentry *dentry,
 	struct inode *inode;
 
 	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK |
-				((mode & FMODE_READ ) ? S_IRUSR : 0) |
-				((mode & FMODE_WRITE) ? S_IWUSR : 0));
+				    ((mode & FMODE_READ ) ? S_IRUSR : 0) |
+				    ((mode & FMODE_WRITE) ? S_IWUSR : 0));
 	if (!inode)
 		return -ENOENT;
 
