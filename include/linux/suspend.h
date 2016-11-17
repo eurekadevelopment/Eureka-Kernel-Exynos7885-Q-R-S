@@ -200,6 +200,8 @@ extern bool pm_in_action;
 #endif
 
 #ifdef CONFIG_SUSPEND
+extern suspend_state_t mem_sleep_default;
+
 /**
  * suspend_set_ops - set platform dependent suspend operations
  * @ops: The new suspend operations to set.
