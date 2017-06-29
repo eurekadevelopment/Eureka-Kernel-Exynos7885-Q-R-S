@@ -1081,7 +1081,7 @@ static struct attribute * g[] = {
 };
 
 
-static struct attribute_group attr_group = {
+static const struct attribute_group attr_group = {
 	.attrs = g,
 };
 
