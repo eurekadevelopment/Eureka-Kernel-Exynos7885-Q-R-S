@@ -2582,7 +2582,6 @@ void zs_destroy_pool(struct zs_pool *pool)
 	}
 
 	destroy_cache(pool);
-	kfree(pool->size_class);
 	kfree(pool->name);
 	kfree(pool);
 }
