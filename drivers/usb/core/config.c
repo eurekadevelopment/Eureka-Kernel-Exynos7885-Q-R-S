@@ -735,7 +735,7 @@ void usb_destroy_configuration(struct usb_device *dev)
 
 	if (dev->rawdescriptors) {
 		for (i = 0; i < dev->descriptor.bNumConfigurations &&
-			i < USB_MAXCONFIG; i++)
+				i < USB_MAXCONFIG; i++)
 			kfree(dev->rawdescriptors[i]);
 
 		kfree(dev->rawdescriptors);
@@ -743,12 +743,12 @@ void usb_destroy_configuration(struct usb_device *dev)
 	}
 
 	for (c = 0; c < dev->descriptor.bNumConfigurations &&
-		c < USB_MAXCONFIG; c++) {
+			c < USB_MAXCONFIG; c++) {
 		struct usb_host_config *cf = &dev->config[c];
 
 		kfree(cf->string);
 		for (i = 0; i < cf->desc.bNumInterfaces &&
-			i < USB_MAXINTERFACES; i++) {
+				i < USB_MAXINTERFACES; i++) {
 			if (cf->intf_cache[i])
 				kref_put(&cf->intf_cache[i]->ref,
 					  usb_release_interface_cache);
