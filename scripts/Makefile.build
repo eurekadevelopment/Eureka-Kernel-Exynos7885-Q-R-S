@@ -84,8 +84,8 @@ lib-target := $(obj)/lib.a
 obj-y += $(obj)/lib-ksyms.o
 endif
 
-ifneq ($(strip $(obj-y) $(obj-m) $(obj-) $(subdir-m) $(lib-target)),)
-builtin-target := $(obj)/built-in.o
+ifneq ($(strip $(obj-y) $(need-builtin)),)
+builtin-target := $(obj)/built-in.a
 endif
 
 modorder-target := $(obj)/modules.order
@@ -108,7 +108,7 @@ ifneq ($(KBUILD_CHECKSRC),0)
   endif
 endif
 
-# Do section mismatch analysis for each module/built-in.o
+# Do section mismatch analysis for each module/built-in.a
 ifdef CONFIG_DEBUG_SECTION_MISMATCH
   cmd_secanalysis = ; scripts/mod/modpost $@
 endif
@@ -480,7 +480,7 @@ else
   quiet_cmd_link_o_target = LD      $@
 endif
 
-# If the list of objects to link is empty, just create an empty built-in.o
+# If the list of objects to link is empty, just create an empty built-in.a
 cmd_link_o_target = $(if $(strip $(obj-y)),\
 		      $(cmd_make_builtin) $@ $(filter $(obj-y), $^) \
 		      $(cmd_secanalysis),\
