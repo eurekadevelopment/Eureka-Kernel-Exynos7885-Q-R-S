@@ -1877,4 +1877,12 @@ void __init arch_cpu_finalize_init(void)
                set_memory_4k((unsigned long)__va(0), 1);
 #endif
 
+/*
+ * The microcode loader calls this upon late microcode load to recheck features,
+ * only when microcode has been updated. Caller holds microcode_mutex and CPU
+ * hotplug lock.
+ */
+void microcode_check(void)
+{
+	perf_check_microcode();
 }
