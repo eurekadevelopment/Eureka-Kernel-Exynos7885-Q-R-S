@@ -284,7 +284,7 @@ cmd_record_mcount =						\
 	     "$(CC_FLAGS_FTRACE)" ]; then			\
 		$(sub_cmd_record_mcount)			\
 	fi;
-endif
+endif # -record-mcount
 endif
 endif # CONFIG_FTRACE_MCOUNT_RECORD
 
