@@ -2,6 +2,7 @@
 #define _LINUX_FTS_TS_H_
 
 #include <linux/device.h>
+#include <linux/pm_qos.h>
 #include <linux/input/sec_cmd.h>
 #include <linux/wakelock.h>
 
@@ -554,6 +555,7 @@ struct fts_ts_info {
 	int wakeful_edge_side;
 	struct completion resume_done;
 	struct wake_lock wakelock;
+	struct pm_qos_request pm_qos_req;
 
 #ifdef FTS_SUPPORT_TA_MODE
 	bool TA_Pluged;

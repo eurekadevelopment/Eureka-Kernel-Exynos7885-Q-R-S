@@ -31,6 +31,7 @@
 #include <linux/module.h>
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
+#include <linux/pm_qos.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <linux/time.h>
@@ -669,6 +670,8 @@ struct sec_ts_data {
 	struct notifier_block fb_notifier;
 	/*bool fb_ready;*/
 #endif
+
+	struct pm_qos_request pm_qos_req;
 	struct delayed_work work_read_info;
 	struct delayed_work work_read_functions;
 	struct completion resume_done;
