@@ -31,6 +31,7 @@
 #include <asm/cacheflush.h>
 #include <linux/uaccess.h>
 #include <linux/highmem.h>
+#include <linux/ratelimit.h>
 #include "binder_alloc.h"
 #include "binder_trace.h"
 
@@ -1258,4 +1259,3 @@ void binder_alloc_copy_from_buffer(struct binder_alloc *alloc,
 	binder_alloc_do_buffer_copy(alloc, false, buffer, buffer_offset,
 				    dest, bytes);
 }
-
