@@ -30,6 +30,7 @@ enum {
 	CCIC_DOCK_MPA		= 109,	/* Samsung Multi Port Adaptor */
 	CCIC_DOCK_DEX		= 110,	/* Samsung Dex */
 	CCIC_DOCK_HDMI		= 111,	/* Samsung HDMI Dongle */
+	CCIC_DOCK_DEXPAD	= 114,	/* Samsung DexPAD */
 	CCIC_DOCK_NEW		= 200,	/* For New Event  */
 };
 
@@ -57,6 +58,7 @@ typedef enum {
 #define GEARVR_PRODUCT_ID_5		0xA505
 #define DEXDOCK_PRODUCT_ID		0xA020
 #define HDMI_PRODUCT_ID			0xA025
+#define DEXPAD_PRODUCT_ID		0xA029
 #define MPA_PRODUCT_ID			0x2122
 /* Samsung UVDM structure */
 #define SEC_UVDM_SHORT_DATA		0x0

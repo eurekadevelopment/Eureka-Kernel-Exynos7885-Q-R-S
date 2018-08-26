@@ -1215,6 +1215,14 @@ static int usbpd_manager_check_accessory(struct usbpd_manager_data *manager)
 					inc_hw_param(o_notify, USB_CCIC_DEX_USE_COUNT);
 #endif
 				break;
+			case DEXPAD_PRODUCT_ID:
+				acc_type = CCIC_DOCK_DEXPAD;
+				pr_info("%s : Samsung DEX PAD connected.\n", __func__);
+#if defined(CONFIG_USB_HW_PARAM)
+				if (o_notify)
+					inc_hw_param(o_notify, USB_CCIC_DEX_USE_COUNT);
+#endif
+				break;
 			case HDMI_PRODUCT_ID:
 				acc_type = CCIC_DOCK_HDMI;
 				pr_info("%s : Samsung HDMI connected.\n", __func__);
