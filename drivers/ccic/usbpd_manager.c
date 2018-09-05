@@ -1194,7 +1194,7 @@ static int usbpd_manager_check_accessory(struct usbpd_manager_data *manager)
 	uint16_t acc_type = CCIC_DOCK_DETACHED;
 
     if (force_dex_mode) {
-        if (((pid < GEARVR_PRODUCT_ID) || (pid > GEARVR_PRODUCT_ID_5)) && (acc_type != CCIC_DOCK_NEW)) {
+        if (((pid < GEARVR_PRODUCT_ID) || (pid > GEARVR_PRODUCT_ID_5)) && (acc_type != CCIC_DOCK_NEW) && (pid != DEXPAD_PRODUCT_ID)) {
             vid = SAMSUNG_VENDOR_ID;
             pid = DEXDOCK_PRODUCT_ID;
         }
