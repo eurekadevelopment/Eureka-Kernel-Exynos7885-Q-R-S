@@ -336,6 +336,9 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 	if (boost < -100 || boost > 100)
 		return -EINVAL;
 
+	if (boost <= 10)
+		boost = 0;
+
 	st->boost = boost;
 	if (css == &root_schedtune.css)
 		sysctl_sched_cfs_boost = boost;
