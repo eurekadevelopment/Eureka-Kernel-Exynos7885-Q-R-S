@@ -8,6 +8,7 @@
 #include <linux/init.h>
 #include <linux/notifier.h>
 #include <linux/sched.h>
+#include <linux/sched/smt.h>
 #include <linux/unistd.h>
 #include <linux/cpu.h>
 #include <linux/oom.h>
@@ -213,6 +214,12 @@ void cpu_hotplug_enable(void)
 }
 EXPORT_SYMBOL_GPL(cpu_hotplug_enable);
 #endif	/* CONFIG_HOTPLUG_CPU */
+
+/*
+ * Architectures that need SMT-specific errata handling during SMT hotplug
+ * should override this.
+ */
+void __weak arch_smt_update(void) { }
 
 /* Need to know about CPUs going up/down? */
 int register_cpu_notifier(struct notifier_block *nb)
@@ -485,6 +492,7 @@ out_release:
 	trace_sched_cpu_hotplug(cpu, err, 0);
 	if (!err)
 		cpu_notify_nofail(CPU_POST_DEAD | mod, hcpu);
+	arch_smt_update();
 	return err;
 }
 
@@ -733,7 +741,7 @@ out_notify:
 out:
 	cpu_hotplug_done();
 	trace_sched_cpu_hotplug(cpu, ret, 1);
-
+	arch_smt_update();
 	return ret;
 }
 
