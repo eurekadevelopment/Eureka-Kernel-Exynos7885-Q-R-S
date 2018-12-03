@@ -99,6 +99,8 @@ SECTIONS
 		*(.discard)
 		*(.discard.*)
 		*(.interp .dynamic)
+		*(.dynsym .dynstr .hash .gnu.hash)
+		*(.eh_frame)
 	}
 
 	. = KIMAGE_VADDR + TEXT_OFFSET;
@@ -166,7 +168,7 @@ SECTIONS
 	.altinstr_replacement : {
 		KEEP(*(.altinstr_replacement))
 	}
-	.rela : ALIGN(8) {
+	.rela.dyn : ALIGN(8) {
 		__reloc_start = .;
 		*(.rela .rela*)
 		__reloc_end = .;
