@@ -345,12 +345,14 @@ int __init cma_declare_contiguous_with_name(phys_addr_t base,
 	ret = cma_init_reserved_mem_with_name(base, size, order_per_bit,
 					      res_cma, name);
 	if (ret)
-		goto err;
+		goto free_mem;
 
 	pr_info("Reserved %ld MiB at %pa\n", (unsigned long)size / SZ_1M,
 		&base);
 	return 0;
 
+free_mem:
+	memblock_free(base, size);
 err:
 	pr_err("Failed to reserve %ld MiB\n", (unsigned long)size / SZ_1M);
 	return ret;
