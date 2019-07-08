@@ -39,6 +39,12 @@ struct df_boost_drv {
 };
 
 static struct df_boost_drv *df_boost_drv_g __read_mostly;
+static int disable_boost = 0;
+
+void disable_devfreq_boost(int disable)
+{
+	disable_boost = disable;
+}
 
 static void __devfreq_boost_kick(struct boost_dev *b)
 {
@@ -63,7 +69,10 @@ void devfreq_boost_kick(enum df_device device)
 	
 	if (!d->screen_awake)
 		return;
-	
+
+	if (disable_boost)
+		return;
+
 	__devfreq_boost_kick(d->devices + device);
 }
 
@@ -107,7 +116,10 @@ void devfreq_boost_kick_max(enum df_device device, unsigned int duration_ms)
 	
 	if (!d->screen_awake)
 		return;
-	
+
+	if (disable_boost)
+		return;
+
 	__devfreq_boost_kick_max(d->devices + device, duration_ms);
 }
 
