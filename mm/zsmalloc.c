@@ -2154,6 +2154,11 @@ int zs_page_migrate(struct address_space *mapping, struct page *newpage,
 	if (!is_zspage_isolated(zspage))
 		putback_zspage_deferred(pool, class, zspage);
 
+	if (page_zone(newpage) != page_zone(page)) {
+		dec_zone_page_state(page, NR_ZSPAGES);
+		inc_zone_page_state(newpage, NR_ZSPAGES);
+	}
+
 	reset_page(page);
 	put_page(page);
 	page = newpage;
