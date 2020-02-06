@@ -202,6 +202,7 @@
 			reg = <0x0 0x100>;
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			#cooling-cells = <2>; /* min followed by max */
 			logical-id = <0>;
 		};
@@ -212,6 +213,7 @@
 			reg = <0x0 0x101>;
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			logical-id = <1>;
 		};
 
@@ -221,6 +223,7 @@
 			reg = <0x0 0x102>;
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			logical-id = <2>;
 		};
 
@@ -230,6 +233,7 @@
 			reg = <0x0 0x103>;
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			logical-id = <3>;
 		};
 
@@ -239,8 +243,8 @@
 			reg = <0x0 0x200>;
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			logical-id = <4>;
-			sched_skip = <1>;
 		};
 
 		cpu5:cpu@201 {
@@ -249,8 +253,8 @@
 			reg = <0x0 0x201>;
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			logical-id = <5>;
-			sched_skip = <1>;
 		};
 
 		cpu6: cpu@0 {
@@ -259,6 +263,7 @@
 			reg = <0x0 0x0>;
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			#cooling-cells = <2>; /* min followed by max */
 			logical-id = <6>;
 		};
@@ -269,6 +274,7 @@
 			reg = <0x0 0x1>;
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			logical-id = <7>;
 		};
 
@@ -296,6 +302,7 @@
 			};
 		};
 	};
+	
 
 	cpufreq {
 		domain@0 {
@@ -342,8 +349,8 @@
 						           546000  420000
 						           449000  420000
 						           343000  420000
-						           208000  420000>;
-      	};
+						           208000  420000>;		           
+				};
 			};
 		};
 		domain@1 {
@@ -385,10 +392,85 @@
           					1144000  676000
           					 936000  546000
           					 728000  420000>;
-      	};
+          			};
+			};
+		};
+		energy-costs {
+			CPU_COST_0: core-core0{
+				busy-cost-data = <
+					116 20
+					152 29
+					182 39
+					212 50
+					242 63
+					269 75
+					319 104
+					372 154
+					432 231
+				>;
+				idle-cost-data = <
+					1 1 0
+				>;
+			};
+			CPU_COST_1: core-core1{
+				busy-cost-data = <
+					327  135
+					379  167
+					425  193
+					471  223
+					517  258
+					558  294
+					650  373
+					753  493
+					799  566
+					857  662
+					885  716
+					954  851
+					1024 1026
+				>;
+				idle-cost-data = <
+					10 10 0
+				>;
+			};
+			CLUSTER_COST_0: cluster-core0{
+				busy-cost-data = <
+					116 2
+					152 5
+					182 8
+					212 12
+					242 17
+					269 23
+					319 35
+					372 57
+					432 93
+				>;
+				idle-cost-data = <
+					5 5 5
+				>;
+			};
+			CLUSTER_COST_1: cluster-core1{
+				busy-cost-data = <
+					327  38
+					379  44
+					425  53
+					471  64
+					517  75
+					558  88
+					650  113
+					753  156
+					799  180
+					857  213
+					885  231
+					954  277
+					1024 335
+				>;
+				idle-cost-data = <
+					70 70 70
+				>;
 			};
 		};
 	};
+
 
 	psci {
                 compatible = "arm,psci";
