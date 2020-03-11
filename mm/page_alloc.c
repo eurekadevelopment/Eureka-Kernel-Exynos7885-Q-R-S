@@ -1100,8 +1100,7 @@ void put_page_freelist(struct page *page)
 }
 EXPORT_SYMBOL(put_page_freelist);
 
-static void __init __free_pages_boot_core(struct page *page,
-					unsigned long pfn, unsigned int order)
+static void __free_pages_boot_core(struct page *page, unsigned long pfn, unsigned int order)
 {
 	unsigned int nr_pages = 1 << order;
 	struct page *p = page;
