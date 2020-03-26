@@ -992,9 +992,13 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		req->context  = &done;
 		req->complete = ffs_epfile_io_complete;
 
-		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
-		if (unlikely(ret < 0))
-			goto error_lock;
+			ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+			if (unlikely(ret)) {
+				io_data->req = NULL;
+				usb_ep_free_request(ep->ep, req);
+				goto error_lock;
+			}
+			ret = -EIOCBQUEUED;
 
 		spin_unlock_irq(&epfile->ffs->eps_lock);
 
