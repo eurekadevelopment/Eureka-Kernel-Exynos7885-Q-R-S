@@ -77,6 +77,16 @@ config BFQ_GROUP_IOSCHED
 	Enable hierarchical scheduling in BFQ, using the blkio
 	(cgroups-v1) or io (cgroups-v2) controller.
 
+config IOSCHED_SIO
+	tristate "Simple I/O scheduler"
+	default n
+	---help---
+	  The Simple I/O scheduler is an extremely simple scheduler,
+	  based on noop and deadline, that relies on deadlines to
+	  ensure fairness. The algorithm does not do any sorting but
+	  basic merging, trying to keep a minimum overhead. It is aimed
+	  mainly for aleatory access devices (eg: flash devices).
+
 choice
 	prompt "Default I/O scheduler"
 	default DEFAULT_CFQ
@@ -106,6 +116,9 @@ choice
 	config DEFAULT_ANXIETY
 		bool "Anxiety" if IOSCHED_ANXIETY=y
 
+	config DEFAULT_SIO
+		bool "SIO" if IOSCHED_SIO=y
+
 	config DEFAULT_NOOP
 		bool "No-op"
 		
@@ -120,6 +133,7 @@ config DEFAULT_IOSCHED
 	default "cfq" if DEFAULT_CFQ
 	default "maple" if DEFAULT_MAPLE
 	default "anxiety" if DEFAULT_ANXIETY
+	default "sio" if DEFAULT_SIO
 	default "noop" if DEFAULT_NOOP
 	default "zen" if DEFAULT_ZEN
 
