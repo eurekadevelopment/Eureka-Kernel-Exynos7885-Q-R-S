@@ -414,6 +414,9 @@ static ssize_t gadget_dev_desc_UDC_store(struct config_item *item,
 	 */
 	pr_info("%s: +++\n", __func__);
 
+	if (strlen(page) < len)
+		return -EOVERFLOW;
+
 	name = kstrdup(page, GFP_KERNEL);
 	if (!name)
 		return -ENOMEM;
