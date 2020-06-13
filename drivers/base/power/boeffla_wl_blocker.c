@@ -75,7 +75,7 @@ static ssize_t wakelock_blocker_show(struct device *dev, struct device_attribute
 			    char *buf)
 {
 	// return list of wakelocks to be blocked
-	return sprintf(buf, "%s\n", list_wl);
+	return scnprintf(buf, PAGE_SIZE, "%s\n", list_wl);
 }
 
 // store list of user configured wakelocks
@@ -101,7 +101,7 @@ static ssize_t wakelock_blocker_default_show(struct device *dev, struct device_a
 			    char *buf)
 {
 	// return list of wakelocks to be blocked
-	return sprintf(buf, "%s\n", list_wl_default);
+	return scnprintf(buf, PAGE_SIZE, "%s\n", list_wl_default);
 }
 
 
@@ -126,8 +126,11 @@ static ssize_t wakelock_blocker_default_store(struct device * dev, struct device
 static ssize_t debug_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	// return current debug status
-	return sprintf(buf, "Debug status: %d\n\nUser list: %s\nDefault list: %s\nSearch list: %s\nActive: %d\n",
-					wl_blocker_debug, list_wl, list_wl_default, list_wl_search, wl_blocker_active);
+	return scnprintf(buf, PAGE_SIZE,
+			 "Debug status: %d\n\nUser list: %s\nDefault list: %s\n"
+			 "Search list: %s\nActive: %d\n",
+			 wl_blocker_debug, list_wl, list_wl_default,
+			 list_wl_search, wl_blocker_active);
 }
 
 // store debug mode on/off (1/0)
@@ -155,7 +158,7 @@ static ssize_t debug_store(struct device *dev, struct device_attribute *attr,
 static ssize_t version_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	// return version information
-	return sprintf(buf, "%s\n", BOEFFLA_WL_BLOCKER_VERSION);
+	return scnprintf(buf, PAGE_SIZE, "%s\n", BOEFFLA_WL_BLOCKER_VERSION);
 }
 
 
