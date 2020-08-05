@@ -603,7 +603,7 @@ __read_extent_tree_block(const char *function, unsigned int line,
 	    (inode->i_ino !=
 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
 		err = __ext4_ext_check(function, line, inode,
-				       ext_block_hdr(bh), depth, pblk);
+				       ext_block_hdr(bh), depth, pblk, bh);
 		if (err)
 			goto errout;
 	}
