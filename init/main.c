@@ -704,7 +704,7 @@ asmlinkage __visible void __init start_kernel(void)
 	setup_per_cpu_areas();
 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
 
-	build_all_zonelists(NULL, NULL);
+	build_all_zonelists(NULL, NULL, false);
 	page_alloc_init();
 
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
