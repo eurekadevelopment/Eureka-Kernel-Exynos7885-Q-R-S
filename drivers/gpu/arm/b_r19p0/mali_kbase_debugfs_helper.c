@@ -27,7 +27,7 @@
 
 #include "mali_kbase_debugfs_helper.h"
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 
 /* Arbitrary maximum size to prevent user space allocating too much kernel
  * memory

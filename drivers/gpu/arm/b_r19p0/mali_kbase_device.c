@@ -519,7 +519,7 @@ static void kbasep_trace_hook_wrapper(void *param)
 	kbasep_trace_dump(kbdev);
 }
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 struct trace_seq_state {
 	struct kbase_trace trace_buf[KBASE_TRACE_SIZE];
 	u32 start;

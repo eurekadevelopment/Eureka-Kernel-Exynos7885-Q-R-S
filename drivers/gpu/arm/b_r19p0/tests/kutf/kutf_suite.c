@@ -41,7 +41,7 @@
 #include <kutf/kutf_utils.h>
 #include <kutf/kutf_helpers.h>
 
-#if defined(CONFIG_DEBUG_FS)
+#if 0
 
 /**
  * struct kutf_application - Structure which represents kutf application

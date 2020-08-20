@@ -59,7 +59,7 @@
 #include "mali_kbase_fence_defs.h"
 #endif
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 #include <linux/debugfs.h>
 #endif				/* CONFIG_DEBUG_FS */
 
@@ -261,7 +261,7 @@ struct kbase_as;
 struct kbase_mmu_setup;
 struct kbase_ipa_model_vinstr_data;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 /**
  * struct base_job_fault_event - keeps track of the atom which faulted or which
  *                               completed after the faulty atom but before the
@@ -737,7 +737,7 @@ struct kbase_jd_atom {
 
 	u32 flush_id;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	struct base_job_fault_event fault_event;
 #endif
 
@@ -1678,7 +1678,7 @@ struct kbase_device {
 
 	bool job_fault_debug;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	struct dentry *mali_debugfs_directory;
 	struct dentry *debugfs_ctx_directory;
 
@@ -1705,7 +1705,7 @@ struct kbase_device {
 
 	atomic_t ctx_num;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	struct kbase_io_history io_history;
 #endif /* CONFIG_DEBUG_FS */
 
@@ -2228,7 +2228,7 @@ struct kbase_context {
 	u64 gpu_va_end;
 	bool jit_va;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	char *mem_profile_data;
 	size_t mem_profile_size;
 	struct mutex mem_profile_lock;

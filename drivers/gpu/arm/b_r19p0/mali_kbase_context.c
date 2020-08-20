@@ -265,7 +265,7 @@ void kbase_destroy_context(struct kbase_context *kctx)
 	 */
 	kbase_jd_exit(kctx);
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	/* Removing the rest of the debugfs entries here as we want to keep the
 	 * atom debugfs interface alive until all atoms have completed. This
 	 * is useful for debugging hung contexts. */

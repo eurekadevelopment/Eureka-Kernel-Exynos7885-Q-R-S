@@ -276,7 +276,7 @@ static void kbase_file_delete(struct kbase_file *const kfile)
 		/* MALI_SEC_INTEGRATION */
 		struct kbase_context *lookup, *tmp;
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 		kbasep_mem_profile_debugfs_remove(kctx);
 #endif
 
@@ -491,7 +491,7 @@ void kbase_release_device(struct kbase_device *kbdev)
 }
 EXPORT_SYMBOL(kbase_release_device);
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0) && \
 		!(LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 28) && \
 		LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0))
@@ -608,7 +608,7 @@ static int kbase_file_create_kctx(struct kbase_file *const kfile,
 {
 	struct kbase_device *kbdev = NULL;
 	struct kbase_context *kctx = NULL;
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	char kctx_name[64];
 #endif
 
@@ -639,7 +639,7 @@ static int kbase_file_create_kctx(struct kbase_file *const kfile,
 	if (kbdev->infinite_cache_active_default)
 		kbase_ctx_flag_set(kctx, KCTX_INFINITE_CACHE);
 
-#ifdef CONFIG_DEBUG_FS
+#if 0
 	snprintf(kctx_name, 64, "%d_%d", kctx->tgid, kctx->id);
 
 	kctx->kctx_dentry = debugfs_create_dir(kctx_name,
@@ -2863,7 +2863,7 @@ static ssize_t show_reset_timeout(struct device *dev,
 static DEVICE_ATTR(reset_timeout, S_IRUGO | S_IWUSR, show_reset_timeout,
 		set_reset_timeout);
 
-
+#if 0
 static ssize_t show_mem_pool_size(struct device *dev,
 		struct device_attribute *attr, char * const buf)
 {
@@ -3034,6 +3034,7 @@ static ssize_t set_lp_mem_pool_max_size(struct device *dev,
 
 static DEVICE_ATTR(lp_mem_pool_max_size, S_IRUGO | S_IWUSR, show_lp_mem_pool_max_size,
 		set_lp_mem_pool_max_size);
+#endif
 
 /**
  * show_js_ctx_scheduling_mode - Show callback for js_ctx_scheduling_mode sysfs
@@ -3119,7 +3120,7 @@ static DEVICE_ATTR(js_ctx_scheduling_mode, S_IRUGO | S_IWUSR,
 		set_js_ctx_scheduling_mode);
 
 #ifdef MALI_KBASE_BUILD
-#ifdef CONFIG_DEBUG_FS
+#if 0
 
 /* Number of entries in serialize_jobs_settings[] */
 #define NR_SERIALIZE_JOBS_SETTINGS 5
@@ -3630,7 +3631,7 @@ static void power_control_term(struct kbase_device *kbdev)
 }
 
 #ifdef MALI_KBASE_BUILD
-#ifdef CONFIG_DEBUG_FS
+#if 0
 
 static void trigger_quirks_reload(struct kbase_device *kbdev)
 {
@@ -3962,10 +3963,12 @@ static struct attribute *kbase_attrs[] = {
 	&dev_attr_js_scheduling_period.attr,
 	&dev_attr_power_policy.attr,
 	&dev_attr_core_mask.attr,
+#if 0
 	&dev_attr_mem_pool_size.attr,
 	&dev_attr_mem_pool_max_size.attr,
 	&dev_attr_lp_mem_pool_size.attr,
 	&dev_attr_lp_mem_pool_max_size.attr,
+#endif
 	&dev_attr_js_ctx_scheduling_mode.attr,
 	NULL
 };
