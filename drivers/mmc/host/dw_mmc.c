@@ -3748,7 +3748,9 @@ static const struct cmdq_host_ops dw_mci_cmdq_ops = {
 	.crypto_engine_cfg = dw_mci_cmdq_crypto_engine_cfg,
 	.crypto_engine_clear = dw_mci_cmdq_crypto_engine_clear,
 	.post_cqe_halt = dw_mci_cmdq_post_cqe_halt,
+#ifdef CONFIG_MMC_DW_DEBUG
 	.cmdq_log = dw_mci_cmdq_cmd_log,
+#endif
 	.busy_waiting = dw_mci_cmdq_busy_waiting,
 	.hwacg_control = dw_mci_cmdq_hwacg_control,
 	.hwacg_control_direct = dw_mci_cmdq_hwacg_control_direct,
