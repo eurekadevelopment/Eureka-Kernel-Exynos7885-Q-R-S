@@ -368,7 +368,7 @@ static void update_cpu_power(unsigned int cpu)
 
 	set_power_scale(cpu, cpu_capacity(cpu) / middle_capacity);
 
-	pr_info("CPU%u: update cpu_power %lu\n",
+	pr_debug("CPU%u: update cpu_power %lu\n",
 		cpu, arch_scale_freq_power(NULL, cpu));
 }
 
@@ -632,7 +632,7 @@ void store_cpu_topology(unsigned int cpuid)
 	update_siblings_masks(cpuid);
 	update_cpu_power(cpuid);
 
-	pr_info("CPU%u: thread %d, cpu %d, cluster %d, mpidr %x\n",
+	pr_debug("CPU%u: thread %d, cpu %d, cluster %d, mpidr %x\n",
 		cpuid, cpu_topology[cpuid].thread_id,
 		cpu_topology[cpuid].core_id,
 		cpu_topology[cpuid].cluster_id, mpidr);
