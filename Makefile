@@ -1554,7 +1554,9 @@ help:
 	@echo  '  export_report   - List the usages of all exported symbols'
 	@echo  '  headers_check   - Sanity check on exported headers'
 	@echo  '  headerdep       - Detect inclusion cycles in headers'
-	@$(MAKE) -f $(srctree)/scripts/Makefile.help checker-help
+	@echo  '  coccicheck      - Check with Coccinelle'
+	@echo  '  clang-analyzer  - Check with clang static analyzer'
+	@echo  '  clang-tidy      - Check with clang-tidy'
 	@echo  ''
 	@echo  'Kernel selftest'
 	@echo  '  kselftest       - Build and run kernel selftest (run as root)'
@@ -1729,6 +1731,20 @@ compile_commands.json: scripts/gen_compile_commands.py \
 	$(call if_changed,gen_compile_commands)
 
 targets += compile_commands.json
+
+PHONY += clang-tidy clang-analyzer
+
+ifeq ($(CC),clang)
+quiet_cmd_clang_tools = CHECK   $<
+      cmd_clang_tools = $(PYTHON3) $(srctree)/scripts/run-clang-tools.py $@ $<
+
+clang-tidy clang-analyzer: $compile_commands.json
+	$(call cmd,clang_tools)
+else
+clang-tidy clang-analyzer:
+	@echo "$@ requires CC=clang" >&2
+	@false
+endif
 
 # Scripts to check various things for consistency
 # ---------------------------------------------------------------------------
