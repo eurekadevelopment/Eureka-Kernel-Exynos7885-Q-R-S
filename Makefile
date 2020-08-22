@@ -378,6 +378,7 @@ DEPMOD		= depmod
 PERL		= perl
 PYTHON		= python
 CHECK		= sparse
+PYTHON3		= python3
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
@@ -1444,8 +1445,12 @@ MRPROPER_FILES += .config .config.old .version .old_version \
 		  x509.genkey extra_certificates signing_key.x509.keyid	\
 		  signing_key.x509.signer vmlinux-gdb.py
 
+PHONY += compile_commands.json
+
 # clean - Delete most, but leave enough to build external modules
 #
+CLEAN_FILES += compile_commands.json
+
 clean: rm-dirs  := $(CLEAN_DIRS)
 clean: rm-files := $(CLEAN_FILES)
 clean-dirs      := $(addprefix _clean_, . $(vmlinux-alldirs) Documentation samples)
@@ -1711,6 +1716,19 @@ quiet_cmd_tags = GEN     $@
 
 tags TAGS cscope gtags: FORCE
 	$(call cmd,tags)
+
+# Clang Tooling
+# ---------------------------------------------------------------------------
+
+quiet_cmd_gen_compile_commands = GEN     $@
+      cmd_gen_compile_commands = $(PYTHON3) $< -a $(AR) -o $@ $(filter-out $<, $(real-prereqs))
+
+compile_commands.json: scripts/gen_compile_commands.py \
+	$(if $(KBUILD_EXTMOD),,$(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS)) \
+	$(if $(CONFIG_MODULES), $(MODORDER)) FORCE
+	$(call if_changed,gen_compile_commands)
+
+targets += compile_commands.json
 
 # Scripts to check various things for consistency
 # ---------------------------------------------------------------------------
