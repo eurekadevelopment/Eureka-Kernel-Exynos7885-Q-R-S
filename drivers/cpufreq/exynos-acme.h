@@ -98,6 +98,6 @@ static inline int ufc_domain_init(struct exynos_cpufreq_domain *domain)
  * the time it takes on this CPU to switch between
  * two frequencies in nanoseconds
  */
-#define TRANSITION_LATENCY	100000
+#define TRANSITION_LATENCY	10000
 
 extern struct cpumask early_cpu_mask;
