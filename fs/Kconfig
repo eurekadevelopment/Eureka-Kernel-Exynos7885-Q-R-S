@@ -12,6 +12,12 @@ config INTERRUPTIBLE_SYNC
 	bool "Support interruptible sync for Samsung Mobile Device"
 	default y
 
+config DYNAMIC_FSYNC
+	bool "dynamic file sync control"
+	default n
+	help
+	  An experimental file sync control using new power_suspend driver 
+
 if BLOCK
 
 source "fs/ext2/Kconfig"
