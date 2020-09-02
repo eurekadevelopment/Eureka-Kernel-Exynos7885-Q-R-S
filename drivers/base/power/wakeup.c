@@ -30,6 +30,26 @@ bool wl_blocker_debug = false;
 static void wakeup_source_deactivate(struct wakeup_source *ws);
 #endif
 
+#include <linux/moduleparam.h>
+
+static bool enable_mmc0_detect_wl = true;
+module_param(enable_mmc0_detect_wl, bool, 0644);
+
+static bool enable_wlan_rx_wake_wl = true;
+module_param(enable_wlan_rx_wake_wl, bool, 0644);
+
+static bool enable_wlan_ctrl_wake_wl = true;
+module_param(enable_wlan_ctrl_wake_wl, bool, 0644);
+
+static bool enable_wlan_wake_wl = true;
+module_param(enable_wlan_wake_wl, bool, 0644);
+
+static bool enable_wlan_wd_wake_wl = true;
+module_param(enable_wlan_wd_wake_wl, bool, 0644);
+
+static bool enable_bluedroid_timer_wl = true;
+module_param(enable_bluedroid_timer_wl, bool, 0644);
+
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
  * if wakeup events are registered during or immediately before the transition.
@@ -543,6 +563,24 @@ static bool wakeup_source_not_registered(struct wakeup_source *ws)
 static void wakeup_source_activate(struct wakeup_source *ws)
 {
 	unsigned int cec;
+	
+	if (!enable_mmc0_detect_wl && !strcmp(ws->name, "mmc0_detect"))
+		return;
+
+	if (!enable_wlan_wake_wl && !strcmp(ws->name, "wlan_wake"))
+		return;
+
+	if (!enable_wlan_ctrl_wake_wl && !strcmp(ws->name, "wlan_ctrl_wake"))
+		return;
+
+	if (!enable_wlan_rx_wake_wl && !strcmp(ws->name, "wlan_rx_wake"))
+		return;
+
+	if (!enable_wlan_wd_wake_wl && !strcmp(ws->name, "wlan_wd_wake"))
+		return;
+
+	if (!enable_bluedroid_timer_wl && !strcmp(ws->name, "bluedroid_timer"))
+		return;
 
 	if (WARN_ONCE(wakeup_source_not_registered(ws),
 			"unregistered wakeup source\n"))
