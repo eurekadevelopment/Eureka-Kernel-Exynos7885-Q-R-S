@@ -859,14 +859,18 @@ endif
 ifdef CONFIG_LTO_CLANG
 ifdef CONFIG_THINLTO
 lto-clang-flags	:= -flto=thin
+ifeq ($(ld-name),lld)
 LDFLAGS		+= --thinlto-cache-dir=.thinlto-cache
+endif
 else
 lto-clang-flags	:= -flto
 endif
 lto-clang-flags += -fvisibility=default $(call cc-option, -fsplit-lto-unit)
 
 # Limit inlining across translation units to reduce binary size
+ifeq ($(ld-name),lld)
 LD_FLAGS_LTO_CLANG := -mllvm -import-instr-limit=5
+endif
 
 KBUILD_LDFLAGS += $(LD_FLAGS_LTO_CLANG)
 KBUILD_LDFLAGS_MODULE += $(LD_FLAGS_LTO_CLANG)
@@ -1173,6 +1177,7 @@ ifdef CONFIG_LTO_CLANG
 	@echo Cannot use CONFIG_LTO_CLANG: requires clang 5.0 or later >&2 && exit 1
   endif
   ifneq ($(ld-name),lld)
+	  @echo LLD LINKER Not In Use
     ifneq ($(call gold-ifversion, -ge, 112000000, y), y)
          @echo Cannot use CONFIG_LTO_CLANG: requires GNU gold 1.12 or later >&2 && exit 1
     endif
