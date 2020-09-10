@@ -1081,9 +1081,9 @@ binder_select_thread_ilocked(struct binder_proc *proc)
 					  struct binder_thread,
 					  waiting_thread_node);
 
-
 	if (thread)
 		list_del_init(&thread->waiting_thread_node);
+
 	return thread;
 }
 
@@ -1230,7 +1230,6 @@ static void binder_do_set_priority(struct task_struct *task,
 					   policy | SCHED_RESET_ON_FORK,
 					   &params);
 	}
-
 	if (is_fair_policy(policy))
 		set_user_nice(task, priority);
 }
