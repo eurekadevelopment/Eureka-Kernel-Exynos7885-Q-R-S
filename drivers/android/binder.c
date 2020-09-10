@@ -126,7 +126,7 @@ BINDER_DEBUG_ENTRY(proc);
 #define FORBIDDEN_MMAP_FLAGS                (VM_WRITE)
 
 enum {
-	BINDER_DEBUG_USER_ERROR             = 1U <<F 0,
+	BINDER_DEBUG_USER_ERROR             = 1U << 0,
 	BINDER_DEBUG_FAILED_TRANSACTION     = 1U << 1,
 	BINDER_DEBUG_DEAD_TRANSACTION       = 1U << 2,
 	BINDER_DEBUG_OPEN_CLOSE             = 1U << 3,
