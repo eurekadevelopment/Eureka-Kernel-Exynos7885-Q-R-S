@@ -386,8 +386,8 @@ static int __init devfreq_boost_init(void)
 		INIT_DELAYED_WORK(&b->max_unboost, devfreq_max_unboost);
 	}
 
-	d->devices[DEVFREQ_MSM_CPUBW].boost_freq =
-		CONFIG_DEVFREQ_MSM_CPUBW_BOOST_FREQ;
+	d->devices[DEVFREQ_EXYNOS_MIF].boost_freq =
+		CONFIG_DEVFREQ_EXYNOS_MIF_BOOST_FREQ;
 
 	devfreq_boost_input_handler.private = d;
 	ret = input_register_handler(&devfreq_boost_input_handler);

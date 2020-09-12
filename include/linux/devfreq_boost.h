@@ -16,7 +16,7 @@
 #include <linux/devfreq.h>
 
 enum df_device {
-	DEVFREQ_MSM_CPUBW,
+	DEVFREQ_EXYNOS_MIF,
 	DEVFREQ_MAX
 };
 
