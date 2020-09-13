@@ -181,9 +181,9 @@ struct mdnie_info {
 	enum BYPASS		bypass;
 	enum HBM		hbm;
 	enum hmt_mode		hmt_mode;
-	enum NIGHT_MODE	night_mode;
-	enum LIGHT_NOTIFICATION		light_notification;
-	enum COLOR_LENS	color_lens;
+	enum NIGHT_MODE		night_mode;
+	enum LIGHT_NOTIFICATION	light_notification;
+	enum COLOR_LENS		color_lens;
 
 	unsigned int		tuning;
 	unsigned int		accessibility;
@@ -218,6 +218,11 @@ struct mdnie_info {
 	mdnie_t sequence_buffer[256];
 };
 
+void init_mdnie_control(struct mdnie_info *mdnie);
+mdnie_t mdnie_reg_hook(unsigned short reg, mdnie_t value); 
+void mdnie_update(struct mdnie_info *mdnie);
+
+extern struct mdnie_seq_info *cmds;
 extern int mdnie_register(struct device *p, void *data, mdnie_w w, mdnie_r r, unsigned int *coordinate, struct mdnie_tune *tune);
 extern ssize_t attr_store_for_each(struct class *cls, const char *name, const char *buf, size_t size);
 extern struct class *get_mdnie_class(void);

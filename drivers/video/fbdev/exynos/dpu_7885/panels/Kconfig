@@ -27,6 +27,10 @@ config EXYNOS_DECON_MDNIE_LITE
 	tristate "Support backward compatibility for MDNIE"
 	default y
 
+config EXYNOS_DECON_MDNIE_CONTROL
+	bool "Samsung Exynos7885 Display colour controller"
+	default n
+
 config SUPPORT_POC_FLASH
 	depends on EXYNOS_DECON_LCD
 	tristate "Support display poc flash"

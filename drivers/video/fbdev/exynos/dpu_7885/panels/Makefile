@@ -5,6 +5,7 @@ obj-$(CONFIG_EXYNOS_DECON_LCD_S6E3FA7)	+= s6e3fa7_mipi_lcd.o s6e3fa7_lcd_ctrl.o
 obj-y += dsim_panel.o ../decon_board.o ../decon_notify.o ../decon_abd.o
 obj-$(CONFIG_DISPLAY_USE_INFO) += dpui.o
 obj-$(CONFIG_EXYNOS_DECON_MDNIE) += mdnie_lite.o
+obj-$(CONFIG_EXYNOS_DECON_MDNIE_CONTROL) += mdnie_control.o
 
 obj-$(and $(CONFIG_EXYNOS_DECON_LCD_S6E3FA7_A7Y18),$(CONFIG_SUPPORT_POC_FLASH)) += poc.o
 obj-$(and $(CONFIG_EXYNOS_DECON_LCD_EA8076_A30),$(CONFIG_SUPPORT_POC_FLASH)) += ea8076_a30_poc.o
