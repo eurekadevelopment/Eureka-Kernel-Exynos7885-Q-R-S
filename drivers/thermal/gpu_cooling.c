@@ -34,16 +34,6 @@
 #include <soc/samsung/ect_parser.h>
 #include "samsung/exynos_tmu.h"
 
-#if defined(CONFIG_SOC_EXYNOS8895) && defined(CONFIG_SOC_EMULATOR8895)
-#include <dt-bindings/clock/emulator8895.h>
-#elif defined(CONFIG_SOC_EXYNOS8895) && !defined(CONFIG_SOC_EMULATOR8895)
-#include <dt-bindings/clock/exynos8895.h>
-#elif defined(CONFIG_SOC_EXYNOS7872)
-#include <dt-bindings/clock/exynos7872.h>
-#elif defined(CONFIG_SOC_EXYNOS7885)
-#include <dt-bindings/clock/exynos7885.h>
-#endif
-
 /**
  * struct power_table - frequency to power conversion
  * @frequency:	frequency in KHz
@@ -346,15 +336,23 @@ static int build_dyn_power_table(struct gpufreq_cooling_device *gpufreq_device,
 	return 0;
 }
 
-static int build_static_power_table(struct gpufreq_cooling_device *gpufreq_device)
+static int build_static_power_table(struct device_node *np, struct gpufreq_cooling_device *gpufreq_device)
 {
 	int i, j;
-	int ratio = cal_asv_get_ids_info(ACPM_DVFS_G3D);
-	int asv_group = cal_asv_get_grp(ACPM_DVFS_G3D);
+	int ratio = 0, asv_group = 0, cal_id = 0, ret = 0;
 	void *gen_block;
 	struct ect_gen_param_table *volt_temp_param, *asv_param;
 	int ratio_table[16] = { 0, 25, 29, 35, 41, 48, 57, 67, 79, 94, 110, 130, 151, 162, 162, 162};
 
+	ret = of_property_read_u32(np, "g3d_cmu_cal_id", &cal_id);
+	if (ret) {
+		pr_err("%s: Failed to get cal-id\n", __func__);
+		return -EINVAL;
+	}
+
+	ratio = cal_asv_get_ids_info(cal_id);
+	asv_group = cal_asv_get_grp(cal_id);
+	
 	if (asv_group < 0 || asv_group > 15)
 		asv_group = 0;
 
@@ -908,7 +906,7 @@ __gpufreq_cooling_register(struct device_node *np,
 		if (ret)
 			return ERR_PTR(ret);
 
-		ret = build_static_power_table(gpufreq_dev);
+		ret = build_static_power_table(np, gpufreq_dev);
 		if (ret)
 			return ERR_PTR(ret);
 	}
