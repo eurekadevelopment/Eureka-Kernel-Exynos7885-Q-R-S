@@ -2755,7 +2755,7 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 	INIT_LIST_HEAD(&decon->up.list);
 	atomic_set(&decon->up.remaining_frame, 0);
 	init_kthread_worker(&decon->up.worker);
-	decon->up.thread = kthread_run(kthread_worker_fn,
+	decon->up.thread = kthread_run_perf_critical(kthread_worker_fn,
 			&decon->up.worker, name);
 	if (IS_ERR(decon->up.thread)) {
 		decon->up.thread = NULL;

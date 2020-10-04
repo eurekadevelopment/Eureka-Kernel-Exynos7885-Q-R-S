@@ -111,8 +111,8 @@ int decon_register_irq(struct decon_device *decon)
 			return -ENOENT;
 		}
 
-		ret = devm_request_irq(dev, res->start, decon_irq_handler, 0,
-				pdev->name, decon);
+		ret = devm_request_irq(dev, res->start, decon_irq_handler,
+					IRQF_PERF_CRITICAL, pdev->name, decon);
 		if (ret) {
 			decon_err("failed to install FIFO irq\n");
 			return ret;
@@ -127,7 +127,7 @@ int decon_register_irq(struct decon_device *decon)
 	}
 
 	ret = devm_request_irq(dev, res->start, decon_irq_handler,
-			0, pdev->name, decon);
+				IRQF_PERF_CRITICAL, pdev->name, decon);
 	if (ret) {
 		decon_err("failed to install FRAME START irq\n");
 		return ret;
@@ -141,7 +141,7 @@ int decon_register_irq(struct decon_device *decon)
 	}
 
 	ret = devm_request_irq(dev, res->start, decon_irq_handler,
-			0, pdev->name, decon);
+				IRQF_PERF_CRITICAL, pdev->name, decon);
 	if (ret) {
 		decon_err("failed to install FRAME DONE irq\n");
 		return ret;
@@ -155,7 +155,7 @@ int decon_register_irq(struct decon_device *decon)
 	}
 
 	ret = devm_request_irq(dev, res->start, decon_irq_handler,
-			0, pdev->name, decon);
+				IRQF_PERF_CRITICAL, pdev->name, decon);
 	if (ret) {
 		decon_err("failed to install EXTRA irq\n");
 		return ret;
@@ -329,7 +329,8 @@ int decon_register_ext_irq(struct decon_device *decon)
 
 	decon_info("%s: gpio(%d)\n", __func__, decon->res.irq);
 	ret = devm_request_irq(dev, decon->res.irq, decon_ext_irq_handler,
-			IRQF_TRIGGER_RISING, pdev->name, decon);
+			IRQF_TRIGGER_RISING | IRQF_PERF_CRITICAL,
+			pdev->name, decon);
 
 	decon->eint_status = 1;
 
@@ -387,7 +388,7 @@ int decon_create_vsync_thread(struct decon_device *decon)
 	}
 
 	sprintf(name, "decon%d-vsync", decon->id);
-	decon->vsync.thread = kthread_run(decon_vsync_thread, decon, name);
+	decon->vsync.thread = kthread_run_perf_critical(decon_vsync_thread, decon, name);
 	if (IS_ERR_OR_NULL(decon->vsync.thread)) {
 		decon_err("failed to run vsync thread\n");
 		decon->vsync.thread = NULL;
