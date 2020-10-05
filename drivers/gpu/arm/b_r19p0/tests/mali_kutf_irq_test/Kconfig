@@ -22,7 +22,7 @@
 config MALI_IRQ_LATENCY
  tristate "Mali GPU IRQ latency measurement"
  depends on MALI_MIDGARD && MALI_DEBUG && MALI_KUTF
- default m
+ default n
  help
    This option will build a test module mali_kutf_irq_test that
    can determine the latency of the Mali GPU IRQ on your system.
