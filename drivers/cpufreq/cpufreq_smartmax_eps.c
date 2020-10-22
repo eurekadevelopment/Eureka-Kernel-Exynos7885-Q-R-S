@@ -668,7 +668,7 @@ static ssize_t store_debug_mask(struct kobject *kobj, struct kobj_attribute *att
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0)
 		debug_mask = input;
 	else
@@ -685,7 +685,7 @@ static ssize_t store_up_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0 && input <= 100000000)
 		up_rate = input;
 	else
@@ -702,7 +702,7 @@ static ssize_t store_down_rate(struct kobject *kobj, struct kobj_attribute *attr
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0 && input <= 100000000)
 		down_rate = input;
 	else
@@ -719,7 +719,7 @@ static ssize_t store_awake_ideal_freq(struct kobject *kobj, struct kobj_attribut
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0) {
 		awake_ideal_freq = input;
 		if (!is_suspended){
@@ -740,7 +740,7 @@ static ssize_t store_suspend_ideal_freq(struct kobject *kobj, struct kobj_attrib
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0) {
 		suspend_ideal_freq = input;
 		if (is_suspended){
@@ -761,7 +761,7 @@ static ssize_t store_ramp_up_step(struct kobject *kobj, struct kobj_attribute *a
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0)
 		ramp_up_step = input;
 	else
@@ -778,7 +778,7 @@ static ssize_t store_ramp_down_step(struct kobject *kobj,
 		struct kobj_attribute *attr, const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= 0)
 		ramp_down_step = input;
 	else
@@ -795,7 +795,7 @@ static ssize_t store_max_cpu_load(struct kobject *kobj, struct kobj_attribute *a
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input > 0 && input <= 100)
 		max_cpu_load = input;
 	else
@@ -812,7 +812,7 @@ static ssize_t store_min_cpu_load(struct kobject *kobj, struct kobj_attribute *a
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input > 0 && input < 100)
 		min_cpu_load = input;
 	else
@@ -829,7 +829,7 @@ static ssize_t store_sampling_rate(struct kobject *kobj, struct kobj_attribute *
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input >= min_sampling_rate)
 		sampling_rate = input;
 	else
@@ -846,7 +846,7 @@ static ssize_t store_touch_poke_freq(struct kobject *a, struct kobj_attribute *b
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0){
 		touch_poke_freq = input;
 	
@@ -868,7 +868,7 @@ static ssize_t store_input_boost_duration(struct kobject *a,
 		struct kobj_attribute *b, const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input > 10000)
 		input_boost_duration = input;
 	else
@@ -885,7 +885,7 @@ static ssize_t store_ramp_up_during_boost(struct kobject *a, struct kobj_attribu
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0) {
 		if (input == 0)
 			ramp_up_during_boost = false;
@@ -907,7 +907,7 @@ static ssize_t store_boost_freq(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0) {
 		boost_freq = input;
 		if (boost_freq == 0)
@@ -928,7 +928,7 @@ static ssize_t store_boost_duration(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0 && input > 10000){
 		boost_duration = input;
 		if (boost) {
@@ -957,7 +957,7 @@ static ssize_t store_io_is_busy(struct kobject *a, struct kobj_attribute *b,
 	ssize_t res;
 	unsigned long input;
 
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0) {
 		if (input > 1)
 			input = 1;
@@ -980,7 +980,7 @@ static ssize_t store_ignore_nice(struct kobject *a, struct kobj_attribute *b,
 	ssize_t res;
 	unsigned long input;
 
-	res = strict_strtoul(buf, 0, &input);
+	res = kstrtoul(buf, 0, &input);
 	if (res >= 0) {
 		if (input > 1)
 			input = 1;
