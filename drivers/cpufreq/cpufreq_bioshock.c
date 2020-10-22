@@ -139,7 +139,7 @@ static struct notifier_block dbs_cpufreq_notifier_block = {
 
 /************************** sysfs interface ************************/
 static ssize_t show_sampling_rate_min(struct kobject *kobj,
-				      struct attribute *attr, char *buf)
+				      struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", min_sampling_rate);
 }
@@ -149,7 +149,7 @@ define_one_global_ro(sampling_rate_min);
 /* cpufreq_conservativex Governor Tunables */
 #define show_one(file_name, object)					\
 static ssize_t show_##file_name						\
-(struct kobject *kobj, struct attribute *attr, char *buf)		\
+(struct kobject *kobj, struct kobj_attribute *attr, char *buf)		\
 {									\
 	return sprintf(buf, "%u\n", dbs_tuners_ins.object);		\
 }
@@ -161,7 +161,7 @@ show_one(ignore_nice_load, ignore_nice);
 show_one(freq_step, freq_step);
 
 static ssize_t store_sampling_down_factor(struct kobject *a,
-					  struct attribute *b,
+					  struct kobj_attribute *b,
 					  const char *buf, size_t count)
 {
 	unsigned int input;
@@ -175,7 +175,7 @@ static ssize_t store_sampling_down_factor(struct kobject *a,
 	return count;
 }
 
-static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
+static ssize_t store_sampling_rate(struct kobject *a, struct kobj_attribute *b,
 				   const char *buf, size_t count)
 {
 	unsigned int input;
@@ -189,7 +189,7 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t store_up_threshold(struct kobject *a, struct attribute *b,
+static ssize_t store_up_threshold(struct kobject *a, struct kobj_attribute *b,
 				  const char *buf, size_t count)
 {
 	unsigned int input;
@@ -204,7 +204,7 @@ static ssize_t store_up_threshold(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t store_down_threshold(struct kobject *a, struct attribute *b,
+static ssize_t store_down_threshold(struct kobject *a, struct kobj_attribute *b,
 				    const char *buf, size_t count)
 {
 	unsigned int input;
@@ -220,7 +220,7 @@ static ssize_t store_down_threshold(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t store_ignore_nice_load(struct kobject *a, struct attribute *b,
+static ssize_t store_ignore_nice_load(struct kobject *a, struct kobj_attribute *b,
 				      const char *buf, size_t count)
 {
 	unsigned int input;
@@ -252,7 +252,7 @@ static ssize_t store_ignore_nice_load(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t store_freq_step(struct kobject *a, struct attribute *b,
+static ssize_t store_freq_step(struct kobject *a, struct kobj_attribute *b,
 			       const char *buf, size_t count)
 {
 	unsigned int input;

@@ -90,14 +90,14 @@ static struct darkness_tuners {
 /* cpufreq_darkness Governor Tunables */
 #define show_one(file_name, object)					\
 static ssize_t show_##file_name						\
-(struct kobject *kobj, struct attribute *attr, char *buf)		\
+(struct kobject *kobj, struct kobj_attribute *attr, char *buf)		\
 {									\
 	return sprintf(buf, "%d\n", atomic_read(&darkness_tuners_ins.object));		\
 }
 show_one(sampling_rate, sampling_rate);
 
 static ssize_t show_cpucore_table(struct kobject *kobj,
-				struct attribute *attr, char *buf)
+				struct kobj_attribute *attr, char *buf)
 {
 	ssize_t count = 0;
 	int i;
@@ -168,7 +168,7 @@ static void update_sampling_rate(unsigned int new_rate)
 }
 
 /* sampling_rate */
-static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
+static ssize_t store_sampling_rate(struct kobject *a, struct kobj_attribute *b,
 				   const char *buf, size_t count)
 {
 	int input;

@@ -595,12 +595,12 @@ static void update_idle_time(bool online) {
 	}
 }
 
-static ssize_t show_debug_mask(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_debug_mask(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%lu\n", debug_mask);
 }
 
-static ssize_t store_debug_mask(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_debug_mask(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -612,12 +612,12 @@ static ssize_t store_debug_mask(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_up_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_up_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", up_rate);
 }
 
-static ssize_t store_up_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_up_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -629,12 +629,12 @@ static ssize_t store_up_rate(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_down_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_down_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", down_rate);
 }
 
-static ssize_t store_down_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_down_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -646,12 +646,12 @@ static ssize_t store_down_rate(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_awake_ideal_freq(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_awake_ideal_freq(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", awake_ideal_freq);
 }
 
-static ssize_t store_awake_ideal_freq(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_awake_ideal_freq(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -667,12 +667,12 @@ static ssize_t store_awake_ideal_freq(struct kobject *kobj, struct attribute *at
 	return count;
 }
 
-static ssize_t show_suspend_ideal_freq(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_suspend_ideal_freq(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", suspend_ideal_freq);
 }
 
-static ssize_t store_suspend_ideal_freq(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_suspend_ideal_freq(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -688,12 +688,12 @@ static ssize_t store_suspend_ideal_freq(struct kobject *kobj, struct attribute *
 	return count;
 }
 
-static ssize_t show_ramp_up_step(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_ramp_up_step(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", ramp_up_step);
 }
 
-static ssize_t store_ramp_up_step(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_ramp_up_step(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -705,13 +705,13 @@ static ssize_t store_ramp_up_step(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_ramp_down_step(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_ramp_down_step(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", ramp_down_step);
 }
 
 static ssize_t store_ramp_down_step(struct kobject *kobj,
-		struct attribute *attr, const char *buf, size_t count) {
+		struct kobj_attribute *attr, const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
 	res = strict_strtoul(buf, 0, &input);
@@ -722,12 +722,12 @@ static ssize_t store_ramp_down_step(struct kobject *kobj,
 	return count;
 }
 
-static ssize_t show_max_cpu_load(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_max_cpu_load(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", max_cpu_load);
 }
 
-static ssize_t store_max_cpu_load(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_max_cpu_load(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -739,12 +739,12 @@ static ssize_t store_max_cpu_load(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_min_cpu_load(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_min_cpu_load(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", min_cpu_load);
 }
 
-static ssize_t store_min_cpu_load(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_min_cpu_load(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -756,12 +756,12 @@ static ssize_t store_min_cpu_load(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static ssize_t show_sampling_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_sampling_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", sampling_rate);
 }
 
-static ssize_t store_sampling_rate(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_sampling_rate(struct kobject *kobj, struct kobj_attribute *attr,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -774,11 +774,11 @@ static ssize_t store_sampling_rate(struct kobject *kobj, struct attribute *attr,
 }
 
 static ssize_t show_touch_poke_freq(struct kobject *kobj,
-		struct attribute *attr, char *buf) {
+		struct kobj_attribute *attr, char *buf) {
 	return sprintf(buf, "%u\n", touch_poke_freq);
 }
 
-static ssize_t store_touch_poke_freq(struct kobject *a, struct attribute *b,
+static ssize_t store_touch_poke_freq(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -796,12 +796,12 @@ static ssize_t store_touch_poke_freq(struct kobject *a, struct attribute *b,
 }
 
 static ssize_t show_input_boost_duration(struct kobject *kobj,
-		struct attribute *attr, char *buf) {
+		struct kobj_attribute *attr, char *buf) {
 	return sprintf(buf, "%u\n", input_boost_duration);
 }
 
 static ssize_t store_input_boost_duration(struct kobject *a,
-		struct attribute *b, const char *buf, size_t count) {
+		struct kobj_attribute *b, const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
 	res = strict_strtoul(buf, 0, &input);
@@ -813,11 +813,11 @@ static ssize_t store_input_boost_duration(struct kobject *a,
 }
 
 static ssize_t show_ramp_up_during_boost(struct kobject *kobj,
-		struct attribute *attr, char *buf) {
+		struct kobj_attribute *attr, char *buf) {
 	return sprintf(buf, "%d\n", ramp_up_during_boost);
 }
 
-static ssize_t store_ramp_up_during_boost(struct kobject *a, struct attribute *b,
+static ssize_t store_ramp_up_during_boost(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -834,12 +834,12 @@ static ssize_t store_ramp_up_during_boost(struct kobject *a, struct attribute *b
 	return count;
 }
 
-static ssize_t show_boost_freq(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_boost_freq(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%u\n", boost_freq);
 }
 
-static ssize_t store_boost_freq(struct kobject *a, struct attribute *b,
+static ssize_t store_boost_freq(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -855,12 +855,12 @@ static ssize_t store_boost_freq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t show_boost_duration(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_boost_duration(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%d\n", boost_running);
 }
 
-static ssize_t store_boost_duration(struct kobject *a, struct attribute *b,
+static ssize_t store_boost_duration(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -883,12 +883,12 @@ static ssize_t store_boost_duration(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t show_io_is_busy(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_io_is_busy(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%d\n", io_is_busy);
 }
 
-static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
+static ssize_t store_io_is_busy(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -906,12 +906,12 @@ static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static ssize_t show_ignore_nice(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_ignore_nice(struct kobject *kobj, struct kobj_attribute *attr,
 		char *buf) {
 	return sprintf(buf, "%d\n", ignore_nice);
 }
 
-static ssize_t store_ignore_nice(struct kobject *a, struct attribute *b,
+static ssize_t store_ignore_nice(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count) {
 	ssize_t res;
 	unsigned long input;
@@ -932,7 +932,7 @@ static ssize_t store_ignore_nice(struct kobject *a, struct attribute *b,
 }
 
 #define define_global_rw_attr(_name)		\
-static struct global_attr _name##_attr =	\
+static struct kobj_attribute _name##_attr =	\
 	__ATTR(_name, 0644, show_##_name, store_##_name)
 
 define_global_rw_attr(debug_mask);

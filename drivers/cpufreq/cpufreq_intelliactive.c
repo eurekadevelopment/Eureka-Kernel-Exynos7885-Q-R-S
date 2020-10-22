@@ -801,7 +801,7 @@ err:
 }
 
 static ssize_t show_two_phase_freq
-(struct kobject *kobj, struct attribute *attr, char *buf)
+(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	int i = 0 ;
 	int shift = 0 ;
@@ -814,7 +814,7 @@ static ssize_t show_two_phase_freq
 	return strlen(buf);
 }
 
-static ssize_t store_two_phase_freq(struct kobject *a, struct attribute *b,
+static ssize_t store_two_phase_freq(struct kobject *a, struct kobj_attribute *b,
 		const char *buf, size_t count)
 {
 
@@ -835,12 +835,12 @@ static ssize_t store_two_phase_freq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
-static struct global_attr two_phase_freq_attr =
+static struct kobj_attribute two_phase_freq_attr =
 	__ATTR(two_phase_freq, S_IRUGO | S_IWUSR,
 		show_two_phase_freq, store_two_phase_freq);
 
 static ssize_t show_target_loads(
-	struct kobject *kobj, struct attribute *attr, char *buf)
+	struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	int i;
 	ssize_t ret = 0;
@@ -858,7 +858,7 @@ static ssize_t show_target_loads(
 }
 
 static ssize_t store_target_loads(
-	struct kobject *kobj, struct attribute *attr, const char *buf,
+	struct kobject *kobj, struct kobj_attribute *attr, const char *buf,
 	size_t count)
 {
 	int ntokens;
@@ -878,12 +878,12 @@ static ssize_t store_target_loads(
 	return count;
 }
 
-static struct global_attr target_loads_attr =
+static struct kobj_attribute target_loads_attr =
 	__ATTR(target_loads, S_IRUGO | S_IWUSR,
 		show_target_loads, store_target_loads);
 
 static ssize_t show_above_hispeed_delay(
-	struct kobject *kobj, struct attribute *attr, char *buf)
+	struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	int i;
 	ssize_t ret = 0;
@@ -901,7 +901,7 @@ static ssize_t show_above_hispeed_delay(
 }
 
 static ssize_t store_above_hispeed_delay(
-	struct kobject *kobj, struct attribute *attr, const char *buf,
+	struct kobject *kobj, struct kobj_attribute *attr, const char *buf,
 	size_t count)
 {
 	int ntokens;
@@ -922,18 +922,18 @@ static ssize_t store_above_hispeed_delay(
 
 }
 
-static struct global_attr above_hispeed_delay_attr =
+static struct kobj_attribute above_hispeed_delay_attr =
 	__ATTR(above_hispeed_delay, S_IRUGO | S_IWUSR,
 		show_above_hispeed_delay, store_above_hispeed_delay);
 
 static ssize_t show_hispeed_freq(struct kobject *kobj,
-				 struct attribute *attr, char *buf)
+				 struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", hispeed_freq);
 }
 
 static ssize_t store_hispeed_freq(struct kobject *kobj,
-				  struct attribute *attr, const char *buf,
+				  struct kobj_attribute *attr, const char *buf,
 				  size_t count)
 {
 	int ret;
@@ -946,17 +946,17 @@ static ssize_t store_hispeed_freq(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr hispeed_freq_attr = __ATTR(hispeed_freq, 0644,
+static struct kobj_attribute hispeed_freq_attr = __ATTR(hispeed_freq, 0644,
 		show_hispeed_freq, store_hispeed_freq);
 
 static ssize_t show_sampling_down_factor(struct kobject *kobj,
-				struct attribute *attr, char *buf)
+				struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", sampling_down_factor);
 }
 
 static ssize_t store_sampling_down_factor(struct kobject *kobj,
-				struct attribute *attr, const char *buf,
+				struct kobj_attribute *attr, const char *buf,
 				size_t count)
 {
 	int ret;
@@ -969,18 +969,18 @@ static ssize_t store_sampling_down_factor(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr sampling_down_factor_attr =
+static struct kobj_attribute sampling_down_factor_attr =
 				__ATTR(sampling_down_factor, 0644,
 		show_sampling_down_factor, store_sampling_down_factor);
 
 static ssize_t show_go_hispeed_load(struct kobject *kobj,
-				     struct attribute *attr, char *buf)
+				     struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%lu\n", go_hispeed_load);
 }
 
 static ssize_t store_go_hispeed_load(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -992,17 +992,17 @@ static ssize_t store_go_hispeed_load(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr go_hispeed_load_attr = __ATTR(go_hispeed_load, 0644,
+static struct kobj_attribute go_hispeed_load_attr = __ATTR(go_hispeed_load, 0644,
 		show_go_hispeed_load, store_go_hispeed_load);
 
 static ssize_t show_min_sample_time(struct kobject *kobj,
-				struct attribute *attr, char *buf)
+				struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%lu\n", min_sample_time);
 }
 
 static ssize_t store_min_sample_time(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1014,17 +1014,17 @@ static ssize_t store_min_sample_time(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr min_sample_time_attr = __ATTR(min_sample_time, 0644,
+static struct kobj_attribute min_sample_time_attr = __ATTR(min_sample_time, 0644,
 		show_min_sample_time, store_min_sample_time);
 
 static ssize_t show_timer_rate(struct kobject *kobj,
-			struct attribute *attr, char *buf)
+			struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%lu\n", timer_rate);
 }
 
 static ssize_t store_timer_rate(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1036,17 +1036,17 @@ static ssize_t store_timer_rate(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr timer_rate_attr = __ATTR(timer_rate, 0644,
+static struct kobj_attribute timer_rate_attr = __ATTR(timer_rate, 0644,
 		show_timer_rate, store_timer_rate);
 
 static ssize_t show_timer_slack(
-	struct kobject *kobj, struct attribute *attr, char *buf)
+	struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%d\n", timer_slack_val);
 }
 
 static ssize_t store_timer_slack(
-	struct kobject *kobj, struct attribute *attr, const char *buf,
+	struct kobject *kobj, struct kobj_attribute *attr, const char *buf,
 	size_t count)
 {
 	int ret;
@@ -1062,13 +1062,13 @@ static ssize_t store_timer_slack(
 
 define_one_global_rw(timer_slack);
 
-static ssize_t show_boost(struct kobject *kobj, struct attribute *attr,
+static ssize_t show_boost(struct kobject *kobj, struct kobj_attribute *attr,
 			  char *buf)
 {
 	return sprintf(buf, "%d\n", boost_val);
 }
 
-static ssize_t store_boost(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_boost(struct kobject *kobj, struct kobj_attribute *attr,
 			   const char *buf, size_t count)
 {
 	int ret;
@@ -1089,7 +1089,7 @@ static ssize_t store_boost(struct kobject *kobj, struct attribute *attr,
 
 define_one_global_rw(boost);
 
-static ssize_t store_boostpulse(struct kobject *kobj, struct attribute *attr,
+static ssize_t store_boostpulse(struct kobject *kobj, struct kobj_attribute *attr,
 				const char *buf, size_t count)
 {
 	int ret;
@@ -1104,17 +1104,17 @@ static ssize_t store_boostpulse(struct kobject *kobj, struct attribute *attr,
 	return count;
 }
 
-static struct global_attr boostpulse =
+static struct kobj_attribute boostpulse =
 	__ATTR(boostpulse, 0200, NULL, store_boostpulse);
 
 static ssize_t show_boostpulse_duration(
-	struct kobject *kobj, struct attribute *attr, char *buf)
+	struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%d\n", boostpulse_duration_val);
 }
 
 static ssize_t store_boostpulse_duration(
-	struct kobject *kobj, struct attribute *attr, const char *buf,
+	struct kobject *kobj, struct kobj_attribute *attr, const char *buf,
 	size_t count)
 {
 	int ret;
@@ -1131,13 +1131,13 @@ static ssize_t store_boostpulse_duration(
 define_one_global_rw(boostpulse_duration);
 
 static ssize_t show_io_is_busy(struct kobject *kobj,
-			struct attribute *attr, char *buf)
+			struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", io_is_busy);
 }
 
 static ssize_t store_io_is_busy(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1149,17 +1149,17 @@ static ssize_t store_io_is_busy(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr io_is_busy_attr = __ATTR(io_is_busy, 0644,
+static struct kobj_attribute io_is_busy_attr = __ATTR(io_is_busy, 0644,
 		show_io_is_busy, store_io_is_busy);
 
 static ssize_t show_sync_freq(struct kobject *kobj,
-			struct attribute *attr, char *buf)
+			struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%u\n", sync_freq);
 }
 
 static ssize_t store_sync_freq(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1171,17 +1171,17 @@ static ssize_t store_sync_freq(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr sync_freq_attr = __ATTR(sync_freq, 0644,
+static struct kobj_attribute sync_freq_attr = __ATTR(sync_freq, 0644,
 		show_sync_freq, store_sync_freq);
 
 static ssize_t show_up_threshold_any_cpu_load(struct kobject *kobj,
-			struct attribute *attr, char *buf)
+			struct kobj_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%u\n", up_threshold_any_cpu_load);
 }
 
 static ssize_t store_up_threshold_any_cpu_load(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1193,19 +1193,19 @@ static ssize_t store_up_threshold_any_cpu_load(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr up_threshold_any_cpu_load_attr =
+static struct kobj_attribute up_threshold_any_cpu_load_attr =
 		__ATTR(up_threshold_any_cpu_load, 0644,
 		show_up_threshold_any_cpu_load,
 				store_up_threshold_any_cpu_load);
 
 static ssize_t show_up_threshold_any_cpu_freq(struct kobject *kobj,
-			struct attribute *attr, char *buf)
+			struct kobj_attribute *attr, char *buf)
 {
 	return snprintf(buf, PAGE_SIZE, "%u\n", up_threshold_any_cpu_freq);
 }
 
 static ssize_t store_up_threshold_any_cpu_freq(struct kobject *kobj,
-			struct attribute *attr, const char *buf, size_t count)
+			struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int ret;
 	unsigned long val;
@@ -1217,7 +1217,7 @@ static ssize_t store_up_threshold_any_cpu_freq(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr up_threshold_any_cpu_freq_attr =
+static struct kobj_attribute up_threshold_any_cpu_freq_attr =
 		__ATTR(up_threshold_any_cpu_freq, 0644,
 		show_up_threshold_any_cpu_freq,
 				store_up_threshold_any_cpu_freq);
