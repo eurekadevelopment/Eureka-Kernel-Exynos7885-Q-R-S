@@ -560,6 +560,27 @@ extern struct cpufreq_governor cpufreq_gov_interactive;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL)
 extern struct cpufreq_governor schedutil_gov;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&schedutil_gov)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_BLU_ACTIVE)
+extern struct cpufreq_governor cpufreq_gov_blu_active;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_blu_active)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIACTIVE)
+extern struct cpufreq_governor cpufreq_gov_intelliactive;
+#define CPUFREQ_DEFAULT_GOVERNOR 	(&cpufreq_gov_intelliactive)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVEX)
+extern struct cpufreq_governor cpufreq_gov_interactivex;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactivex)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_BIOSHOCK)
+extern struct cpufreq_governor cpufreq_gov_bioshock;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_bioshock)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKNESS)
+extern struct cpufreq_governor cpufreq_gov_darkness;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_darkness)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTMAX)
+extern struct cpufreq_governor cpufreq_gov_smartmax;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_smartmax)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTMAX_EPS)
+extern struct cpufreq_governor cpufreq_gov_smartmax_eps;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_smartmax_eps)
 #endif
 
 /*********************************************************************

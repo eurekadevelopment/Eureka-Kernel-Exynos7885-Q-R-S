@@ -138,6 +138,75 @@ config CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
 	  have a look at the help section of that governor. The fallback
 	  governor will be 'performance'.
 
+config CPU_FREQ_DEFAULT_GOV_BLU_ACTIVE
+	bool "blu_active"
+	select CPU_FREQ_GOV_BLU_ACTIVE
+	help
+	  Use the CPUFreq governor 'blu_active' as default. This allows
+	  you to get a full dynamic cpu frequency capable system by simply
+	  loading your cpufreq low-level hardware driver, using the
+	  'interactive' governor for latency-sensitive workloads.
+
+config CPU_FREQ_DEFAULT_GOV_DARKNESS
+	bool "darkness"
+	select CPU_FREQ_GOV_DARKNESS
+	help
+	  An improved version of Pegasus-q.It is a multi-core based on the
+	  Ondemand governor and governor with integrated hot-plugging. It is
+	  stable and has the same battery life as ondemand). Ongoing processes
+	  in the queue, we know that multiple processes can run simultaneously
+	  on. These processes are active in an array, which is a field called
+	  "Run Queue" queue that is ongoing, with their priority values ​​arranged
+	  (priority will be used by the task scheduler, which then decides which
+	  process to run next).
+
+config CPU_FREQ_DEFAULT_GOV_BIOSHOCK
+ 	bool "BioShock"
+ 	select CPU_FREQ_GOV_BIOSHOCK
+ 	help
+ 	  Default governor of BioShock kernel. CPU governor developed by
+ 	  Jamison904. A mix of ConservativeX and Lionheart. ConservativeX
+ 	  governor behaves like the Conservative governor with the added
+ 	  benefit of locking the CPU frequency to the lowest interval when
+ 	  the screen is off. Lionheart is a conservative-based governor 
+ 	  which behaves more like the performance one, at the cost of
+ 	  battery as the scaling is very aggressive.
+
+config CPU_FREQ_DEFAULT_GOV_INTERACTIVEX
+	bool "InteractiveX"
+ 	select CPU_FREQ_GOV_INTERACTIVEX
+ 	help
+ 	  Use the CPUFreq governor 'interactivex' as default.
+ 	  InteractiveX governor is based heavily on the Interactive governor,
+ 	  enhanced with tuned timer parameters to better balance battery vs.
+ 	  performance. The InteractiveX governor's defining feature, however,
+ 	  is that it locks the CPU frequency to the user's lowest defined speed
+ 	  when the screen is off.
+
+config CPU_FREQ_DEFAULT_GOV_INTELLIACTIVE
+	bool "Intelliactive"
+ 	select CPU_FREQ_GOV_INTELLIACTIVE
+ 	help
+ 	  Use the CPUFreq governor 'intelliactive' as default.
+ 	  Based off Google's Interactive governor with the following enhancements:
+ 	    > self-boost capability from input drivers (no need for PowerHAL assist)
+ 	    > two phase scheduling (idle/busy phases to prevent from jumping directly
+ 	      to max freq
+ 	    > Checks for offline cpus and short circuits some unnecessary checks to
+ 	      improve code execution paths
+
+config CPU_FREQ_DEFAULT_GOV_SMARTMAX_EPS
+ 	bool "smartmax_eps"
+ 	select CPU_FREQ_GOV_SMARTMAX_EPS
+ 	help
+ 	  Use the CPUFreq governor 'smartmax eps' as default
+
+config CPU_FREQ_DEFAULT_GOV_SMARTMAX
+ 	bool "smartmax"
+ 	select CPU_FREQ_GOV_SMARTMAX
+ 	help
+ 	  Use the CPUFreq governor 'smartmax' as default
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -291,6 +360,67 @@ config CPUFREQ_DT
 	  systems which share clock and voltage across all CPUs.
 
 	  If in doubt, say N.
+
+config CPU_FREQ_GOV_BLU_ACTIVE
+	tristate "'blu_active' cpufreq policy governor"
+	help
+	  'blu_active' - This driver adds a dynamic cpufreq policy governor
+	  designed for latency-sensitive workloads.
+
+	  This governor attempts to reduce the latency of clock
+	  increases so that the system is more responsive to
+	  interactive workloads.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_blu_active.
+
+	  If in doubt, say N.
+
+config CPU_FREQ_GOV_DARKNESS
+ 	tristate "'darkness' cpufreq policy governor"
+ 	help
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_darkness.
+
+	  If in doubt, say N.
+
+config CPU_FREQ_GOV_BIOSHOCK
+ 	tristate "'bioshock' cpufreq bioshock"
+	depends on CPU_FREQ
+	help
+	  'bioshock' - More aggressive version of conservative
+
+config CPU_FREQ_GOV_INTELLIACTIVE
+	tristate "'intelliactive' governor"
+	help
+	  This cpufreq governor sets the frequency statically to the
+	  highest available CPU frequency.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_intelliactive.
+
+	  If in doubt, say Y.
+
+config CPU_FREQ_GOV_INTERACTIVEX
+	tristate "'interactivex' governor"
+	help
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_interactivex.
+
+	  If in doubt, say Y.
+
+config CPU_FREQ_GOV_SMARTMAX
+	tristate "'smartmax' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'smartmax' - a "smart" optimized governor!
+	   If in doubt, say N.
+
+config CPU_FREQ_GOV_SMARTMAX_EPS
+	tristate "'smartmax EPS' cpufreq policy governor"
+	select CPU_FREQ_TABLE
+	help
+	  'smartmax EPS' is the extreme powersaving version of smartmax
 
 if X86
 source "drivers/cpufreq/Kconfig.x86"
