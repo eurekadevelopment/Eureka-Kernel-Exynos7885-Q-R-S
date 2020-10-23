@@ -183,6 +183,17 @@ config CPU_FREQ_DEFAULT_GOV_INTERACTIVEX
  	  is that it locks the CPU frequency to the user's lowest defined speed
  	  when the screen is off.
 
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+	bool "lionheart"
+ 	select CPU_FREQ_GOV_LIONHEART
+ 	help
+ 	  Use the CPUFreq governor 'lionheart' as default.
+ 	  Lionheart is a conservative-based governor,
+ 	  Which is based on samsung's update3 source.
+ 	  The tunables (such as the thresholds and sampling rate),
+ 	  Were changed so the governor behaves more performance,
+ 	  At the cost of battery as the scaling is very aggressive.
+
 config CPU_FREQ_DEFAULT_GOV_INTELLIACTIVE
 	bool "Intelliactive"
  	select CPU_FREQ_GOV_INTELLIACTIVE
@@ -408,6 +419,13 @@ config CPU_FREQ_GOV_INTERACTIVEX
 	  module will be called cpufreq_interactivex.
 
 	  If in doubt, say Y.
+
+config CPU_FREQ_GOV_LIONHEART
+	tristate "'lionheart' governor"
+	help
+	  The cpufreq governor lionheart. WJH
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_lionheart.
 
 config CPU_FREQ_GOV_SMARTMAX
 	tristate "'smartmax' cpufreq governor"
