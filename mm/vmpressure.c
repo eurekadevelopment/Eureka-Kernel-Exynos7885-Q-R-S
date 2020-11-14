@@ -37,13 +37,9 @@ static const unsigned int vmpressure_level_med = CONFIG_VMPRESSURE_LEVEL_MED;
 static const unsigned int vmpressure_level_critical = CONFIG_VMPRESSURE_LEVEL_CRI;
 
 static unsigned long vmpressure_scale_max = 100;
-module_param_named(vmpressure_scale_max, vmpressure_scale_max,
-			ulong, S_IRUGO | S_IWUSR);
 
 /* vmpressure values >= this will be scaled based on allocstalls */
 static unsigned long allocstall_threshold = 70;
-module_param_named(allocstall_threshold, allocstall_threshold,
-			ulong, S_IRUGO | S_IWUSR);
 
 static struct vmpressure global_vmpressure;
 static BLOCKING_NOTIFIER_HEAD(vmpressure_notifier);
