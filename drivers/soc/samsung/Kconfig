@@ -34,6 +34,13 @@ config ECT_DUMP
 	default n
 	depends on ECT
 
+config BYPASS_CPU_THROTTLING
+	bool "CPU throttling bypass feature"
+	default n
+	depends on ECT
+	help
+	  If enabled, cpu frequencies will not be throttled until temperature is above 95"C
+
 config EXYNOS_PD
 	bool "Exynos PM domain Support"
 	depends on ARCH_EXYNOS
