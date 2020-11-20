@@ -62,6 +62,8 @@
  *                interrupt handler after suspending interrupts. For system
  *                wakeup devices users need to implement wakeup detection in
  *                their interrupt handlers.
+ * IRQF_PERF_CRITICAL - Interrupt is critical to the overall performance of the
+ * 		  system and should be processed on a fast CPU.
  */
 #define IRQF_DISABLED		0x00000020
 #define IRQF_SHARED		0x00000080
@@ -77,6 +79,7 @@
 #define IRQF_EARLY_RESUME	0x00020000
 #define IRQF_COND_SUSPEND	0x00040000
 #define IRQF_GIC_MULTI_TARGET	0x10000000
+#define IRQF_PERF_CRITICAL	0x00080000
 
 #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
 
@@ -199,10 +202,13 @@ extern void disable_percpu_irq(unsigned int irq);
 extern void enable_irq(unsigned int irq);
 extern void enable_percpu_irq(unsigned int irq, unsigned int type);
 extern void irq_wake_thread(unsigned int irq, void *dev_id);
+extern void irq_set_perf_affinity(unsigned int irq);
 
 /* The following three functions are for the core kernel use only. */
 extern void suspend_device_irqs(void);
 extern void resume_device_irqs(void);
+extern void unaffine_perf_irqs(void);
+extern void reaffine_perf_irqs(void);
 
 /**
  * struct irq_affinity_notify - context for notification of IRQ affinity changes
