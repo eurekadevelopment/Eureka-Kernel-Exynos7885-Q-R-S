@@ -66,7 +66,8 @@ obj-$(CONFIG_SPARSEMEM)	+= sparse.o
 obj-$(CONFIG_SPARSEMEM_VMEMMAP) += sparse-vmemmap.o
 obj-$(CONFIG_SLOB) += slob.o
 obj-$(CONFIG_MMU_NOTIFIER) += mmu_notifier.o
-obj-$(CONFIG_KSM) += ksm.o
+obj-$(CONFIG_KSM_LEGACY) += ksm.o
+obj-$(CONFIG_UKSM) += uksm.o
 obj-$(CONFIG_PAGE_POISONING) += debug-pagealloc.o
 obj-$(CONFIG_SLAB) += slab.o
 obj-$(CONFIG_SLUB) += slub.o
@@ -110,4 +111,3 @@ obj-$(CONFIG_PAGE_BOOST_RECORDING) += io_record.o
 # and that the conversions specified in the format string make sense.
 CFLAGS_backing-dev.o = -Wformat
 CFLAGS_page-writeback.o = -Wformat
-
