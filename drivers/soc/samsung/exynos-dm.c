@@ -21,6 +21,7 @@
 #include "acpm/acpm_ipc.h"
 
 #include <soc/samsung/exynos-dm.h>
+#include <soc/samsung/cal-if.h>
 
 static struct list_head *get_min_constraint_list(struct exynos_dm_data *dm_data);
 static struct list_head *get_max_constraint_list(struct exynos_dm_data *dm_data);
@@ -183,6 +184,74 @@ static ssize_t show_dm_policy_##type_name						\
 	return count;									\
 }
 
+#define show_voltage_table(dm_type, type_name)						\
+static ssize_t show_voltage_table_##type_name						\
+(struct device *dev, struct device_attribute *attr, char *buf)				\
+{											\
+	struct platform_device *pdev = container_of(dev, struct platform_device, dev);	\
+	struct exynos_dm_device *dm = platform_get_drvdata(pdev);			\
+	ssize_t count = 0;								\
+	unsigned int cal_id, table_size;						\
+	unsigned int *volt_table;							\
+	unsigned long *rate_table;							\
+	int num_lvl, index;								\
+											\
+	if (!dm->dm_data[dm_type].available) {						\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"This dm_type is not available\n");			\
+		return count;								\
+	}										\
+											\
+	cal_id = dm->dm_data[dm_type].cal_id;						\
+											\
+	table_size = cal_dfs_get_lv_num(cal_id);					\
+											\
+	rate_table = kzalloc(sizeof(unsigned int) * table_size, GFP_KERNEL);		\
+	if (!rate_table) {								\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"Out of memory\n");					\
+		return count;								\
+	}										\
+											\
+	volt_table = kzalloc(sizeof(unsigned int) * table_size, GFP_KERNEL);		\
+	if (!volt_table) {								\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"Out of memory\n");					\
+		goto free_rate_table;							\
+	}										\
+											\
+	num_lvl = cal_dfs_get_rate_table(cal_id, rate_table);				\
+	if (num_lvl <= 0) {								\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"No rate table entries (%d)\n", num_lvl);		\
+		goto free_tables;							\
+	}										\
+											\
+	num_lvl = cal_dfs_get_asv_table(cal_id, volt_table);				\
+	if (num_lvl <= 0) {								\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"No volt table entries (%d)\n", num_lvl);		\
+		goto free_tables;							\
+	}										\
+											\
+	count += snprintf(buf + count, PAGE_SIZE, "dm_type: %s\n",			\
+				dm->dm_data[dm_type].dm_type_name);			\
+											\
+	for (index = 0; index < table_size; index++) {					\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+			"%lu MHz: %u uV\n", rate_table[index] / 1000, volt_table[index]);	\
+	}										\
+											\
+free_tables:										\
+	kfree(rate_table);								\
+	kfree(volt_table);								\
+	return count;									\
+											\
+free_rate_table:									\
+	kfree(rate_table);								\
+	return count;									\
+}
+
 show_constraint_tables(DM_CPU_CL0, dm_cpu_cl0);
 show_constraint_tables(DM_CPU_CL1, dm_cpu_cl1);
 show_constraint_tables(DM_MIF, dm_mif);
@@ -209,6 +278,19 @@ show_dm_policy(DM_AUD, dm_aud);
 show_dm_policy(DM_CAM, dm_cam);
 show_dm_policy(DM_GPU, dm_gpu);
 
+show_voltage_table(DM_CPU_CL0, dm_cpu_cl0);
+show_voltage_table(DM_CPU_CL1, dm_cpu_cl1);
+show_voltage_table(DM_MIF, dm_mif);
+show_voltage_table(DM_INT, dm_int);
+show_voltage_table(DM_INTCAM, dm_intcam);
+show_voltage_table(DM_DISP, dm_disp);
+#if defined(CONFIG_SOC_EXYNOS7885)
+show_voltage_table(DM_FSYS, dm_fsys);
+show_voltage_table(DM_AUD, dm_aud);
+#endif
+show_voltage_table(DM_CAM, dm_cam);
+show_voltage_table(DM_GPU, dm_gpu);
+
 static DEVICE_ATTR(available, 0440, show_available, NULL);
 static DEVICE_ATTR(constraint_tables_dm_cpu_cl0, 0440, show_constraint_tables_dm_cpu_cl0, NULL);
 static DEVICE_ATTR(constraint_tables_dm_cpu_cl1, 0440, show_constraint_tables_dm_cpu_cl1, NULL);
@@ -234,6 +316,18 @@ static DEVICE_ATTR(dm_policy_dm_aud, 0440, show_dm_policy_dm_aud, NULL);
 #endif
 static DEVICE_ATTR(dm_policy_dm_cam, 0440, show_dm_policy_dm_cam, NULL);
 static DEVICE_ATTR(dm_policy_dm_gpu, 0440, show_dm_policy_dm_gpu, NULL);
+static DEVICE_ATTR(voltage_table_dm_cpu_cl0, 0440, show_voltage_table_dm_cpu_cl0, NULL);
+static DEVICE_ATTR(voltage_table_dm_cpu_cl1, 0440, show_voltage_table_dm_cpu_cl1, NULL);
+static DEVICE_ATTR(voltage_table_dm_mif, 0440, show_voltage_table_dm_mif, NULL);
+static DEVICE_ATTR(voltage_table_dm_int, 0440, show_voltage_table_dm_int, NULL);
+static DEVICE_ATTR(voltage_table_dm_intcam, 0440, show_voltage_table_dm_intcam, NULL);
+static DEVICE_ATTR(voltage_table_dm_disp, 0440, show_voltage_table_dm_disp, NULL);
+#if defined(CONFIG_SOC_EXYNOS7885)
+static DEVICE_ATTR(voltage_table_dm_fsys, 0440, show_voltage_table_dm_fsys, NULL);
+static DEVICE_ATTR(voltage_table_dm_aud, 0440, show_voltage_table_dm_aud, NULL);
+#endif
+static DEVICE_ATTR(voltage_table_dm_cam, 0440, show_voltage_table_dm_cam, NULL);
+static DEVICE_ATTR(voltage_table_dm_gpu, 0440, show_voltage_table_dm_gpu, NULL);
 
 static struct attribute *exynos_dm_sysfs_entries[] = {
 	&dev_attr_available.attr,
@@ -261,6 +355,18 @@ static struct attribute *exynos_dm_sysfs_entries[] = {
 #endif
 	&dev_attr_dm_policy_dm_cam.attr,
 	&dev_attr_dm_policy_dm_gpu.attr,
+	&dev_attr_voltage_table_dm_cpu_cl0.attr,
+	&dev_attr_voltage_table_dm_cpu_cl1.attr,
+	&dev_attr_voltage_table_dm_mif.attr,
+	&dev_attr_voltage_table_dm_int.attr,
+	&dev_attr_voltage_table_dm_intcam.attr,
+	&dev_attr_voltage_table_dm_disp.attr,
+#if defined(CONFIG_SOC_EXYNOS7885)
+	&dev_attr_voltage_table_dm_fsys.attr,
+	&dev_attr_voltage_table_dm_aud.attr,
+#endif
+	&dev_attr_voltage_table_dm_cam.attr,
+	&dev_attr_voltage_table_dm_gpu.attr,
 	NULL,
 };
 
