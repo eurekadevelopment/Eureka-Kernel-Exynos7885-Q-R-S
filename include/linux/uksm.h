@@ -87,8 +87,8 @@ static inline int uksm_flags_can_scan(unsigned long vm_flags)
 #define VM_SAO 0
 #endif
 	return !(vm_flags & (VM_PFNMAP | VM_IO  | VM_DONTEXPAND |
-			     VM_HUGETLB | VM_NONLINEAR | VM_MIXEDMAP |
-			     VM_SHARED  | VM_MAYSHARE | VM_GROWSUP | VM_GROWSDOWN | VM_SAO));
+			     VM_HUGETLB | VM_MIXEDMAP | VM_SHARED |
+			     VM_MAYSHARE | VM_GROWSUP | VM_GROWSDOWN | VM_SAO));
 }
 
 static inline void uksm_vm_flags_mod(unsigned long *vm_flags_p)

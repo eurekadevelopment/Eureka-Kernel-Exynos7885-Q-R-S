@@ -173,10 +173,14 @@ static inline void page_dup_rmap(struct page *page)
  */
 int page_referenced(struct page *, int is_locked,
 			struct mem_cgroup *memcg, unsigned long *vm_flags);
+int page_referenced_one(struct page *, struct vm_area_struct *,
+			unsigned long address, void *arg);
 
 #define TTU_ACTION(x) ((x) & TTU_ACTION_MASK)
 
 int try_to_unmap(struct page *, enum ttu_flags flags);
+int try_to_unmap_one(struct page *, struct vm_area_struct *,
+		     unsigned long address, void *arg);
 
 /*
  * Used by uprobes to replace a userspace page safely

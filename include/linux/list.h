@@ -680,6 +680,17 @@ static inline void hlist_add_behind(struct hlist_node *n,
 		n->next->pprev  = &n->next;
 }
 
+static inline void hlist_add_after(struct hlist_node *n,
+					struct hlist_node *next)
+{
+	next->next = n->next;
+	n->next = next;
+	next->pprev = &n->next;
+
+	if(next->next)
+		next->next->pprev  = &next->next;
+}
+
 /* after that we'll appear to be on some hlist and hlist_del will work */
 static inline void hlist_add_fake(struct hlist_node *n)
 {
