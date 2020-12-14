@@ -684,7 +684,8 @@ struct sec_ts_data {
 	struct mutex eventlock;
 	struct mutex modechange;
 
-	struct pm_qos_request pm_qos_req;
+	struct pm_qos_request pm_i2c_req;
+	struct pm_qos_request pm_touch_req;
 
 	struct delayed_work work_read_info;
 #ifdef USE_POWER_RESET_WORK
