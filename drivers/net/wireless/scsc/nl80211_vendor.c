@@ -392,11 +392,11 @@ static int slsi_gscan_get_valid_channel(struct wiphy *wiphy,
 	}
 
 	SLSI_MUTEX_LOCK(sdev->netdev_add_remove_mutex);
-	if (wiphy->bands[IEEE80211_BAND_2GHZ]) {
-		mem_len += wiphy->bands[IEEE80211_BAND_2GHZ]->n_channels * sizeof(u32);
+	if (wiphy->bands[NL80211_BAND_2GHZ]) {
+		mem_len += wiphy->bands[NL80211_BAND_2GHZ]->n_channels * sizeof(u32);
 	}
-	if (wiphy->bands[IEEE80211_BAND_5GHZ]) {
-		mem_len += wiphy->bands[IEEE80211_BAND_5GHZ]->n_channels * sizeof(u32);
+	if (wiphy->bands[NL80211_BAND_5GHZ]) {
+		mem_len += wiphy->bands[NL80211_BAND_5GHZ]->n_channels * sizeof(u32);
 	}
 	if (mem_len == 0) {
 		ret = -ENOTSUPP;
@@ -416,24 +416,24 @@ static int slsi_gscan_get_valid_channel(struct wiphy *wiphy,
 	}
 	switch (band) {
 	case WIFI_BAND_BG:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_2GHZ], false, false, chan_list);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_2GHZ], false, false, chan_list);
 		break;
 	case WIFI_BAND_A:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_5GHZ], true, false, chan_list);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_5GHZ], true, false, chan_list);
 		break;
 	case WIFI_BAND_A_DFS:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_5GHZ], false, true, chan_list);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_5GHZ], false, true, chan_list);
 		break;
 	case WIFI_BAND_A_WITH_DFS:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_5GHZ], false, false, chan_list);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_5GHZ], false, false, chan_list);
 		break;
 	case WIFI_BAND_ABG:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_2GHZ], true, false, chan_list);
-		chan_count += slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_5GHZ], true, false, chan_list + chan_count);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_2GHZ], true, false, chan_list);
+		chan_count += slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_5GHZ], true, false, chan_list + chan_count);
 		break;
 	case WIFI_BAND_ABG_WITH_DFS:
-		chan_count = slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_2GHZ], false, false, chan_list);
-		chan_count += slsi_gscan_put_channels(wiphy->bands[IEEE80211_BAND_5GHZ], false, false, chan_list + chan_count);
+		chan_count = slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_2GHZ], false, false, chan_list);
+		chan_count += slsi_gscan_put_channels(wiphy->bands[NL80211_BAND_5GHZ], false, false, chan_list + chan_count);
 		break;
 	default:
 		chan_count = 0;

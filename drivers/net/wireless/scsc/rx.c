@@ -40,10 +40,10 @@ struct ieee80211_channel *slsi_find_scan_channel(struct slsi_dev *sdev, struct i
 		chan = scan_ht[2];
 
 	if (chan) {
-		enum ieee80211_band band = IEEE80211_BAND_2GHZ;
+		enum nl80211_band band = NL80211_BAND_2GHZ;
 
 		if (chan > 14)
-			band = IEEE80211_BAND_5GHZ;
+			band = NL80211_BAND_5GHZ;
 		freq = (u16)ieee80211_channel_to_frequency(chan, band);
 	}
 	if (!freq)

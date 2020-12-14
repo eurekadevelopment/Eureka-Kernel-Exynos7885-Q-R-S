@@ -2343,24 +2343,24 @@ int slsi_start_ap(struct wiphy *wiphy, struct net_device *dev,
 
 		SLSI_NET_DBG1(dev, SLSI_MLME, "5 GHz- Include VHT\n");
 		if ((oper_chan >= 36) && (oper_chan <= 48))
-			ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(42, IEEE80211_BAND_5GHZ);
+			ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(42, NL80211_BAND_5GHZ);
 		else if ((oper_chan >= 149) && (oper_chan <= 161))
-			ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(155, IEEE80211_BAND_5GHZ);
+			ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(155, NL80211_BAND_5GHZ);
 #ifdef CONFIG_SCSC_WLAN_WIFI_SHARING
 		/* In wifi sharing case, AP can start on STA channel even though it is DFS channel*/
 		if (wifi_sharing_channel_switched == 1) {
 			if ((oper_chan >= 52) && (oper_chan <= 64))
 				ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(58,
-												 IEEE80211_BAND_5GHZ);
+												 NL80211_BAND_5GHZ);
 			else if ((oper_chan >= 100) && (oper_chan <= 112))
 				ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(106,
-												 IEEE80211_BAND_5GHZ);
+												 NL80211_BAND_5GHZ);
 			else if ((oper_chan >= 116) && (oper_chan <= 128))
 				ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(122,
-												 IEEE80211_BAND_5GHZ);
+												 NL80211_BAND_5GHZ);
 			else if ((oper_chan >= 132) && (oper_chan <= 144))
 				ndev_vif->chandef->center_freq1 = ieee80211_channel_to_frequency(138,
-												 IEEE80211_BAND_5GHZ);
+												 NL80211_BAND_5GHZ);
 		}
 #endif
 	} else if (sdev->fw_ht_enabled && sdev->allow_switch_40_mhz &&
@@ -3422,14 +3422,14 @@ static struct cfg80211_ops slsi_ops = {
 }
 
 #define CHAN2G(_freq, _idx)  { \
-		.band = IEEE80211_BAND_2GHZ, \
+		.band = NL80211_BAND_2GHZ, \
 		.center_freq = (_freq), \
 		.hw_value = (_idx), \
 		.max_power = 17, \
 }
 
 #define CHAN5G(_freq, _idx)  { \
-		.band = IEEE80211_BAND_5GHZ, \
+		.band = NL80211_BAND_5GHZ, \
 		.center_freq = (_freq), \
 		.hw_value = (_idx), \
 		.max_power = 17, \
@@ -3548,7 +3548,7 @@ struct ieee80211_sta_vht_cap       slsi_vht_cap = {
 
 struct ieee80211_supported_band    slsi_band_2ghz = {
 	.channels   = slsi_2ghz_channels,
-	.band       = IEEE80211_BAND_2GHZ,
+	.band       = NL80211_BAND_2GHZ,
 	.n_channels = ARRAY_SIZE(slsi_2ghz_channels),
 	.bitrates   = slsi_11g_rates,
 	.n_bitrates = ARRAY_SIZE(slsi_11g_rates),
@@ -3556,7 +3556,7 @@ struct ieee80211_supported_band    slsi_band_2ghz = {
 
 struct ieee80211_supported_band    slsi_band_5ghz = {
 	.channels   = slsi_5ghz_channels,
-	.band       = IEEE80211_BAND_5GHZ,
+	.band       = NL80211_BAND_5GHZ,
 	.n_channels = ARRAY_SIZE(slsi_5ghz_channels),
 	.bitrates   = wifi_11a_rates,
 	.n_bitrates = ARRAY_SIZE(wifi_11a_rates),
@@ -3729,8 +3729,8 @@ struct slsi_dev                           *slsi_cfg80211_new(struct device *dev)
 #endif
 	wiphy->signal_type = CFG80211_SIGNAL_TYPE_MBM;
 
-	wiphy->bands[IEEE80211_BAND_2GHZ] = &slsi_band_2ghz;
-	wiphy->bands[IEEE80211_BAND_5GHZ] = &slsi_band_5ghz;
+	wiphy->bands[NL80211_BAND_2GHZ] = &slsi_band_2ghz;
+	wiphy->bands[NL80211_BAND_5GHZ] = &slsi_band_5ghz;
 
 	sdev->device_config.band_5G = &slsi_band_5ghz;
 	sdev->device_config.band_2G = &slsi_band_2ghz;
@@ -3847,11 +3847,11 @@ void slsi_cfg80211_update_wiphy(struct slsi_dev *sdev)
 
 	/* update supported Bands */
 	if (sdev->band_5g_supported) {
-		sdev->wiphy->bands[IEEE80211_BAND_5GHZ] = &slsi_band_5ghz;
+		sdev->wiphy->bands[NL80211_BAND_5GHZ] = &slsi_band_5ghz;
 		sdev->device_config.band_5G = &slsi_band_5ghz;
 		sdev->device_config.supported_band = SLSI_FREQ_BAND_AUTO;
 	} else {
-		sdev->wiphy->bands[IEEE80211_BAND_5GHZ] = NULL;
+		sdev->wiphy->bands[NL80211_BAND_5GHZ] = NULL;
 		sdev->device_config.band_5G = NULL;
 		sdev->device_config.supported_band = SLSI_FREQ_BAND_2GHZ;
 	}
@@ -3879,8 +3879,8 @@ void slsi_cfg80211_update_wiphy(struct slsi_dev *sdev)
 	slsi_band_5ghz.vht_cap = slsi_vht_cap;
 #endif
 
-	SLSI_INFO(sdev, "BANDS SUPPORTED -> 2.4:'%c' 5:'%c'\n", sdev->wiphy->bands[IEEE80211_BAND_2GHZ] ? 'Y' : 'N',
-		  sdev->wiphy->bands[IEEE80211_BAND_5GHZ] ? 'Y' : 'N');
+	SLSI_INFO(sdev, "BANDS SUPPORTED -> 2.4:'%c' 5:'%c'\n", sdev->wiphy->bands[NL80211_BAND_2GHZ] ? 'Y' : 'N',
+		  sdev->wiphy->bands[NL80211_BAND_5GHZ] ? 'Y' : 'N');
 	SLSI_INFO(sdev, "HT/VHT SUPPORTED -> HT:'%c' VHT:'%c'\n", sdev->fw_ht_enabled ? 'Y' : 'N',
 		  sdev->fw_vht_enabled ? 'Y' : 'N');
 	SLSI_INFO(sdev, "HT  -> cap:0x%04x ampdu_density:%d ampdu_factor:%d\n", slsi_ht_cap.cap, slsi_ht_cap.ampdu_density, slsi_ht_cap.ampdu_factor);

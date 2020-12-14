@@ -407,7 +407,7 @@ static ssize_t slsi_p2p_ecsa(struct net_device *dev, char *command, int buf_len)
 	u16 center_freq = 0;
 	u16 chan_info = 0;
 	struct cfg80211_chan_def chandef;
-	enum ieee80211_band band;
+	enum nl80211_band band;
 	enum nl80211_channel_type chan_type = NL80211_CHAN_NO_HT;
 
 	ioctl_args = slsi_get_private_command_args(command, buf_len, 2);
@@ -446,11 +446,11 @@ static ssize_t slsi_p2p_ecsa(struct net_device *dev, char *command, int buf_len)
 		goto exit;
 	}
 
-	band = (channel <= 14) ? IEEE80211_BAND_2GHZ : IEEE80211_BAND_5GHZ;
+	band = (channel <= 14) ? NL80211_BAND_2GHZ : NL80211_BAND_5GHZ;
 	center_freq = ieee80211_channel_to_frequency(channel, band);
 	SLSI_DBG1(sdev, SLSI_CFG80211, "p2p ecsa_params (center_freq)= (%d)\n", center_freq);
 	chandef.chan = ieee80211_get_channel(sdev->wiphy, center_freq);
-	chandef.width = (band  == IEEE80211_BAND_2GHZ) ? NL80211_CHAN_WIDTH_20_NOHT : NL80211_CHAN_WIDTH_80;
+	chandef.width = (band  == NL80211_BAND_2GHZ) ? NL80211_CHAN_WIDTH_20_NOHT : NL80211_CHAN_WIDTH_80;
 
 #ifndef SSB_4963_FIXED
 	/* Default HT40 configuration */
@@ -701,7 +701,7 @@ static int slsi_p2p_lo_start(struct net_device *dev, char *command, int cmd_len)
 	/* Send set_channel irrespective of the values of LO parameters as they are not cached
 	 * in driver to check whether they have changed.
 	 */
-	band = (channel <= 14) ? IEEE80211_BAND_2GHZ : IEEE80211_BAND_5GHZ;
+	band = (channel <= 14) ? NL80211_BAND_2GHZ : NL80211_BAND_5GHZ;
 	freq = ieee80211_channel_to_frequency(channel, band);
 	chan = ieee80211_get_channel(sdev->wiphy, freq);
 	if (!chan) {
@@ -2455,7 +2455,7 @@ static ssize_t slsi_send_action_frame(struct net_device *dev, char *command, int
 	u8                   bssid[6] = { 0 };
 	int                  channel = 0;
 	int                  freq = 0;
-	enum ieee80211_band  band = IEEE80211_BAND_2GHZ;
+	enum nl80211_band  band = NL80211_BAND_2GHZ;
 	int                  r = 0;
 	u16                  host_tag = slsi_tx_mgmt_host_tag(sdev);
 	u32                  dwell_time;
@@ -2515,7 +2515,7 @@ static ssize_t slsi_send_action_frame(struct net_device *dev, char *command, int
 	}
 
 	if (channel > 14)
-		band = IEEE80211_BAND_5GHZ;
+		band = NL80211_BAND_5GHZ;
 	freq = (u16)ieee80211_channel_to_frequency(channel, band);
 	if (!freq) {
 		kfree(ioctl_args);

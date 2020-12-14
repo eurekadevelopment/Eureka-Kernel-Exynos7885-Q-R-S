@@ -1188,9 +1188,9 @@ static int slsi_mlme_append_channel_list(struct slsi_dev                    *sde
 		chann = channels[i]->hw_value & 0xFF;
 
 		if (sdev->device_config.supported_band) {
-			if (channels[i]->band == IEEE80211_BAND_2GHZ && sdev->device_config.supported_band != SLSI_FREQ_BAND_2GHZ)
+			if (channels[i]->band == NL80211_BAND_2GHZ && sdev->device_config.supported_band != SLSI_FREQ_BAND_2GHZ)
 				continue;
-			if (channels[i]->band == IEEE80211_BAND_5GHZ && sdev->device_config.supported_band != SLSI_FREQ_BAND_5GHZ)
+			if (channels[i]->band == NL80211_BAND_5GHZ && sdev->device_config.supported_band != SLSI_FREQ_BAND_5GHZ)
 				continue;
 		}
 
@@ -2866,13 +2866,13 @@ int slsi_mlme_connect_scan(struct slsi_dev *sdev, struct net_device *dev,
 	}
 
 	if (!channel) {
-		enum ieee80211_band band;
+		enum nl80211_band band;
 		struct wiphy        *wiphy = sdev->wiphy;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0))
 		for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #else
-		for (band = 0; band < IEEE80211_NUM_BANDS; band++) {
+		for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #endif
 			if (!wiphy->bands[band])
 				continue;
@@ -2889,7 +2889,7 @@ int slsi_mlme_connect_scan(struct slsi_dev *sdev, struct net_device *dev,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0))
 		for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #else
-		for (band = 0; band < IEEE80211_NUM_BANDS; band++) {
+		for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #endif
 			int j;
 

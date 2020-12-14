@@ -4941,17 +4941,17 @@ void slsi_roam_channel_cache_add(struct slsi_dev *sdev, struct net_device *dev, 
 		chan = ieee80211_frequency_to_channel(freq);
 
 	if (chan) {
-		enum ieee80211_band band = IEEE80211_BAND_2GHZ;
+		enum nl80211_band band = NL80211_BAND_2GHZ;
 
 		if (chan > 14)
-			band = IEEE80211_BAND_5GHZ;
+			band = NL80211_BAND_5GHZ;
 
 #ifdef CONFIG_SCSC_WLAN_DEBUG
 		if (freq != (u32)ieee80211_channel_to_frequency(chan, band)) {
-			if (band == IEEE80211_BAND_5GHZ && freq < 3000)
+			if (band == NL80211_BAND_5GHZ && freq < 3000)
 				SLSI_NET_DBG2(dev, SLSI_MLME, "Off Band Result : mlme_scan_ind(freq:%d) != DS(freq:%d)\n", freq, ieee80211_channel_to_frequency(chan, band));
 
-			if (band == IEEE80211_BAND_2GHZ && freq > 3000)
+			if (band == NL80211_BAND_2GHZ && freq > 3000)
 				SLSI_NET_DBG2(dev, SLSI_MLME, "Off Band Result : mlme_scan_ind(freq:%d) != DS(freq:%d)\n", freq, ieee80211_channel_to_frequency(chan, band));
 		}
 #endif
@@ -5194,7 +5194,7 @@ static void slsi_reg_mib_to_regd(struct slsi_mib_data *mib, struct slsi_802_11d_
 
 void slsi_reset_channel_flags(struct slsi_dev *sdev)
 {
-	enum ieee80211_band band;
+	enum nl80211_band band;
 	struct ieee80211_channel *chan;
 	int i;
 	struct wiphy *wiphy = sdev->wiphy;
@@ -5202,7 +5202,7 @@ void slsi_reset_channel_flags(struct slsi_dev *sdev)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0))
 	for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #else
-	for (band = 0; band < IEEE80211_NUM_BANDS; band++) {
+	for (band = 0; band < NUM_NL80211_BANDS; band++) {
 #endif
 		if (!wiphy->bands[band])
 			continue;
