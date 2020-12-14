@@ -1149,8 +1149,8 @@ void fm_rds_parser(struct fm_rds_parser_info *pi, u16 info, u8 blk_type, u8 err_
 		break;
 
 	case RDS_BLKTYPE_D:
-		if (err_cnt > 5)
-			return;
+			if (err_cnt > 5)
+				return;
 
 			switch (pi->grp) {
 			case RDS_GRPTYPE_0A:
