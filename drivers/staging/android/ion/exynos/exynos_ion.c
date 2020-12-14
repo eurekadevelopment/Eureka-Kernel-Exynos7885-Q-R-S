@@ -27,6 +27,11 @@
 #include "../ion_priv.h"
 #include "ion_hpa_heap.h"
 
+#ifndef CONFIG_ION_EXYNOS_STAT_LOG
+void show_ion_system_heap_size(struct seq_file *s);
+void show_ion_system_heap_pool_size(struct seq_file *s);
+#endif
+
 struct ion_device *ion_exynos;
 
 #define ION_SECURE_DMA_BASE	0x80000000
