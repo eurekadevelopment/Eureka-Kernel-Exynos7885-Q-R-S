@@ -639,8 +639,26 @@ static int cpufreq_parse_governor(char *str_governor, unsigned int *policy,
 			ret = request_module("cpufreq_%s", str_governor);
 			mutex_lock(&cpufreq_governor_mutex);
 
+			/*
+			 * At this point, if the governor was found via module
+			 * search, it will load it. However, if it didn't, we
+			 * are just going to exit without doing anything to
+			 * the governor. Most of the time, this is totally
+			 * fine; the one scenario where it's not is when a ROM
+			 * has a boot script that requests a governor that
+			 * exists in the default kernel but not in this one.
+			 * This kernel (and nearly every other Android kernel)
+			 * has the performance governor as default for boot
+			 * performance which is then changed to another,
+			 * usually interactive. So, instead of just exiting if
+			 * the requested governor wasn't found, let's try
+			 * falling back to interactive before falling out.
+			 */
+			
 			if (ret == 0)
 				t = find_governor(str_governor);
+			else
+				t = find_governor("interactive");
 		}
 
 		if (t != NULL) {
@@ -2020,6 +2038,15 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 	}
 
 out:
+	/*
+	 * This might look like a redundant call as we are checking it again
+	 * after finding index. But it is left intentionally for cases where
+	 * exactly same freq is called again and so we can save on few function
+	 * calls.
+	 */
+	if (target_freq == policy->cur)
+		retval = 0;
+	
 	return retval;
 }
 EXPORT_SYMBOL_GPL(__cpufreq_driver_target);
@@ -2377,6 +2404,9 @@ static int cpufreq_cpu_callback(struct notifier_block *nfb,
 {
 	unsigned int cpu = (unsigned long)hcpu;
 
+	if (!cpufreq_driver)
+		return NOTIFY_OK;
+
 	switch (action & ~CPU_TASKS_FROZEN) {
 	case CPU_ONLINE:
 		cpufreq_online(cpu);
@@ -2550,6 +2580,9 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
 		return -EINVAL;
 
 	pr_debug("trying to register driver %s\n", driver_data->name);
+	
+	/* Register for hotplug notifers before blocking hotplug. */
+	register_hotcpu_notifier(&cpufreq_cpu_notifier);
 
 	/* Protect against concurrent CPU online/offline. */
 	get_online_cpus();
@@ -2583,7 +2616,6 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
 		goto err_if_unreg;
 	}
 
-	register_hotcpu_notifier(&cpufreq_cpu_notifier);
 	pr_debug("driver %s up and running\n", driver_data->name);
 
 out:
