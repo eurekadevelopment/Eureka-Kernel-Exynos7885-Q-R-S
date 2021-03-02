@@ -348,6 +348,7 @@ config NET_SCH_PLUG
 
 
 menuconfig NET_SCH_DEFAULT
+	default y
 	bool "Allow override default queue discipline"
 	---help---
 	  Support for selection of default queuing discipline.
@@ -362,7 +363,7 @@ if NET_SCH_DEFAULT
 
 choice
 	prompt "Default queuing discipline"
-	default DEFAULT_PFIFO_FAST
+	default DEFAULT_FQ_CODEL
 	help
 	  Select the queueing discipline that will be used by default
 	  for all network devices.
