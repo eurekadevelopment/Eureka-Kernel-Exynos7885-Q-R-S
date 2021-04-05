@@ -1,0 +1,27 @@
+/ {
+	exynos-pm-extra{
+		compatible = "samsung,exynos-pm-extra";
+		wakeup_stats {
+			WAKEUP_STAT {
+				addr = <0x0600>;
+				bits_to_check = "0-30";
+				wakeup_sources = "EINT", "RTC_ALARM", "RTC_TICK", "TRTC_ALARM",
+					 "TRTC_TICK", "PCIE_WIFI0", "PCIE_WIFI1", "EXT_PCIE_WIFI0",
+					 "EXT_PCIE_WIFI1", "MMC0", "MMC1", "MMC2",
+					 "DECON", "I2S", "TIMER", "USB_REWA",
+					 "CP_SCAN_DUMP_REQ", "NFC_CLK_REQ", "USB20_PHY", "WIFI_ACTIVE",
+					 "CP_RESET_REQ", "GNSS_WAKEUP_REQ", "GNSS_RESET_REQ", "GNSS_ACTIVE",
+					 "INT_MBOX_CP", "CP_ACTIVE", "INT_MBOX_GNSS", "INT_MBOX_WIFI_CM4",
+					 "CORTEXM0_APM", "WIFI_RESET_REQ", "Reserved";
+
+				eint_wakeup_check_bit = <0>;
+			};
+
+			WAKEUP_STAT2 {
+				addr = <0x0604>;
+				bits_to_check = "8-10";
+				wakeup_sources = "INT_MBOX_CP_SECURE", "INT_MBOX_IN_APM", "INT_MBOX_WIFI_CR4";
+			};
+		};
+	};
+};

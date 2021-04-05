@@ -1,0 +1,38 @@
+config SND_SOC_SAMSUNG_ABOX
+	tristate "ASoC support for Samsung ABOX Audio"
+	select REGMAP_MMIO
+	select SND_SOC_COMPRESS
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the Samsung SoC ABOX interface. You will also need to
+	  select the audio interfaces to support below.
+
+config SEC_SND_SYNCHRONIZED_IPC
+	tristate "Samsung ABOX Synchronized IPC for Audio"
+	depends on SND_SOC_SAMSUNG_ABOX
+	help
+	  Say Y or M if you want to add support for external devices attached to
+	  the Samsung SoC ABOX interface. You will also need to
+	  select the audio interfaces to support below.
+
+config SEC_SND_ADAPTATION
+	tristate "Samsung ABOX Adaptation for Audio"
+	depends on SND_SOC_SAMSUNG_ABOX
+	help
+	  Say Y or M if you want to add support for external devices attached to
+	  the Samsung SoC ABOX interface. You will also need to
+	  select the audio interfaces to support below.
+
+config SND_SOC_BT_SHARED_SRATE
+	tristate "Getting BT Shared Sampling Rate for AOSP Audio"
+	help
+	  Say Y or N if you want to add support for getting BT shared sampling rate to
+	  the Samsung SoC(AOSP) ABOX interface. You will also need to
+	  select the audio interfaces to support below.
+
+config SND_SOC_FM
+	tristate "Getting FM status for AUDPLL on/off"
+	help
+	  Say Y or N if you want to add support for getting FM status to
+	  the Samsung SoC ABOX interface . You will also need to
+	  select the audio interfaces to support below.

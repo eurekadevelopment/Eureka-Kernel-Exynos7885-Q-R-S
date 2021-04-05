@@ -1,0 +1,201 @@
+config CAMERA_EEPROM_SUPPORT_REAR
+        bool "Enable eeprom for rear cam"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Enable eeprom for rear cam.
+config CAMERA_EEPROM_SUPPORT_FRONT
+        bool "Enable eeprom for front cam"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Enable eeprom for front cam
+config CAMERA_EEPROM_SUPPORT_REAR2
+        bool "Enable eeprom for 2ndrear cam"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Enable EEPROM for 2nd rear cam in UV camera.
+config CAMERA_EEPROM_SUPPORT_REAR3
+        bool "Enable eeprom for 3rdrear cam"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Enable EEPROM for 3rd rear cam in triple camera.
+          This project has 3 rear camera and each camera has EEPROM for 1st one,
+          OTPROM for 2nd one and EEPROM for 3rd camera.
+          This option support EEPROM for 3rd rear camera.
+config COMPANION_USE
+        bool "Use companion"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion.
+ config COMPANION_C1_USE
+        bool "Use companion C1"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion C1.
+ config COMPANION_C2_USE
+        bool "Use companion C2"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion C2.
+ config COMPANION_C3_USE
+        bool "Use companion C3"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion C3.
+ config COMPANION_DIRECT_USE
+        bool "Use direct control for companion"
+        depends on VENDER_MCD_LEGACY
+        depends on COMPANION_USE
+        depends on USE_DIRECT_IS_CONTROL
+        default n
+        help
+          Use device companion direct control.
+ config COMPANION_C2_DIRECT_USE
+        bool "Use direct control for companion C2"
+        depends on VENDER_MCD_LEGACY
+        depends on COMPANION_C2_USE
+        depends on COMPANION_DIRECT_USE
+        default n
+        help
+          Use device companion C2.
+ config COMPANION_C3_DIRECT_USE
+        bool "Use direct control for companion C3"
+        depends on VENDER_MCD_LEGACY
+        depends on COMPANION_C3_USE
+        depends on COMPANION_DIRECT_USE
+        default n
+        help
+          Use device companion C3.
+config COMPANION_DCDC_USE
+        bool "Use companion DCDC regulator"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion DCDC regulator.
+config PREPROCESSOR_STANDBY_USE
+        bool "Use companion standby"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use companion standby.
+config SENSOR_RETENTION_USE
+	bool "Use sensor retention"
+	depends on VENDER_MCD_LEGACY
+	default n
+	help
+	  Use sensor retention.
+config OIS_USE
+        bool "Use ois"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Use ois.
+config OIS_FW_UPDATE_THREAD_USE
+        bool "Enable ois fw update thread"
+        depends on OIS_USE
+        default n
+        help
+          Enable ois fw update thread.
+config AF_HOST_CONTROL
+        bool "Enable host af control"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Enable host af control.
+config TORCH_CURRENT_CHANGE_SUPPORT
+        bool "Change torch current in recording mode"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          Change torch current in recording mode.
+config OIS_USE_RUMBA_S4
+        bool "Use RUMBA S4 ois driver IC"
+        depends on OIS_USE
+        default n
+        help
+          Use RUMBA S4 ois driver IC.
+config CAMERA_JACKPOT
+        bool "This camera is jackpot project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is jackpot project.
+config CAMERA_J3TOPE
+        bool "This camera is j3tope project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is j3tope project.
+config CAMERA_J7TOPE
+        bool "This camera is j7tope project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is j7tope project.
+config CAMERA_J7DUO
+        bool "This camera is j7duo project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is j7duo project.
+config CAMERA_JACKPOT_JPN
+        bool "This camera is jackpotjpn project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is jackpotjpn project.
+config CAMERA_GVIEW2
+        bool "This camera is gview2 project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is gview2 project.
+config CAMERA_A6E
+        bool "This camera is a6e project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is a6e project.
+config CAMERA_A7Y18
+        bool "This camera is a7y18 project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is a7y18 project.
+config CAMERA_J2CORE
+        bool "This camera is j2core project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is j2core project.
+config CAMERA_M20
+        bool "This camera is M20 project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is M20 project.
+config CAMERA_M30
+        bool "This camera is M30 project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is M30 project.
+config CAMERA_OTPROM_SUPPORT_FRONT
+        bool "This camera is otp front project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is otp front project.
+config CAMERA_OTPROM_SUPPORT_REAR
+        bool "This camera is otp rear project"
+        depends on VENDER_MCD_LEGACY
+        default n
+        help
+          This camera is otp rear project.

@@ -1,0 +1,150 @@
+config SENSOR_RETENTION_USE
+        bool "Use sensor retention"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Use sensor retention.
+config OIS_USE
+        bool "Use ois"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Use ois.
+config OIS_FW_UPDATE_THREAD_USE
+        bool "Enable ois fw update thread"
+        depends on OIS_USE
+        default n
+        help
+          Enable ois fw update thread.
+config AF_HOST_CONTROL
+        bool "Enable host af control"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Enable host af control.
+config FIMC_IS_DDK_DATA_LOAD
+        bool "Enable signed binary processing."
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Enable signed binary processing.
+config TORCH_CURRENT_CHANGE_SUPPORT
+        bool "Change torch current in recording mode"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Change torch current in recording mode.
+config OIS_USE_RUMBA_S4
+        bool "Use RUMBA S4 ois driver IC"
+        depends on OIS_USE
+        default n
+        help
+          Use RUMBA S4 ois driver IC.
+config CAMERA_WXS_V00
+        bool "This camera is wxs_v00 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is wxs_v00 project.
+config CAMERA_ATS_V03
+        bool "This camera is ats_v03 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is ats_v03 project.
+config CAMERA_ATS_V04
+        bool "This camera is ats_v04 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is ats_v04 project.
+config CAMERA_AAS_V30
+        bool "This camera is aas_v30 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v30 project.
+config CAMERA_AAS_V40
+        bool "This camera is aas_v40 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v40 project.
+config CAMERA_AAS_V20
+        bool "This camera is aas_v20 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v20 project.
+config CAMERA_AAS_V30C
+        bool "This camera is aas_v30c project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v30c project.
+config CAMERA_AAS_V30S
+        bool "This camera is aas_v30s project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v30s project.
+config CAMERA_AAS_V30J
+        bool "This camera is aas_v30j project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v30j project.
+config CAMERA_AAS_V10
+        bool "This camera is aas_v10 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v10 project.
+config CAMERA_AAS_V20E
+        bool "This camera is aas_v20e project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v20e project.
+config CAMERA_AAS_V10E
+        bool "This camera is aas_v10e project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v10e project.
+config CAMERA_AAS_V10EKX
+        bool "This camera is aas_v10ekx project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v10ekx project.
+config CAMERA_XXS_V04S
+        bool "This camera is xxs_v04s project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is xxs_v04s project.
+config CAMERA_AAS_V07J
+        bool "This camera is aas_v07j project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is aas_v07j project.
+config CAMERA_MMS_V20
+        bool "This camera is mms_v20 project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is mms_v20 project.
+config CAMERA_MMS_V10S
+        bool "This camera is mms_v10s project"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          This camera is mms_v10s project.
+config CAMERA_USE_OTP_DPC_DATA
+        bool "Use otp dpc data"
+        depends on VENDER_MCD_V2
+        default n
+        help
+          Use otp dpc data.

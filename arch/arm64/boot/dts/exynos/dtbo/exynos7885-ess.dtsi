@@ -1,0 +1,43 @@
+/*
+ * SAMSUNG EXYNOS7885 SoC device tree source
+ *
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SAMSUNG EXYNOS8890 SoC device nodes are listed in this file.
+ * EXYNOS8890 based board files can include this file and provide
+ * values for board specfic bindings.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	exynos-snapshot {
+		/* refer from drivers/soc/samsung/cal-if/exynos7885/pmucal_local_exynos7885.h */
+		#define PD_DISPAUD	(0)
+		#define PD_MFCMSCL	(1)
+		#define PD_ISP		(2)
+		#define PD_CAM		(3)
+		#define PD_G3D		(4)
+
+		compatible = "samsung,exynos-snapshot";
+		dump-info@0x0 {
+			sfr-dump-list = "sfr-dump-cmu-peris", "sfr-dump-cmu-dispaud";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			sfr-dump-cmu-peris {
+				reg = <0x13400000 0x4000>;
+				addr = <0x13400100 0x13400104 0x13400108 0xFFFFFFFF>;
+			};
+
+			sfr-dump-cmu-dispaud {
+				reg = <0x14800000 0x4000>;
+				addr = <0x14800100 0x14800104 0x14800108 0xFFFFFFFF>;
+				/* input avaiable array. (ex: cal-pd-id = <PD_DPU0 PD_DPU1>;) */
+				cal-pd-id = <PD_DISPAUD>;
+			};
+		};
+	};
+};

@@ -1,0 +1,3 @@
+obj-$(CONFIG_VENDER_DEFAULT_LEGACY) += default/
+obj-$(CONFIG_VENDER_MCD_LEGACY) += mcd/
+obj-$(CONFIG_VENDER_PSV_LEGACY) += psv/

@@ -1,0 +1,80 @@
+/*
+ * SAMSUNG LCD Panel Device Tree Source
+ *
+ * Copyright (c) Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	fragment@lcd {
+		target-path = "/";
+		__overlay__ {
+			decon_board_s6e8fc0: decon_board_s6e8fc0 {
+				gpio_det = <&gpa2 5 0x1>;	/* EL_ON1_DET */
+				gpio_err = <&gpa1 1 0x1>;	/* FG_ERR */
+				gpio_con = <&gpa0 6 0x0>;	/* OCTA_DET */
+
+				gpio_lcd_3p0 = <&gpg1 2 0>;
+				gpio_lcd_rst = <&gpg2 0 0>;
+
+				dsim_set_panel_power_enable {
+					type =
+					"gpio,high",	"gpio_lcd_3p0",
+					"delay,usleep",	"10000";
+				};
+				dsim_set_panel_power_disable {
+					type =
+					"gpio,low",	"gpio_lcd_rst",
+					"gpio,low",	"gpio_lcd_3p0";
+				};
+				dsim_reset_panel {
+					type =
+					"gpio,high",	"gpio_lcd_rst",
+					"delay,usleep",	"1000",
+					"gpio,low",	"gpio_lcd_rst",
+					"delay,usleep",	"1000",
+					"gpio,high",	"gpio_lcd_rst",
+					"delay,usleep",	"5000";
+				};
+			};
+
+			s6e8fc0: s6e8fc0 {
+				mode = <0>; /* 0: video mode, 1: DP command mode, 2: MIPI command mode */
+				resolution = <1080 2340>;
+				size = <63 135>;	/* 62.532 x 135.486 */
+				timing,refresh = <60>;
+				timing,h-porch = <14 30 10>;
+				timing,v-porch = <5 25 2>;
+				timing,dsi-hs-clk = <1194>;
+				timing,pms = <2 92 0>;
+				timing,dsi-escape-clk = <16>;
+				mic_en = <0>;		/* 0: Disable, 1: Enable */
+				mic_ratio = <0>;	/* 0: 1/2 mic, 1: 1/3 mic */
+				mic_ver = <0>;		/* 0: mic v1.1, 1: v1.2, 2: v2.0 */
+				type_of_ddi = <0>;	/* 0: Samsung Mobile, 1: MAGNA, 2: Normal(Etc) */
+				dsc_en = <0>;		/* 0: Disable, 1: Enable */
+				dsc_cnt = <0>;		/* used DSC count */
+				dsc_slice_num = <0>;	/* count of dsc slice */
+				data_lane = <4>;	/* number of using data lane */
+				vt_compensation = <963>;	/* for underrun detect at command mode */
+				clklane_onoff = <1>;
+				decon_board = <&decon_board_s6e8fc0>;
+			};
+		};
+	};
+};
+
+&dsim_0 {
+	lcd_info = <&s6e8fc0>;
+};
+
+&decon_f {
+	psr_mode = <0>;		/* 0: video mode, 1: DP command mode, 2: MIPI command mode */
+	trig_mode = <1>;	/* 0: hw trigger, 1: sw trigger */
+	dsi_mode = <0>;		/* 0: single dsi, 1: dual dsi */
+};
+

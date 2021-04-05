@@ -1,0 +1,36 @@
+#
+# sensor drivers configuration
+#
+
+config SENSORS_SSP_LIGHT_TMG399X
+	tristate "Sensors ssp light tmg399x"
+	default n
+	depends on SPI
+	help
+	  light tmg399x file for factory test in ssp driver.
+          If you say yes here you get light tmg399x support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.
+
+config SENSORS_SSP_LIGHT_TMD3725
+	tristate "Sensors ssp light tmd3725"
+	default n
+	depends on SPI
+	help
+	  light tmd3725 file for factory test in ssp driver.
+          If you say yes here you get light tmd3725 support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.
+
+config SENSORS_SSP_LIGHT_TMD3700
+	tristate "Sensors ssp light tmd3700"
+	default n
+	depends on SPI
+	help
+	  light tmd3700 file for factory test in ssp driver.
+          If you say yes here you get light tmd3700 support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.

@@ -1,0 +1,295 @@
+config SCSC_WLAN
+	tristate "Driver for Samsung SCSC Maxwell Wifi"
+	depends on SCSC_CORE
+	depends on CFG80211
+
+if SCSC_WLAN != n
+config SCSC_WLAN_KEY_MGMT_OFFLOAD
+        bool "Enable roam offload for SCSC WLAN"
+        default y
+        ---help---
+          This option enables roam offload for SCSC WLAN.
+
+config SCSC_WLAN_HIP4_PROFILING
+	bool "Enable HIP4 profiling"
+	depends on SCSC_WLAN
+	---help---
+	  This option enables HIP4 profiling
+
+config SCSC_WLAN_DEBUG
+	bool "Enable debug output from the SCSC Wifi driver"
+	depends on SCSC_WLAN
+	select SCSC_WLAN_HIP4_PROFILING
+	---help---
+	  This option enables debug support for the SCSC wifi chipset.
+
+config SCSC_WLAN_SG
+	bool "Enable SCSC WLAN Scatter-gather and GSO support"
+	depends on SCSC_WLAN
+        default y
+	---help---
+	  This option enables scatter-gather and GSO feature
+
+config SCSC_WLAN_SKB_TRACKING
+	bool "Enable debug memory tracking of skb data in the driver"
+	---help---
+	  This option enables tracking of all skb data in the driver..
+	  This will affect the performance!
+
+config SCSC_WLAN_OFFLINE_TRACE
+	bool "Enable event logging buffer"
+	---help---
+	  The wifi driver has support for event logging in a circular
+	  buffer. With the various trace enabled, the buffer is
+	  continually updated with logging information. The buffer
+	  can be dumped by writing to the proc file
+	  (/proc/driver/unifi0/hip2dbgdumptrigger).
+
+config SCSC_WLAN_OFFLINE_TX_TRACE
+	depends on SCSC_WLAN_OFFLINE_TRACE
+	bool "Enable transmit trace logging"
+	---help---
+	  This option enables logging of transmit events
+	  to the buffer. This option is useful when tracing
+	  a transmission event from top to bottom.
+
+config SCSC_WLAN_OFFLINE_DATA_PLANE_PROFILE_TRACE
+	depends on SCSC_WLAN_OFFLINE_TRACE
+	bool "Enable extra information to the SDIO command logging"
+	---help---
+	  This options creates additional information for the
+	  SDIO trace.
+
+config SCSC_WLAN_RX_NAPI
+	bool "Enable use of net device napi rx polling api"
+	---help---
+	  This option enables the drivers use of the napi api
+
+config SCSC_WLAN_RX_NAPI_GRO
+	bool "Enable use of net device napi rx GRO"
+	depends on SCSC_WLAN_RX_NAPI
+	---help---
+	  This option enables the drivers use of the napi Generic Receive Offload
+
+config SCSC_WLAN_PSCHED_AMSDU
+	bool "Enable transmit A-MSDU creation"
+	default y
+	---help---
+	  The driver packet scheduler can create A-MSDU frames
+	  from frames in the same TID queue for transmission.d
+
+config SCSC_WLAN_ANDROID
+	bool "Android specific support"
+	default y
+	---help---
+	  Enable support for Android specific aspects of the driver.
+
+config SCSC_WLAN_STA_ONLY
+	bool "Support WLAN STA only (no P2P/AP/IBSS)"
+	default n
+	---help---
+	  Enable only basic STA mode for debugging purposes
+
+config SCSC_WLAN_HIP_SUPPORT_SCATTER_GATHER_API
+	bool "Enable scatter/gather IO for hip"
+	default y
+	---help---
+	  Enable the support for SDIO scatter/gather APIs for hip transfers.
+
+config SCSC_WLAN_KIC_OPS
+	bool "Wi-Fi service driver provides OPS for KIC to use for various tasks"
+	depends on SAMSUNG_KIC
+	default y
+	---help---
+	  Provide Wi-Fi service driver OPS, which KIC can use for triggering Wi-Fi related events.
+
+config SCSC_WLAN_GSCAN_ENABLE
+	bool "Enable GSCAN in SCSC wlan driver"
+	default y
+	---help---
+	  This option enables GSCAN in SCSC wlan driver.
+
+config SCSC_WLAN_WES_NCHO
+	bool "Enable NCHO/WES feature"
+	default y
+	---help---
+	  This option enables the NCHO/WES feature
+
+config SCSC_WLAN_MUTEX_DEBUG
+	bool "Enable Mutex debugging mechanism in slsi wlan driver"
+	default n
+	---help---
+	  This option enables the Mutex debug reports in slsi wlan driver.
+
+config CONFIG_SCSC_WLAN_BLOCK_IPV6
+	bool "Block IPv6"
+	default n
+	---help---
+	  This option blocks IPv6 packets.
+
+config CONFIG_SCSC_WLAN_DISABLE_NAT_KA
+	bool "Disable NAT"
+	default n
+	---help---
+	  This option disables NAT.
+
+config SCSC_WLAN_HANG_TEST
+	bool "Test HANG Event"
+	default y
+	---help---
+	   This option facilitates triggering of HANG Event
+	   to reset WLAN.
+
+config SCSC_WLAN_NAT_KEEPALIVE_DISABLE
+	bool "Disable NAT KeepAlive"
+	default n
+	---help---
+	  This option disables the NAT KeepAlive
+	  Offload Feature.
+
+config SCSC_WLAN_ENHANCED_LOGGING
+	bool "Enable Enhanced Logging"
+	depends on SCSC_WIFILOGGER
+	default y
+	---help---
+	  This option enables the Enhanced Logging
+	  Feature.
+
+config SCSC_WLAN_ACM_API
+	bool "Provide TSF read API"
+	default n
+	---help---
+	  This option provides API to read TSF.
+
+endif
+
+config SCSC_WLAN_MAC_ADDRESS_FILENAME
+	string "MAC address filename"
+	default "/efs/wifi/.mac.info"
+	---help---
+	  Select the programmed MAC address file.
+
+config SCSC_WLAN_MAX_INTERFACES
+        int "Max number of virtual interfaces supported"
+        range 1 12
+        default 3
+        ---help---
+          The driver structures are sized to support this
+          number of interfaces.
+
+config SCSC_WLAN_AP_INFO_FILE
+        bool "Create .softap.info file"
+        default n
+        ---help---
+          The option enables the driver to create .softap.info
+          file in user space and fill information in it.
+
+config SCSC_WLAN_WIFI_SHARING
+	bool "Wifi Sharing Support"
+	default y
+	---help---
+	  This option tells if wifi sharing is supported or not.
+
+config SCSC_WLAN_SAE_CONFIG
+        bool "Wpa3 Support"
+        default n
+        ---help---
+          This option tells if wpa3  is supported or not.
+
+config SCSC_WLAN_ENABLE_MAC_RANDOMISATION
+        bool "Wifi Mac Randomization Support"
+        default y
+        ---help---
+          This option tells if mac randomization is supported or not.
+
+config SCSC_WLAN_SINGLE_ANTENNA
+	depends on SCSC_WLAN_WIFI_SHARING
+	bool "Single Antenna Supported"
+	default y
+	---help---
+	  This option tells if there is support for single
+	  antenna or dual antenna.
+
+config SCSC_WLAN_ACS_ENABLE
+        bool "ACS Support"
+        default y
+        ---help---
+          This option tells if automatic channel selection is
+	  supported or not.
+
+config SCSC_AP_INTERFACE_NAME
+        string "AP net device interface name"
+        default "swlan0"
+        ---help---
+          AP net device interface name.
+
+config SCSC_WLAN_MHS_STATIC_INTERFACE
+        bool "Static AP Interface Support"
+        default n
+        ---help---
+          This option tells if AP interface has been created
+          statically or dynamically.
+
+config SCSC_ENHANCED_PACKET_STATS
+        bool "Enable enhanced packet stats"
+        default n
+        ---help---
+          This option tells whether enhanced packet stats collection
+          is enabled or not.
+
+config SCSC_WIFI_NAN_ENABLE
+        bool "Enable WiFi NAN"
+        default n
+        ---help---
+          This option tells whether WiFi NAN is enabled or not.
+
+config SCSC_WLAN_SET_NUM_ANTENNAS
+        bool "Enable configuring of number of antennas"
+        default n
+        ---help---
+          This option tells whether configuring of number of antennas is enabled or not.
+
+config SCSC_WLAN_LOW_LATENCY_MODE
+        bool "Support enabling/disabling roaming as per latency mode"
+        default n
+        ---help---
+          This option tells whether support is provided for enabling
+          or disabling roaming as per the latency mode.
+
+config SCSC_WLAN_SET_PREFERRED_ANTENNA
+        bool "Enable the driver to set preferred antenna"
+        default n
+        ---help---
+          This option enables the driver to set the preferred antenna.
+
+config SLSI_WLAN_STA_FWD_BEACON
+        bool "Forwarding beacon support"
+        default y
+        ---help---
+          This option tells if beacon forwarding in STA mode is enabled or not.
+          When it is enabled, Driver deliver beacon info of connected AP to Supplicant.
+
+config SCSC_WLAN_STA_ENHANCED_ARP_DETECT
+        bool "Enable enhanced arp detection"
+        default n
+        ---help---
+          This option tells whether enhanced arp detection
+          is enabled or not.
+
+config SCSC_WLAN_MAX_LINK_SPEED
+        bool "Enable max link speed calculation"
+        default n
+        ---help---
+        This option tells if max linkspeed calculation is enabled or not.
+
+config SCSC_WLAN_DUAL_STATION
+        bool "Enable dual station"
+        default n
+        ---help---
+        This option tells if dual station feature is supported or not.
+
+config SCSC_WLAN_BSS_SELECTION
+        bool "Select AP if bssid is not present"
+        default n
+        ---help---
+        This option enable the selection of AP based on the BSSID hint.

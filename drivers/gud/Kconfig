@@ -1,0 +1,14 @@
+#
+# Mobicore Configuration
+#
+
+if SOC_EXYNOS8895
+source "drivers/gud/gud-exynos8895/Kconfig"
+endif
+
+if SOC_EXYNOS7872
+source "drivers/gud/gud-exynos7872/Kconfig"
+endif
+if SOC_EXYNOS7885
+source "drivers/gud/gud-exynos7885/Kconfig"
+endif

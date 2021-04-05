@@ -1,0 +1,9 @@
+#
+# USIM_DETECT Device Driver
+#
+
+config USIM_DETECT
+	bool "USIM_DETECT Support"
+	default n
+	help
+		This enables USIM_DETECT driver to control USIM detection pins

@@ -1,0 +1,97 @@
+config EXYNOS_DECON_7885
+	bool "Samsung Exynos7885 Display system (DPP, DECON, MIPI)"
+	default y
+	depends on FB
+
+if EXYNOS_DECON_7885
+config EXYNOS_DECON_FB
+	bool "Samsung DECON Framebuffer driver"
+	depends on EXYNOS_DECON_7885
+	select MEDIA_EXYNOS
+	default y
+	help
+	  Say Y here if you want support for the DECON in Samsung S5P SoCs.
+	  This device produce image data to one of output interfaces.
+
+config EXYNOS_DPP
+	bool "Samsung Exynos Display Post Processor driver"
+	depends on EXYNOS_DECON_7885
+	default y
+
+config EXYNOS_MIPI_DSIM
+	bool "Samsung Exynos MIPI-DSI driver"
+	depends on EXYNOS_DECON_7885
+	default y
+	help
+	  Enable MIPI-DSI driver.
+
+config EXYNOS_MIPI_DISPLAYPORT
+	bool "Samsung Exynos DISPLAYPORT driver"
+	depends on EXYNOS_DECON_7885
+	default n
+	help
+	  Enable DISPLAYPORT driver.
+
+config EXYNOS_ZEBU_EMUL_DISP
+	bool "Zebu Emulator Display driver"
+	depends on EXYNOS_DECON_7885
+	default y
+
+config FB_WINDOW_UPDATE
+        bool "DECON window update mode"
+        depends on EXYNOS_DECON_7885
+        default n
+
+config DECON_BLOCKING_MODE
+	bool "DECON blocking mode"
+        depends on EXYNOS_DECON_7885
+        default n
+
+config DECON_EVENT_LOG
+	bool "Display sub-system event logger (DECON/DSIM/DPP)"
+        depends on DEBUG_INFO && EXYNOS_DECON_7885
+        default y
+
+config DECON_HIBER
+	bool "DECON hiber mode"
+        depends on EXYNOS_DECON_7885
+        default n
+
+config EXYNOS_DOZE
+	bool "Suppot Doze mode to aod service"
+	depends on EXYNOS_DECON_7885
+	default n
+
+config EXYNOS_SUPPORT_DOZE
+	bool "Suppot backword compatibility for EXYNOS_DOZE"
+	depends on EXYNOS_DOZE
+	default y
+
+config EXYNOS_SUPPORT_FB_HANDOVER
+	bool "Suppot bootloader framebuffer handover"
+	depends on EXYNOS_DECON_7885
+	default y
+
+config DPU_20
+	bool "New fence operation and New header sync with HWC2.0"
+	depends on EXYNOS_DECON_7885 && (ANDROID_VERSION >= 90000)
+	default y if (ANDROID_VERSION >= 90000)
+
+config LCD_HMT
+	bool "Suppot video emul & aid reverse to VR"
+	depends on EXYNOS_DECON_7885
+	default n
+
+config SUPPORT_MASK_LAYER
+	bool "Support mask layer"
+	depends on EXYNOS_DECON_LCD
+	default y
+
+config LOGGING_BIGDATA_BUG
+	bool "Logging extra information when decon bug"
+	depends on SEC_DEBUG
+	default n
+
+endif
+
+source "drivers/video/fbdev/exynos/dpu_7885/panels/Kconfig"

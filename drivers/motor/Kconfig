@@ -1,0 +1,47 @@
+	  
+config MOTOR_ZH915
+	tristate "motor"
+	default n
+	help
+	  Say Y to enable MOTOR ZH915.
+
+config SEC_VIB
+	tristate "SEC DC Vibrator"
+	default n
+	help
+		If you say yes here you will get support for the
+		SEC DC Vibrator.
+
+config MOTOR_S2MU004
+	tristate "s2mu004 haptic driver"
+	default n
+	depends on I2C
+	help
+	 Say Y to include support for S.LSI S2MU004 Haptic driver.
+	
+config MOTOR_S2MU106
+	tristate "s2mu106 haptic driver"
+	default n
+	depends on I2C
+	help
+	 Say Y to include support for System LSI s2mu106
+	 Haptic driver.
+	 The Haptic Motor driver support both ERM and
+	 LRA type actuators.
+
+
+config ISA1000
+	tristate "IMAGIS ISA1000"
+	default n
+	depends on ANDROID_TIMED_OUTPUT
+	help
+		If you say yes here you will get support for the
+		haptic driver of IMAGIS ISA1000.
+
+config MOTOR_VOLTAGE_3P3
+	bool "Using MOTOR VOLTAGE 3P3"
+	depends on MOTOR_S2MU106
+	default n
+	help
+		If you say yes here you will get support for
+		for the  MOTOR VOLTAGE 3P3 feature.

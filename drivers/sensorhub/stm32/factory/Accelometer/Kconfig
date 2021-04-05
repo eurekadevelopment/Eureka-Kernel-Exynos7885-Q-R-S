@@ -1,0 +1,47 @@
+#
+# sensor drivers configuration
+#
+
+config SENSORS_SSP_ACCELOMETER_LSM6DSL
+	tristate "Sensors ssp accelometer sensor lsm6dsl"
+	default n
+	depends on SPI
+	help
+	  accelerometer sensor lsm6dsl file for factory test in ssp driver.
+          If you say yes here you get accelerometer sensor lsm6dsl support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.
+
+config SENSORS_SSP_ACCELOMETER_K6DS3TR
+	tristate "Sensors ssp accelometer sensor k6ds3tr"
+	default n
+	depends on SPI
+	help
+	  accelerometer sensor k6ds3tr file for factory test in ssp driver.
+          If you say yes here you get accelerometer sensor k6ds3tr support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.
+
+config SENSORS_SSP_ACCELOMETER_MPU6500
+	tristate "Sensors ssp accelometer sensor mpu6500"
+	default n
+	depends on SPI
+	help
+	  accelerometer sensor mpu6500 file for factory test in ssp driver.
+          If you say yes here you get accelerometer sensor mpu6500 support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.
+
+config SENSORS_SSP_ACCELOMETER_BMI168
+	tristate "Sensors ssp accelometer sensor bmi168"
+	default n
+	depends on SPI
+	help
+	  accelerometer sensor bmi168 file for factory test in ssp driver.
+          If you say yes here you get accelerometer sensor bmi168 support for
+	  factory test.
+	  To compile this driver as a module, choose M here: the
+	  module will be called ssp.

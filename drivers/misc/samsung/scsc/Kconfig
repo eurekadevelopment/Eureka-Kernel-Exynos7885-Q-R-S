@@ -1,0 +1,152 @@
+config SCSC_CORE_CM
+	tristate "Samsung SCSC Maxwell driver Core Module"
+	depends on SCSC_CORE
+
+config SCSC_CORE
+	tristate "Samsung SCSC Maxwell driver"
+	select SCSC_CORE_CM
+
+config SCSC_CORE_FW_LOCATION
+	string "SCSC FW location"
+	default "/system/etc/wifi"
+	---help---
+	  Select the FW location, when CONFIG_SCSC_CORE_FW_LOCATION_AUTO=n
+
+config SCSC_CORE_FW_LOCATION_AUTO
+	string "SCSC FW location auto select"
+	default y
+	---help---
+	  Select the FW location (Android N/O) automatically
+
+config SCSC_CORE_TOOL_LOCATION
+	string "SCSC tool location"
+	default "/system/bin"
+	---help---
+	  Select the moredump tool location, when CONFIG_SCSC_CORE_FW_LOCATION_AUTO=n
+
+config SCSC_WLBT_CONFIG_PLATFORM
+	string "SCSC WLBT PLATFORM"
+	default ""
+	---help---
+	  Select the platform, e.g. lassen_smdk
+
+config SCSC_PCIE
+	tristate "Samsung SCSC MIF PCIE implementation"
+	depends on SCSC_CORE
+	depends on PCI
+config SCSC_MXLOGGER
+	bool "Samsung SCSC MXLOGGER (Sable)"
+	depends on SCSC_CORE
+	default n
+	---help---
+	   MXLOGGER provides FW level logging in DRAM
+
+
+config SCSC_WLBTD
+	bool "Samsung SCSC Daemon support for Android O"
+	depends on SCSC_CORE
+	default n
+	---help---
+	   Uses generic netlink messages to communicate events to userspace daemon which takes necessary actions e.g. taking moredump
+
+config SCSC_WRITE_INFO_FILE_WLBTD
+	bool "SCSC flag to decide whether to write file via wlbtd or not"
+	depends on SCSC_WLBTD
+	default y
+	---help---
+		SCSC flag to decide whether to write file via wlbtd or not
+
+config SCSC_PLATFORM
+	tristate "Samsung SCSC MIF Platform driver implementation"
+	depends on SCSC_CORE
+
+config SCSC_CM_MX_CLIENT_TEST
+	tristate "Samsung SCSC Test Client"
+	depends on SCSC_CORE
+
+config SCSC_MX_ALWAYS_ON
+	tristate "Samsung SCSC MX140 always booted"
+	depends on SCSC_CM_MX_CLIENT_TEST
+
+config SCSC_CLK20MHZ
+	tristate "Samsung SCSC USB 20MHz Clock"
+	depends on SCSC_CORE
+
+config SCSC_CLK20MHZ_TEST
+	tristate "Samsung SCSC USB 20MHz Clock Test"
+	depends on SCSC_CLK20MHZ
+
+config SCSC_MMAP
+	tristate "Samsung SCSC MMAP/GDB User space interface"
+	depends on SCSC_CORE
+
+config SCSC_DBG_SAMPLER
+	tristate "Samsung SCSC Debug Sampler Service"
+	depends on SCSC_CORE
+
+config SCSC_DEBUG
+	tristate "Samsung SCSC Logging"
+	depends on SCSC_CORE && DEBUG_FS
+	default n
+
+config SCSC_DEBUG_COMPATIBILITY
+	bool "Samsung SCSC Logging mode"
+	depends on SCSC_DEBUG
+	default n
+
+config SCSC_STATIC_RING
+	tristate "Samsung SCSC Logging use static ring"
+	depends on SCSC_DEBUG
+	default n
+
+config SCSC_STATIC_RING_SIZE
+	int "Size of the static ring"
+	depends on SCSC_STATIC_RING
+	default "1048576"
+	range 1024 16777216
+
+config SCSC_CHV_SUPPORT
+	bool "Samsung CHV f/w support"
+	depends on SCSC_CORE
+	default n
+
+config SCSC_GPR4_CON_DEBUG
+	bool "GPR4 PIO muxes switching to the Maxwell Subsystem"
+	depends on SCSC_PLATFORM
+	default n
+
+config SCSC_BUILD_TYPE
+       string "Type of Kernel Build"
+       ---help---
+         Type of Kernel Build: User, User Debug, Engineering
+
+config SCSC_WIFILOGGER
+	tristate "Samsung SCSC Android Wi-Fi Logger"
+	depends on SCSC_CORE
+	default n
+
+config SCSC_WIFILOGGER_DEBUGFS
+	bool "Samsung SCSC Android Wi-Fi Logger DebugFS"
+	depends on SCSC_WIFILOGGER && DEBUG_FS
+	default y
+
+config SCSC_WIFILOGGER_TEST
+	bool "Samsung SCSC Android Wi-Fi Logger Test Harness"
+	depends on SCSC_WIFILOGGER && SCSC_WIFILOGGER_DEBUGFS
+	default n
+
+config SCSC_LOG_COLLECTION
+	bool "Samsung SCSC Log Collection"
+	depends on SCSC_CORE
+	default n
+	---help---
+	  Enable LOG collection to collect Chunks (host and FW) and generate a SBL file
+
+config SCSC_MX150_EXT_DUAL_FEM
+	bool "Support MX150 boards with dual external WLBT front-end"
+	default n
+	---help---
+	Some boards have dual-external front end module for WLAN/BT
+	which is controlled via GPIO. Enable driver support for this.
+	Note that the customer board-specific DTS file also needs
+	patching for this to work.

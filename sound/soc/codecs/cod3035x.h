@@ -1,0 +1,1824 @@
+/*
+ * Copyright (c) 2014 Samsung Electronics Co. Ltd.
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#ifndef _COD3035X_H
+#define _COD3035X_H
+
+#include <linux/completion.h>
+
+#include <sound/soc.h>
+#include <linux/switch.h>
+#include <linux/iio/consumer.h>
+#include <linux/wakelock.h>
+
+#define CONFIG_SND_SOC_SAMSUNG_VERBOSE_DEBUG 1
+
+extern const struct regmap_config cod3035x_regmap;
+extern int cod3035x_jack_mic_register(struct snd_soc_codec *codec);
+
+#define LEGACY_MODE_0   0
+#define LEGACY_MODE_1   1
+#define DNC_MODE		2
+#define AVC_MODE		3
+
+#define MODEL_FLAG_EP_DC_OFFSET_SWEEP	0x01
+#define MODEL_FLAG_LDET_VTH_ENABLE		0x02
+#define MODEL_FLAG_5PIN_JACK			0x04
+#define MODEL_FLAG_5PIN_AUX_DET			0x08
+#define MODEL_FLAG_5PIN_BTN_DELAY		0x10
+#define MODEL_FLAG_JACKOUT_TDMA_NOISE	0x20
+#define MODEL_FLAG_5PIN_ANT 			0x40
+
+#define COD3035X_OTP_MAX_REG		0x0f
+#define COD3035X_MAX_REGISTER		0xf6
+#define COD3035X_OTP_REG_WRITE_START	0xd0
+
+#define COD3035X_REGCACHE_SYNC_START_REG	0x0
+#define COD3035X_REGCACHE_SYNC_END_REG	0xf6
+
+#define COD3035X_BTN_RELEASED_MASK	BIT(0)
+#define COD3035X_BTN_PRESSED_MASK	BIT(1)
+
+#define LN_FLAG		BIT(3)
+#define MIC3_FLAG	BIT(2)
+#define MIC2_FLAG	BIT(1)
+#define MIC1_FLAG	BIT(0)
+
+#ifdef CONFIG_SND_SOC_COD30XX_EXT_ANT
+#define JACK_OUT		0
+#define JACK_3POLE		1
+#define JACK_4POLE		2
+#define JACK_ANT		3
+#define JACK_ANT_3POLE	4
+#define JACK_ANT_4POLE	5
+#endif
+
+#define COD3035X_LASSENA02_ADDR 0x59
+#define COD3035X_LASSENA02_MASK 0x80
+
+struct cod3035x_jack_det {
+	bool jack_det;
+	bool mic_det;
+	bool water_det;
+	bool button_det;
+#ifdef CONFIG_SND_SOC_COD30XX_EXT_ANT
+	int prev_jack_det_status;
+	bool ant_det;
+	bool ant_irq;
+	int ignore_ext_ant;
+#endif
+	bool surge_det;
+	unsigned int button_code;
+	int privious_button_state;
+	int adc_val;
+	int gdet_adc_val;
+};
+
+struct jack_buttons_zone {
+	unsigned int code;
+	unsigned int adc_low;
+	unsigned int adc_high;
+};
+
+struct cod3035x_priv {
+	struct regmap *regmap;
+	struct snd_soc_codec *codec;
+	struct device *dev;
+
+	struct regulator *vdd;
+	struct regulator *vdd2;
+
+	int sysclk;
+	int asyncclk;
+
+	int num_inputs;
+	int int_gpio;
+
+	int dtv_check_gpio;
+	bool dtv_detect;
+#ifdef CONFIG_SND_SOC_COD30XX_EXT_ANT
+	int ant_det_gpio;
+	int ant_adc_range;
+#endif
+
+	struct pinctrl *pinctrl;
+	unsigned int spk_ena:2;
+
+	unsigned int regulator_count;
+	bool is_suspend;
+	bool is_probe_done;
+	int is_lassenA;
+	struct cod3035x_jack_det jack_det;
+	struct mutex jackdet_lock;
+	struct mutex reset_lock;
+	struct switch_dev sdev;
+	struct completion initialize_complete;
+	int irq_val[10];
+	struct input_dev *input;
+	unsigned int key_code[10];
+	unsigned int key_pressed_count;
+	struct delayed_work key_work;
+	struct mutex key_lock;
+	struct timer_list timer;
+	unsigned short i2c_addr;
+	unsigned char otp_reg[COD3035X_OTP_MAX_REG];
+	unsigned int mic_bias1_voltage;
+	unsigned int mic_bias2_voltage;
+	unsigned int mic_bias_ldo_voltage;
+	unsigned int playback_aifrate;
+	unsigned int capture_aifrate;
+	bool update_fw;
+	bool use_external_jd;
+	int mic_adc_range;
+	int mic_det_delay;
+	int gdet_adc_delay;
+	int btn_release_value;
+	int water_threshold_adc_min;
+	int water_threshold_adc_max;
+	int jack_imp_gap;
+	int fake_jack_adc;
+	int aux_cable_detect_adc;
+	unsigned int jackout_dbnc_time;
+	unsigned int jackin_dbnc_time;
+	unsigned int jackin_ldet_vth;
+	int water_finish_chk_adc_min;
+	struct jack_buttons_zone jack_buttons_zones[4];
+	struct work_struct buttons_work;
+	struct workqueue_struct *buttons_wq;
+	struct iio_channel *jack_adc;
+	unsigned int use_btn_adc_mode;
+	unsigned int use_det_gdet_adc_mode;
+	unsigned int dis_ovp_det_mode;
+	struct work_struct jack_det_work;
+	struct workqueue_struct *jack_det_wq;
+	struct work_struct gdet_adc_work;
+	struct workqueue_struct *gdet_adc_wq;
+	struct mutex adc_mute_lock;
+	struct workqueue_struct *adc_mute_wq;
+	struct work_struct adc_mute_work;
+	struct delayed_work btn_delay_work;
+	struct workqueue_struct *btn_delay_wq;
+	int adc_pin;
+	unsigned int lvol;
+	unsigned int rvol;
+	unsigned int dmic1_lmux;
+	unsigned int dmic1_rmux;
+	unsigned int mic_status;
+	unsigned int rcv_drv_current;
+	unsigned int model_feature_flag;
+	bool uhqa_rec_mode;
+	bool btn_delay_masking;
+	struct wake_lock codec_wake_lock;
+
+#ifdef CONFIG_SND_SOC_COD30XX_EXT_ANT
+	struct delayed_work jack_report_work;
+	struct workqueue_struct *jack_report_wq;
+
+	struct mutex jackreport_lock;
+#endif
+};
+
+/*
+ * Helper macros for creating bitmasks
+ */
+#define MASK(width, shift)	(((0x1 << (width)) - 1) << shift)
+
+
+/*
+ * Register values.
+*/
+
+/* Audio IRQ and Status */
+#define COD3035X_00_BASE_REG			0x00
+#define COD3035X_01_IRQ1PEND			0x01
+#define COD3035X_02_IRQ2PEND			0x02
+#define COD3035X_03_IRQ3PEND			0x03
+#define COD3035X_04_IRQ4PEND			0x04
+#define COD3035X_05_IRQ1M				0x05
+#define COD3035X_06_IRQ2M				0x06
+#define COD3035X_07_IRQ3M				0x07
+#define COD3035X_08_IRQ4M				0x08
+#define COD3035X_09_STATUS1				0x09
+#define COD3035X_0A_STATUS2				0x0A
+#define COD3035X_0B_STATUS3				0x0B
+#define COD3035X_0C_STATUS4				0x0C
+#define COD3035X_0D_STATUS5				0x0D
+
+// Power Down, Reference circuit
+#define COD3035X_10_PD_REF				0x10
+#define COD3035X_11_PD_AD1				0x11
+#define COD3035X_12_PD_AD2				0x12
+#define COD3035X_13_PD_AD3				0x13
+#define COD3035X_14_PD_DA1				0x14
+#define COD3035X_15_PD_DA2				0x15
+#define COD3035X_16_PD_DA3				0x16
+#define COD3035X_17_PWAUTO_AD			0x17
+#define COD3035X_18_PWAUTO_DA			0x18
+#define COD3035X_19_CTRL_REF			0x19
+#define COD3035X_1A_HP_SV				0x1A
+#define COD3035X_1B_SDM_STR				0x1B
+#define COD3035X_1C_RSVD				0x1C
+#define COD3035X_1D_SV_DA				0x1D
+
+/* Recording Path */
+#define COD3035X_20_VOL_AD1				0x20
+#define COD3035X_21_VOL_AD2				0x21
+#define COD3035X_22_VOL_AD3				0x22
+#define COD3035X_23_VOL_AD4				0x23
+#define COD3035X_24_VOL_AD5				0x24
+#define COD3035X_25_MIX_AD1				0x25
+#define COD3035X_26_MIX_ADC				0x26
+#define COD3035X_27_MIX_AD2				0x27
+#define COD3035X_28_DSM_ADS				0x28
+
+/* Playback Path */
+#define COD3035X_30_VOL_HPL				0x30
+#define COD3035X_31_VOL_HPR				0x31
+#define COD3035X_32_VOL_EP				0x32
+#define COD3035X_37_MIX_DA1				0x37
+#define COD3035X_38_MIX_DA2				0x38
+#define COD3035X_3D_OVP_1               0x3D
+#define COD3035X_3E_OVP_2	            0x3E
+
+/* Digital Function */
+#define COD3035X_40_DIGITAL_POWER		0x40
+#define COD3035X_41_IF1_FORMAT1			0x41
+#define COD3035X_42_IF1_FORMAT2			0x42
+#define COD3035X_43_IF1_FORMAT3			0x43
+#define COD3035X_44_IF1_FORMAT4			0x44
+#define COD3035X_45_IF1_FORMAT5			0x45
+#define COD3035X_46_ADC1				0x46
+#define COD3035X_47_AVOLL1				0x47
+#define COD3035X_48_AVOLR1				0x48
+#define COD3035X_49_DMIC1				0X49
+#define COD3035X_4A_DMIC2				0x4A
+#define COD3035X_4B_ADC2				0x4B
+#define COD3035X_4C_AVOLL2				0x4C
+#define COD3035X_4D_AVOLR2				0x4D
+#define COD3035X_4E_DMIC3				0X4E
+#define COD3035X_4F_DMIC4				0x4F
+
+#define COD3035X_50_DAC1				0x50
+#define COD3035X_51_DVOLL				0x51
+#define COD3035X_52_DVOLR				0x52
+#define COD3035X_53_UHQA				0x53
+#define COD3035X_54_AVC1				0x54
+#define COD3035X_55_AVC2				0x55
+#define COD3035X_56_AVC3				0x56
+#define COD3035X_57_AVC4				0x57
+#define COD3035X_58_AVC5				0x58
+#define COD3035X_59_AVC6				0x59
+#define COD3035X_5A_AVC7				0x5A
+#define COD3035X_5B_AVC8				0x5B
+#define COD3035X_5C_AVC9				0x5C
+#define COD3035X_5D_CRO1				0x5D
+#define COD3035X_5E_CRO2				0x5E
+#define COD3035X_5F_CRO3				0x5F
+
+#define COD3035X_EB_I_DECAY_TIME0		0xEB
+#define COD3035X_EC_I_DECAY_TIME1		0xEC
+#define COD3035X_ED_I_DECAY_TIME2		0xED
+#define COD3035X_EE_I_GAIN_FILTER0		0xEE
+#define COD3035X_EF_I_GAIN_FILTER1		0xEF
+#define COD3035X_F0_I_GAIN_FILTER2		0xF0
+
+#define COD3035X_F4_ACV_10				0xF4
+#define COD3035X_F5_ACV_DECAY0			0xF5
+#define COD3035X_F6_ACV_DECAY1			0xF6
+
+/* Sensor Detection & IRQ control */
+#define COD3035X_60_IRQ_SENSOR			0x60
+
+/* ADC/DAC Offset */
+#define COD3035X_61_OFFSET_AD1			0x61
+#define COD3035X_62_OFFSET_AD2			0x62
+#define COD3035X_63_OFFSET_DA			0x63
+#define COD3035X_6C_MIC_ON				0x6C
+
+/* Testing Register */
+#define COD3035X_70_CLK1_COD			0x70
+#define COD3035X_71_CLK2_COD			0x71
+#define COD3035X_72_CLK3_COD			0x72
+#define COD3035X_73_DSM1_DA				0x73
+#define COD3035X_74_DSM2_DA				0x74
+#define COD3035X_75_DWA_CTR				0x75
+#define COD3035X_76_CHOP_AD				0x76
+#define COD3035X_77_CHOP_DA				0x77
+#define COD3035X_78_CTRL_CP				0x78
+#define COD3035X_79_DSM_AD				0x79
+#define COD3035X_7A_MAN_GN1				0x7A
+#define COD3035X_7B_MAN_GN2				0x7B
+#define COD3035X_7C_LPF_AD				0x7C
+#define COD3035X_7D_AVC_PARA29			0x7D
+
+/* Accessory Detection */
+#define COD3035X_80_PDB_ACC1            0x80
+#define COD3035X_81_PDB_ACC2            0x81
+#define COD3035X_82_CTR_ACC3            0x82
+#define COD3035X_83_CTR_MCB             0x83
+#define COD3035X_84_CTR_POP1            0x84
+#define COD3035X_85_CTR_POP2            0x85
+#define COD3035X_86_CTR_POP3            0x86
+#define COD3035X_87_CTR_IMP1            0x87
+#define COD3035X_88_CTR_IMP2            0x88
+#define COD3035X_89_CTR_IMP3            0x89
+#define COD3035X_8A_CTR_IMP4            0x8A
+#define COD3035X_8B_CTR_BDNC1           0x8B
+#define COD3035X_8C_CTR_DBNC2           0x8C
+#define COD3035X_8D_CTR_DBNC3           0x8D
+#define COD3035X_8E_CTR_DLY1            0x8E
+#define COD3035X_8F_CTR_DLY2            0x8F
+
+#define COD3035X_90_CTR_DLY3            0x90
+#define COD3035X_91_CTR_DLY4            0x91
+#define COD3035X_92_CTR_DLY5            0x92
+#define COD3035X_93_CTR_DLY6            0x93
+#define COD3035X_94_JACK_CTR            0x94
+#define COD3035X_95_CTR_MON             0x95
+#define COD3035X_96_BTN_DBNC            0x96
+#define COD3035X_97_GDET_DBNC           0x97
+#define COD3035X_98_TEST1               0x98
+#define COD3035X_99_TEST2               0x99
+#define COD3035X_9A_TEST3               0x9A
+#define COD3035X_9B_TEST4               0x9B
+#define COD3035X_9C_IMP_CNT1            0x9C
+#define COD3035X_9D_IMP_CNT2            0x9D
+#define COD3035X_9E_IMP_CNT3            0x9E
+#define COD3035X_9F_IMP_CNT4            0x9F
+
+#define COD3035X_A0_IMP_CNT5            0xA0
+#define COD3035X_A1_IMP_CNT6            0xA1
+#define COD3035X_A2_IMP_CNT7            0xA2
+#define COD3035X_A3_IMP_CNT8            0xA3
+#define COD3035X_A4_IMP_CNT9            0xA4
+#define COD3035X_A5_IMP_CNT10           0xA5
+#define COD3035X_A6_IMP_CNT11           0xA6
+#define COD3035X_A7_CTR_ADC1            0xA7
+#define COD3035X_A8_CTR_ADC2            0xA8
+#define COD3035X_A9_CTR_ADC3            0xA9
+#define COD3035X_AA_CTR_CAL             0xAA
+#define COD3035X_AB_TEST_ADC1           0xAB
+#define COD3035X_AC_TEST_ADC2           0xAC
+#define COD3035X_AD_TEST_ADC3           0xAD
+#define COD3035X_AE_TEST_ADC4           0xAE
+#define COD3035X_AF_TEST_ADC5           0xAF
+
+#define COD3035X_B0_AUTO_HP1			0xB0
+#define COD3035X_B1_AUTO_HP2			0xB1
+#define COD3035X_B2_AUTO_HP3			0xB2
+#define COD3035X_B3_AUTO_HP4			0xB3
+#define COD3035X_B4_AUTO_HP5			0xB4
+#define COD3035X_B5_AUTO_HP6			0xB5
+#define COD3035X_B6_AUTO_HP7			0xB6
+#define COD3035X_B7_AUTO_HP8			0xB7
+#define COD3035X_B8_AUTO_HP9			0xB8
+#define COD3035X_B9_AUTO_HP10			0xB9
+#define COD3035X_BA_AUTO_HP11			0xBA
+#define COD3035X_BB_AUTO_HP12           0xBB
+#define COD3035X_BC_ODSEL0				0xBC
+#define COD3035X_BE_ODSEL2				0xBE
+
+/* OTP registers */
+#define COD3035X_D0_CTRL_IREF1			0xD0
+#define COD3035X_D1_CTRL_IREF2			0xD1
+#define COD3035X_D2_CTRL_IREF3			0xD2
+#define COD3035X_D3_CTRL_IREF4			0xD3
+#define COD3035X_D4_OFFSET_DAL			0xD4
+#define COD3035X_D5_OFFSET_DAR			0xD5
+#define COD3035X_D6_CTRL_IREF5			0xD6
+#define COD3035X_D7_CTRL_EP				0xD7
+#define COD3035X_D8_CTRL_HP				0xD8
+#define COD3035X_D9_CTRL_CP3			0xD9
+#define COD3035X_DA_CTRL_CP4			0xDA
+#define COD3035X_DB_CTRL_HPS			0xDB
+#define COD3035X_DC_CTRL_EPS			0xDC
+
+/* Preset register for AVC */
+#define COD3035X_E1_PRESET_AVC			0xE1
+#define COD3035X_E3_PRESET_AVC			0xE3
+#define COD3035X_E5_PRESET_AVC			0xE5
+#define COD3035X_E7_PRESET_AVC			0xE7
+#define COD3035X_E8_PRESET_AVC			0xE8
+#define COD3035X_E9_PRESET_AVC			0xE9
+#define COD3035X_EA_PRESET_AVC			0xEA
+#define COD3035X_F2_PRESET_AVC			0xF2
+#define COD3035X_F3_PRESET_AVC			0xF3
+#define COD3035X_F4_PRESET_AVC			0xF4
+#define COD3035X_F5_PRESET_AVC			0xF5
+#define COD3035X_F6_PRESET_AVC			0xF6
+
+/* LASSEN A 0x07 address */
+#define COD3035A_40_DNC0				0x40
+#define COD3035A_41_DNC1				0x41
+#define COD3035A_42_DNC2				0x42
+#define COD3035A_43_DNC3				0x43
+#define COD3035A_44_DNC4				0x44
+#define COD3035A_45_DNC5				0x45
+#define COD3035A_46_DNC6				0x46
+#define COD3035A_47_DNC7				0x47
+#define COD3035A_48_DNC8				0x48
+#define COD3035A_49_DNC9				0x49
+#define COD3035A_4A_DNC10				0x4A
+#define COD3035A_4B_DNC11				0x4B
+#define COD3035A_4C_DNC12				0x4C
+#define COD3035A_4D_DNC13				0x4D
+#define COD3035A_4E_DNC14				0x4E
+
+#define COD3035A_50_OFF_DLY1			0x50
+#define COD3035A_51_OFF_DLY2			0x51
+#define COD3035A_52_LOFF1				0x52
+#define COD3035A_53_LOFF2				0x53
+#define COD3035A_54_LOFF3				0x54
+#define COD3035A_55_ROFF1				0x55
+#define COD3035A_56_ROFF2				0x56
+#define COD3035A_57_ROFF3				0x57
+
+/* COD3035X_01_IRQ1PEND */
+#define IRQ1_ST_JACKIN_R			BIT(7)
+#define IRQ1_ST_JACKOUT_R			BIT(6)
+#define IRQ1_ST_APCHECK_R			BIT(5)
+#define IRQ1_ST_WTJACKIN_R			BIT(4)
+#define IRQ1_ST_WTJACKOUT_R			BIT(3)
+#define IRQ1_BTN_DET_R				BIT(2)
+#define IRQ1_IMP_DET_R				BIT(1)
+#define IRQ1_JACK_DET_R				BIT(0)
+
+/* COD3035X_02_IRQ2PEND */
+#define IRQ2_ST_JACKIN_F			BIT(7)
+#define IRQ2_ST_JACKOUT_F			BIT(6)
+#define IRQ2_ST_APCHECK_F			BIT(5)
+#define IRQ2_ST_WTJACKIN_F			BIT(4)
+#define IRQ2_ST_WTJACKOUT_F			BIT(3)
+#define IRQ2_BTN_DET_F				BIT(2)
+#define IRQ2_IMP_DET_F				BIT(1)
+#define IRQ2_JACK_DET_F				BIT(0)
+
+/* COD3035X_03_IRQ3PEND */
+#define IRQ3_ST_MOIST_R				BIT(7)
+#define IRQ3_IMP_CHECK_DONE_R		BIT(5)
+#define IRQ3_GPADC_AVG_DONE_R		BIT(4)
+#define IRQ3_OVPL_MONI_R			BIT(3)
+#define IRQ3_OVPR_MONI_R			BIT(2)
+#define IRQ3_EAR_PW_MONI_R			BIT(1)
+#define IRQ3_EP_PW_MONI_R			BIT(0)
+
+/* COD3035X_04_IRQ4PEND */
+#define IRQ4_ST_MOIST_F				BIT(7)
+#define IRQ4_IMP_CHECK_DONE_F		BIT(5)
+#define IRQ4_GPADC_AVG_DONE_F		BIT(4)
+#define IRQ4_OVPL_MONI_F			BIT(3)
+#define IRQ4_OVPR_MONI_F			BIT(2)
+#define IRQ4_EAR_PW_MONI_F			BIT(1)
+#define IRQ4_EP_PW_MONI_F			BIT(0)
+
+/* COD3035X_05_IRQ1M */
+#define IRQ1M_BTN_DET_R_M_SHIFT					3
+#define IRQ1M_BTN_DET_R_M_MASK					BIT(IRQ1M_BTN_DET_R_M_SHIFT)
+
+#define IRQ1M_IMP_DET_R_M_SHIFT					2
+#define IRQ1M_IMP_DET_R_M_MASK					BIT(IRQ1M_IMP_DET_R_M_SHIFT)
+
+#define IRQ1M_MIC_DET_R_M_SHIFT					1
+#define IRQ1M_MIC_DET_R_M_MASK					BIT(IRQ1M_MIC_DET_R_M_SHIFT)
+
+#define IRQ1M_JACK_DET_R_M_SHIFT				0
+#define IRQ1M_JACK_DET_R_M_MASK					BIT(IRQ1M_MIC_JACK_R_M_SHIFT)
+
+#define IRQ1M_MASK_ALL				0xFF
+
+/* COD3035X_06_IRQ2M */
+#define IRQ1M_BTN_DET_F_M_SHIFT					3
+#define IRQ1M_BTN_DET_F_M_MASK					BIT(IRQ1M_BTN_DET_R_M_SHIFT)
+
+#define IRQ1M_IMP_DET_F_M_SHIFT					2
+#define IRQ1M_IMP_DET_F_M_MASK					BIT(IRQ1M_IMP_DET_R_M_SHIFT)
+
+#define IRQ1M_MIC_DET_F_M_SHIFT					1
+#define IRQ1M_MIC_DET_F_M_MASK					BIT(IRQ1M_MIC_DET_R_M_SHIFT)
+
+#define IRQ1M_JACK_DET_F_M_SHIFT				0
+#define IRQ1M_JACK_DET_F_M_MASK					BIT(IRQ1M_MIC_JACK_R_M_SHIFT)
+
+#define IRQ2M_MASK_ALL				0xFF
+
+/* COD3035X_07_IRQ3M */
+#define IRQ3M_FLG_PW_LN_R_M_SHIFT				7
+#define IRQ3M_FLG_PW_LN_R_M_MASK				BIT(IRQ3M_FLG_PW_LN_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC1_R_M_SHIFT				6
+#define IRQ3M_FLG_PW_MIC1_R_M_MASK				BIT(IRQ3M_FLG_PW_MIC1_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC2_R_M_SHIFT				5
+#define IRQ3M_FLG_PW_MIC2_R_M_MASK				BIT(IRQ3M_FLG_PW_MIC2_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC3_R_M_SHIFT				4
+#define IRQ3M_FLG_PW_MIC3_R_M_MASK				BIT(IRQ3M_FLG_PW_MIC3_R_M_SHIFT)
+
+#define IRQ3M_FLG_MTVOL_CODEC_R_M_SHIFT			3
+#define IRQ3M_FLG_MTVOL_CODEC_R_M_MASK			BIT(IRQ3M_FLG_MTVOL_CODEC_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_HP_R_M_SHIFT				2
+#define IRQ3M_FLG_PW_HP_R_M_MASK				BIT(IRQ3M_FLG_PW_HP_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_EP_R_M_SHIFT				1
+#define IRQ3M_FLG_PW_EP_R_M_MASK				BIT(IRQ3M_FLG_PW_EP_R_M_SHIFT)
+
+#define IRQ3M_FLG_PW_SPK_R_M_SHIFT				0
+#define IRQ3M_FLG_PW_SPK_R_M_MASK				BIT(IRQ3M_FLG_PW_SPK_R_M_SHIFT)
+
+#define IRQ3M_MASK_ALL				0xFF
+
+/* COD3035X_08_IRQ4M */
+#define IRQ3M_FLG_PW_LN_F_M_SHIFT				7
+#define IRQ3M_FLG_PW_LN_F_M_MASK				BIT(IRQ3M_FLG_PW_LN_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC1_F_M_SHIFT				6
+#define IRQ3M_FLG_PW_MIC1_F_M_MASK				BIT(IRQ3M_FLG_PW_MIC1_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC2_F_M_SHIFT				5
+#define IRQ3M_FLG_PW_MIC2_F_M_MASK				BIT(IRQ3M_FLG_PW_MIC2_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_MIC3_F_M_SHIFT				4
+#define IRQ3M_FLG_PW_MIC3_F_M_MASK				BIT(IRQ3M_FLG_PW_MIC3_F_M_SHIFT)
+
+#define IRQ3M_FLG_MTVOL_CODEC_F_M_SHIFT			3
+#define IRQ3M_FLG_MTVOL_CODEC_F_M_MASK			BIT(IRQ3M_FLG_MTVOL_CODEC_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_HP_F_M_SHIFT				2
+#define IRQ3M_FLG_PW_HP_F_M_MASK				BIT(IRQ3M_FLG_PW_HP_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_EP_F_M_SHIFT				1
+#define IRQ3M_FLG_PW_EP_F_M_MASK				BIT(IRQ3M_FLG_PW_EP_F_M_SHIFT)
+
+#define IRQ3M_FLG_PW_SPK_F_M_SHIFT				0
+#define IRQ3M_FLG_PW_SPK_F_M_MASK				BIT(IRQ3M_FLG_PW_SPK_F_M_SHIFT)
+
+#define IRQ4M_MASK_ALL				0xFF
+
+/* COD3035X_09_STATUS1 */
+#define STATUS1_WTP_STATE_SHIFT		5
+#define STATUS1_WTP_STATE_WIDTH		2
+#define STATUS1_WTP_STATE_MASK		MASK(STATUS1_WTP_STATE_WIDTH, \
+									STATUS1_WTP_STATE_SHIFT)
+#define STATUS1_IMP_VAL_SHIFT		3
+#define STATUS1_BNT_DET_SHIFT		2
+#define STATUS1_IMP_DET_SHIFT		1
+#define STATUS1_JACK_DET_SHIFT		0
+#define STATUS1_JACK_DET_MASK		BIT(STATUS1_JACK_DET_SHIFT)
+
+#define STATUS1_JACK_STATE_SHIFT		3
+#define STATUS1_JACK_STATE_WIDTH		4
+#define STATUS1_JACK_STATE_MASK		MASK(STATUS1_JACK_STATE_WIDTH, \
+									STATUS1_JACK_STATE_SHIFT)
+
+/* COD3035X_0A_STATUS2 */
+#define STATUS2_IMP_SHIFT		4
+#define STATUS2_IMP_WIDTH		4
+#define STATUS2_IMP_MASK		MASK(STATUS2_IMP_WIDTH, \
+					STATUS2_IMP_SHIFT)
+
+#define STATUS2_JACK_SHIFT		0
+#define STATUS2_JACK_WIDTH		3
+#define STATUS2_JACK_MASK		MASK(STATUS2_JACK_WIDTH, \
+								STATUS2_JACK_SHIFT)
+
+/* COD3035X_0B_STATUS3 */
+#define STATUS3_REF_SHIFT		4
+#define STATUS3_REF_WIDTH		4
+#define STATUS3_REF_MASK		MASK(STATUS3_REF_WIDTH, \
+								STATUS3_REF_SHIFT)
+
+#define STATUS2_JACK_SHIFT		0
+#define STATUS2_JACK_WIDTH		3
+#define STATUS2_JACK_MASK		MASK(STATUS2_JACK_WIDTH, \
+								STATUS2_JACK_SHIFT)
+
+/* COD3035X_0C_STATUS3 */
+#define STATUS3_CAL_DONE		7
+
+/* COD3035X_0D_STATUS4 */
+#define STATUS3_FLG_PW_LN_SHIFT			7
+#define STATUS3_FLG_PW_MIC1_SHIFT		6
+#define STATUS3_FLG_PW_MIC2_SHIFT		5
+#define STATUS3_FLG_PW_MIC3_SHIFT		4
+#define STATUS3_FLG_PW_MTVOL_CODEC_SHIFT	3
+#define STATUS3_FLG_PW_HP_SHIFT			2
+#define STATUS3_FLG_PW_EP_SHIFT			1
+#define STATUS3_FLG_PW_SPK_SHIFT		0
+
+/* COD3035X_10_PD_REF */
+#define PDB_VMID_SHIFT				5
+#define PDB_VMID_MASK				BIT(PDB_VMID_SHIFT)
+
+#define PDB_IGEN_SHIFT				4
+#define PDB_IGEN_MASK				BIT(PDB_IGEN_SHIFT)
+
+#define PDB_IGEN_AD_SHIFT			3
+#define PDB_IGEN_AD_MASK			BIT(PDB_IGEN_AD_SHIFT)
+
+#define PDB_MCB1_SHIFT				2
+#define PDB_MCB1_MASK				BIT(PDB_MCB1_SHIFT)
+
+#define PDB_MCB2_CODEC_SHIFT		1
+#define PDB_MCB2_CODEC_MASK			BIT(PDB_MCB2_CODEC_SHIFT)
+
+#define PDB_MCB_LDO_CODEC_SHIFT			0
+#define PDB_MCB_LDO_CODEC_MASK			BIT(PDB_MCB_LDO_CODEC_SHIFT)
+
+/* COD3035X_11_PD_AD1 */
+#define RESETB_DSMR_SHIFT	0
+#define RESETB_DSMR_MASK	BIT(RESETB_DSMR_SHIFT)
+
+#define RESETB_DSML_SHIFT	1
+#define RESETB_DSML_MASK	BIT(RESETB_DSML_SHIFT)
+
+#define PDB_DSMR_SHIFT		2
+#define PDB_DSMR_MASK		BIT(PDB_DSMR_SHIFT)
+
+#define PDB_DSML_SHIFT		3
+#define PDB_DSML_MASK		BIT(PDB_DSML_SHIFT)
+
+#define EN_DSMR_PREQ_SHIFT      4
+#define EN_DSMR_PREQ_MASK       BIT(EN_DSMR_PREQ_SHIFT)
+
+#define EN_DSML_PREQ_SHIFT      5
+#define EN_DSML_PREQ_MASK       BIT(EN_DSML_PREQ_SHIFT)
+
+#define PDB_MIXR_SHIFT      6
+#define PDB_MIXR_MASK       BIT(PDB_MIXL_SHIFT)
+
+#define PDB_MIXL_SHIFT      7
+#define PDB_MIXL_MASK       BIT(PDB_MIXR_SHIFT)
+
+/* COD3035X_12_PD_AD2 */
+#define PDB_LNL_SHIFT		7
+#define PDB_LNL_MASK		BIT(PDB_LNL_SHIFT)
+
+#define PDB_LNR_SHIFT		6
+#define PDB_LNR_MASK		BIT(PDB_LNR_SHIFT)
+
+#define PDB_MIC_BST1_SHIFT		5
+#define PDB_MIC_BST1_MASK		BIT(PDB_MIC_BST1_SHIFT)
+
+#define PDB_MIC_BST2_SHIFT		4
+#define PDB_MIC_BST2_MASK		BIT(PDB_MIC_BST2_SHIFT)
+
+#define PDB_MIC_BST3_SHIFT		3
+#define PDB_MIC_BST3_MASK		BIT(PDB_MIC_BST3_SHIFT)
+
+#define PDB_MIC_PGA1_SHIFT		2
+#define PDB_MIC_PGA1_MASK		BIT(PDB_MIC_PGA1_SHIFT)
+
+#define PDB_MIC_PGA2_SHIFT		1
+#define PDB_MIC_PGA2_MASK		BIT(PDB_MIC_PGA2_SHIFT)
+
+#define PDB_MIC_PGA3_SHIFT		0
+#define PDB_MIC_PGA3_MASK		BIT(PDB_MIC_PGA3_SHIFT)
+
+/* COD3035X_13_PD_AD3 */
+#define EN_BST_DIODE_SHIFT		7
+#define EN_BST_DIODE_MASK		BIT(EN_BST_DIODE_SHIFT)
+
+#define PDB_MIXC_SHIFT			6
+#define PDB_MIXC_MASK			BIT(PDB_MIXC_SHIFT)
+
+#define EN_DSMC_PREQ_SHIFT		5
+#define EN_DSMC_PREQ_MASK		BIT(EN_DSMC_PREQ_SHIFT)
+
+#define PDB_DSMC_SHIFT			4
+#define PDB_DSMC_MASK			BIT(PDB_DSMC_SHIFT)
+
+#define RESETB_DSMC_SHIFT		3
+#define RESETB_DSMC_MASK		BIT(RESETB_DSMC_SHIFT)
+
+#define RESETB_BST1_SHIFT		2
+#define RESETB_BST1_MASK		BIT(RESETB_BST1_SHIFT)
+
+#define RESETB_BST2_SHIFT		1
+#define RESETB_BST2_MASK		BIT(RESETB_BST2_SHIFT)
+
+#define RESETB_BST3_SHIFT		0
+#define RESETB_BST3_MASK		BIT(RESETB_BST3_SHIFT)
+
+/* COD3035X_14_PD_DA1 */
+#define EN_DCTL_PREQ_SHIFT	5
+#define EN_DCTL_PREQ_MASK	BIT(EN_DCTL_PREQ_SHIFT)
+
+#define EN_DCTR_PREQ_SHIFT	4
+#define EN_DCTR_PREQ_MASK	BIT(EN_DCTR_PREQ_SHIFT)
+
+#define PDB_DCTL_SHIFT		3
+#define PDB_DCTL_MASK		BIT(PDB_DCTL_SHIFT)
+
+#define PDB_DCTR_SHIFT		2
+#define PDB_DCTR_MASK		BIT(PDB_DCTR_SHIFT)
+
+#define RESETB_DCTL_SHIFT	1
+#define RESETB_DCTL_MASK	BIT(RESETB_DCTL_SHIFT)
+
+#define RESETB_DCTR_SHIFT	0
+#define RESETB_DCTR_MASK	BIT(RESETB_DCTR_SHIFT)
+
+/* COD3035X_15_PD_DA2 */
+#define PDB_SPK_PGA_SHIFT	3
+#define PDB_SPK_PGA_MASK	BIT(PDB_SPK_PGA_SHIFT)
+
+#define PDB_SPK_BIAS_SHIFT	2
+#define PDB_SPK_BIAS_MASK	BIT(PDB_SPK_BIAS_SHIFT)
+
+#define PDB_SPK_DAMP_SHIFT	1
+#define PDB_SPK_DAMP_MASK	BIT(PDB_SPK_DAMP_SHIFT)
+
+#define PDB_SPK_PROT_SHIFT	0
+#define PDB_SPK_PROT_MASK	BIT(PDB_SPK_PROT_SHIFT)
+
+/* COD3035X_16_PD_DA3 */
+#define PDB_DOUBLER_SHIFT	7
+#define PDB_DOUBLER_MASK	BIT(PDB_DOUBLER_SHIFT)
+
+#define PDB_CP_SHIFT		6
+#define PDB_CP_MASK		BIT(PDB_CP_SHIFT)
+
+#define PDB_HP_CORE1_SHIFT	5
+#define PDB_HP_CORE1_MASK	BIT(PDB_HP_CORE1_SHIFT)
+
+#define PDB_HP_CORE2_SHIFT	4
+#define PDB_HP_CORE2_MASK	BIT(PDB_HP_CORE2_SHIFT)
+
+#define PDB_HP_DRV_SHIFT	3
+#define PDB_HP_DRV_MASK		BIT(PDB_HP_DRV_SHIFT)
+
+#define PDB_HP_MIXER_SHIFT	2
+#define PDB_HP_MIXER_MASK	BIT(PDB_HP_MIXER_SHIFT)
+
+#define PDB_EP_CORE_SHIFT	1
+#define PDB_EP_CORE_MASK	BIT(PDB_EP_CORE_SHIFT)
+
+#define PDB_EP_DRV_SHIFT	0
+#define PDB_EP_DRV_MASK		BIT(PDB_EP_DRV_SHIFT)
+
+/* COD3035X_18_PWAUTO_DA */
+#define EN_DLYST_DA_SHIFT	5
+#define EN_DLYST_DA_MASK	BIT(EN_DLYST_DA_SHIFT)
+
+#define PW_AUTO_DA_SHIFT	4
+#define PW_AUTO_DA_MASK		BIT(PW_AUTO_DA_SHIFT)
+
+#define APW_SPK_SHIFT		2
+#define APW_SPK_MASK		BIT(APW_SPK_SHIFT)
+
+#define APW_HP_SHIFT		1
+#define APW_HP_MASK			BIT(APW_HP_SHIFT)
+
+#define APW_EP_SHIFT		0
+#define APW_EP_MASK			BIT(APW_EP_SHIFT)
+
+/* COD3035X_19_CTRL_REF */
+#define CTMF_VMID_SHIFT		6
+#define CTMF_VMID_WIDTH		2
+#define CTMF_VMID_MASK		MASK(CTMF_VMID_WIDTH, CTMF_VMID_SHIFT)
+
+#define CTMF_VMID_OPEN			3
+#define CTMF_VMID_600K_OM       2
+#define CTMF_VMID_60K_OM        1
+#define CTMF_VMID_1K_OM         0
+
+#define CTRV_MCB1_SHIFT		4
+#define CTRV_MCB1_WIDTH		2
+#define CTRV_MCB1_MASK		MASK(CTRV_MCB1_WIDTH, CTRV_MCB1_SHIFT)
+
+#define MIC_BIAS1_VO_2_8V	1
+#define MIC_BIAS1_VO_2_6V	2
+#define MIC_BIAS1_VO_3_0V	3
+
+#define CTRM_MCB2_SHIFT		3
+#define CTRM_MCB2_MASK		BIT(CTRM_MCB2_SHIFT)
+
+#define EN_DET_CLK_SHIFT	0
+#define EN_DET_CLK_MASK		BIT(EN_DET_CLK_SHIFT)
+
+/* COD3035X_1A_SV_HP */
+#define SKIP_HP_SV_SHIFT	5
+#define SKIP_HP_SV_MASK		BIT(SKIP_HP_SV_SHIFT)
+
+/* COD3035X_1D_SV_DA */
+#define EN_EP_SV_SHIFT		7
+#define EN_EP_SV_MASK		BIT(EN_EP_SV_SHIFT)
+
+#define EN_SPK_SV_SHIFT		6
+#define EN_SPK_SV_MASK		BIT(EN_SPK_SV_SHIFT)
+
+#define DLY_SV_SHIFT		4
+#define DLY_SV_WIDTH		2
+#define DLY_SV_MASK			MASK(DLY_SV_WIDTH, DLY_SV_SHIFT)
+
+#define EN_FAST_SV_SHIFT	3
+#define EN_FAST_SV_MASK		BIT(EN_FAST_SV_SHIFT)
+
+#define EN_HP_SV_SHIFT		2
+#define EN_HP_SV_MASK		BIT(EN_HP_SV_SHIFT)
+
+#define DLY_HP_SV_SHIFT		0
+#define DLY_HP_SV_WIDTH		2
+#define DLY_HP_SV_MASK		MASK(DLY_HP_SV_WIDTH, DLY_HP_SV_SHIFT)
+
+#define SV_DLY_SEL_8192_X_FS	0
+#define SV_DLY_SEL_2048_X_FS	1
+#define SV_DLY_SEL_512_X_FS		2
+#define SV_DLY_SEL_128_X_FS		3
+
+/* COD3035X_20_VOL_AD1 */
+#define VOLAD1_CTVOL_BST1_SHIFT		5
+#define VOLAD1_CTVOL_BST1_WIDTH		2
+
+/* COD3035X_21_VOL_AD2 */
+#define VOLAD2_CTVOL_BST2_SHIFT		5
+#define VOLAD2_CTVOL_BST2_WIDTH		2
+
+/* COD3035X_22_VOL_AD3 */
+#define VOLAD3_CTVOL_BST3_SHIFT		5
+#define VOLAD3_CTVOL_BST3_WIDTH		2
+
+/* COD3035X_23_VOL_AD4 */
+#define VOLAD4_CTVOL_LNL_SHIFT		5
+#define VOLAD4_CTVOL_LNL_WIDTH		2
+
+/* COD3035X_24_VOL_AD5 */
+#define VOLAD5_CTVOL_LNR_SHIFT		5
+#define VOLAD5_CTVOL_LNR_WIDTH		2
+
+/* COD3035X_25_MIX_AD1 */
+#define EN_MIX_LNLL_SHIFT       7
+#define EN_MIX_LNLL_MASK        BIT(EN_MIX_LNLL_SHIFT)
+
+#define EN_MIX_LNRR_SHIFT       6
+#define EN_MIX_LNRR_MASK        BIT(EN_MIX_LNRR_SHIFT)
+
+#define EN_MIX_MIC1L_SHIFT	5
+#define EN_MIX_MIC1L_MASK	BIT(EN_MIX_MIC1L_SHIFT)
+
+#define EN_MIX_MIC1R_SHIFT	4
+#define EN_MIX_MIC1R_MASK	BIT(EN_MIX_MIC1R_SHIFT)
+
+#define EN_MIX_MIC2L_SHIFT	3
+#define EN_MIX_MIC2L_MASK	BIT(EN_MIX_MIC2L_SHIFT)
+
+#define EN_MIX_MIC2R_SHIFT	2
+#define EN_MIX_MIC2R_MASK	BIT(EN_MIX_MIC2R_SHIFT)
+
+#define EN_MIX_MIC3L_SHIFT	1
+#define EN_MIX_MIC3L_MASK	BIT(EN_MIX_MIC3L_SHIFT)
+
+#define EN_MIX_MIC3R_SHIFT	0
+#define EN_MIX_MIC3R_MASK	BIT(EN_MIX_MIC3R_SHIFT)
+
+/* COD3035X_26_MIX_ADC */
+#define EN_MIX_MIC1C_SHIFT      7
+#define EN_MIX_MIC1C_MASK		BIT(EN_MIX_MIC1C_SHIFT)
+
+#define EN_MIX_MIC2C_SHIFT		6
+#define EN_MIX_MIC2C_MASK		BIT(EN_MIX_MIC2C_SHIFT)
+
+#define EN_MIX_MIC3C_SHIFT		5
+#define EN_MIX_MIC3C_MASK		BIT(EN_MIX_MIC3C_SHIFT)
+
+#define EN_MIX_LNLC_SHIFT		4
+#define EN_MIX_LNLC_MASK		BIT(EN_MIX_LNLC_SHIFT)
+
+#define EN_MIX_LNRC_SHIFT		3
+#define EN_MIX_LNRC_MASK		BIT(EN_MIX_MIC2L_SHIFT)
+
+#define EN_MIX_MIC1C_BY_SHIFT	2
+#define EN_MIX_MIC1C_BY_MASK	BIT(EN_MIX_MIC2R_SHIFT)
+
+#define EN_MIX_MIC2C_BY_SHIFT	1
+#define EN_MIX_MIC2C_BY_MASK	BIT(EN_MIX_MIC3L_SHIFT)
+
+#define EN_MIX_MIC3C_BY_SHIFT	0
+#define EN_MIX_MIC3C_BY_MASK	BIT(EN_MIX_MIC3R_SHIFT)
+
+/* COD3035X_27_MIX_AD2 */
+#define EN_MIX_LNLR_SHIFT       7
+#define EN_MIX_LNLR_MASK        BIT(EN_MIX_LNLR_SHIFT)
+
+#define EN_MIX_LNRL_SHIFT       6
+#define EN_MIX_LNRL_MASK        BIT(EN_MIX_LNRL_SHIFT)
+
+#define EN_MIX_MIC1L_BY_SHIFT	5
+#define EN_MIX_MIC1L_BY_MASK	BIT(EN_MIX_MIC1L_BY_SHIFT)
+
+#define EN_MIX_MIC1R_BY_SHIFT	4
+#define EN_MIX_MIC1R_BY_MASK	BIT(EN_MIX_MIC1R_BY_SHIFT)
+
+#define EN_MIX_MIC2L_BY_SHIFT	3
+#define EN_MIX_MIC2L_BY_MASK	BIT(EN_MIX_MIC2L_BY_SHIFT)
+
+#define EN_MIX_MIC2R_BY_SHIFT	2
+#define EN_MIX_MIC2R_BY_MASK	BIT(EN_MIX_MIC2R_BY_SHIFT)
+
+#define EN_MIX_MIC3L_BY_SHIFT	1
+#define EN_MIX_MIC3L_BY_MASK	BIT(EN_MIX_MIC3L_BY_SHIFT)
+
+#define EN_MIX_MIC3R_BY_SHIFT	0
+#define EN_MIX_MIC3R_BY_MASK	BIT(EN_MIX_MIC3R_BY_SHIFT)
+
+/* COD3035X_28_DSM_ADS */
+#define RESETB_LN_SHIFT   4
+#define RESETB_LN_MASK    BIT(RESETB_LN_SHIFT)
+
+/* COD3035X_30_VOL_HPL, COD3035X_31_VOL_HPR */
+#define CTVOL_HP_AVCBYPASS_SHIFT		0
+#define CTVOL_HP_AVCBYPASS_WIDTH		6
+#define CTVOL_HP_AVCBYPASS_MASK		MASK(CTVOL_HP_AVCBypass_WIDTH, \
+					CTVOL_AVCBYPASS_SHIFT)
+#define CTVOL_HP_AVCBYPASS_MAX_NUM		0x3F
+
+/* COD3035X_32_VOL_EP_SPK */
+#define CTVOL_EP_SHIFT		4
+#define CTVOL_EP_WIDTH		4
+#define CTVOL_EP_MASK		MASK(CTVOL_EP_WIDTH, \
+					CTVOL_EP_SHIFT)
+
+#define CTVOL_SPK_PGA_SHIFT	0
+#define CTVOL_SPK_PGA_WIDTH	4
+#define CTVOL_SPK_PGA_MASK	MASK(CTVOL_SPK_PGA_WIDTH, \
+					CTVOL_SPK_PGA_SHIFT)
+
+/* COD3035X_36_CTRL_SPK */
+#define EN_SPK_SDN_SHIFT		6
+#define EN_SPK_SDN_MASK			BIT(EN_HP_MIXL_DCTR_SHIFT)
+
+#define CTMF_SPK_OSC_SHIFT		4
+#define CTMF_SPK_OSC_WIDTH		2
+#define CTMF_SPK_OSC_MASK		MASK(CTMF_SPK_OSC_WIDTH, \
+								CTMF_SPK_OSC_SHIFT)
+
+#define CTMI_SPK_PROT_SHIFT		0
+#define CTMI_SPK_PROT_WIDTH		2
+#define CTMI_SPK_PROT_MASK		MASK(CTMI_SPK_PROT_WIDTH, \
+								CTMI_SPK_PROT_SHIFT)
+
+/* COD3035X_37_MIX_DA1 */
+#define EN_HP_MIXL_DCTL_SHIFT	7
+#define EN_HP_MIXL_DCTL_MASK	BIT(EN_HP_MIXL_DCTL_SHIFT)
+
+#define EN_HP_MIXL_DCTR_SHIFT	6
+#define EN_HP_MIXL_DCTR_MASK	BIT(EN_HP_MIXL_DCTR_SHIFT)
+
+#define EN_HP_MIXL_MIXL_SHIFT	5
+#define EN_HP_MIXL_MIXL_MASK	BIT(EN_HP_MIXL_MIXL_SHIFT)
+
+#define EN_HP_MIXL_MIXR_SHIFT	4
+#define EN_HP_MIXL_MIXR_MASK	BIT(EN_HP_MIXL_MIXR_SHIFT)
+
+#define EN_HP_MIXR_DCTL_SHIFT	3
+#define EN_HP_MIXR_DCTL_MASK	BIT(EN_HP_MIXR_DCTL_SHIFT)
+
+#define EN_HP_MIXR_DCTR_SHIFT	2
+#define EN_HP_MIXR_DCTR_MASK	BIT(EN_HP_MIXR_DCTR_SHIFT)
+
+#define EN_HP_MIXR_MIXL_SHIFT	1
+#define EN_HP_MIXR_MIXL_MASK	BIT(EN_HP_MIXR_MIXL_SHIFT)
+
+#define EN_HP_MIXR_MIXR_SHIFT	0
+#define EN_HP_MIXR_MIXR_MASK	BIT(EN_HP_MIXR_MIXR_SHIFT)
+
+/* COD3035X_38_MIX_DA2 */
+#define EN_EP_MIX_DCTL_SHIFT	7
+#define EN_EP_MIX_DCTL_MASK		BIT(EN_EP_MIX_DCTL_SHIFT)
+
+#define EN_EP_MIX_DCTR_SHIFT	6
+#define EN_EP_MIX_DCTR_MASK		BIT(EN_EP_MIX_DCTR_SHIFT)
+
+#define EN_EP_MIX_MIXL_SHIFT	5
+#define EN_EP_MIX_MIXL_MASK		BIT(EN_EP_MIX_MIXL_SHIFT)
+
+#define EN_EP_MIX_MIXR_SHIFT	4
+#define EN_EP_MIX_MIXR_MASK		BIT(EN_EP_MIX_MIXR_SHIFT)
+
+#define EN_SPK_MIX_DCTL_SHIFT	3
+#define EN_SPK_MIX_DCTL_MASK	BIT(EN_SPK_MIX_DCTL_SHIFT)
+
+#define EN_SPK_MIX_DCTR_SHIFT	2
+#define EN_SPK_MIX_DCTR_MASK	BIT(EN_SPK_MIX_DCTR_SHIFT)
+
+#define EN_SPK_MIX_MIXL_SHIFT	1
+#define EN_SPK_MIX_MIXL_MASK	BIT(EN_SPK_MIX_MIXL_SHIFT)
+
+#define EN_SPK_MIX_MIXR_SHIFT	0
+#define EN_SPK_MIX_MIXR_MASK	BIT(EN_SPK_MIX_MIXR_SHIFT)
+
+/* COD3035X_3E_OVP_2 */
+#define LOCK_UP_TIME_SLOT_SHIFT    6
+#define LOCK_UP_TIME_SLOT_WIDTH    2
+#define LOCK_UP_TIME_SLOT_MASK     MASK(LOCK_UP_TIME_SLOT_WIDTH, LOCK_UP_TIME_SLOT_SHIFT)
+
+#define OVP_APON_SHIFT    4
+#define OVP_APON_MASK    BIT(OVP_APON_SHIFT)
+
+#define LOCK_UP_TIME_2		0
+#define LOCK_UP_TIME_1		1
+#define LOCK_UP_TIME_1_5    2
+#define LOCK_UP_TIME_3      3
+
+/* COD3035X_40_DIGITAL_POWER */
+#define PDB_ADCDIG_SHIFT	7
+#define PDB_ADCDIG_MASK		BIT(PDB_ADCDIG_SHIFT)
+
+#define RSTB_DAT_AD_SHIFT	6
+#define RSTB_DAT_AD_MASK	BIT(RSTB_DAT_AD_SHIFT)
+
+#define PDB_DACDIG_SHIFT	5
+#define PDB_DACDIG_MASK		BIT(PDB_DACDIG_SHIFT)
+
+#define RSTB_DAT_DA_SHIFT	4
+#define RSTB_DAT_DA_MASK	BIT(RSTB_DAT_DA_SHIFT)
+
+#define SYS_RSTB_SHIFT		3
+#define SYS_RSTB_MASK		BIT(SYS_RSTB_SHIFT)
+
+#define RSTB_OVFW_DA_SHIFT	2
+#define RSTB_OVFW_DA_MASK	BIT(RSTB_OVFW_DA_SHIFT)
+
+/* COD3035X_41_IF1_FORMAT1 */
+#define I2S1_DF_SHIFT		4
+#define I2S1_DF_WIDTH		2
+#define I2S1_DF_MASK		MASK(I2S1_DF_WIDTH, I2S1_DF_SHIFT)
+
+#define BCLK_POL_SHIFT		1
+#define BCLK_POL_MASK		BIT(BCLK_POL_SHIFT)
+
+#define LRCLK_POL_SHIFT		0
+#define LRCLK_POL_MASK		BIT(LRCLK_POL_SHIFT)
+
+/* COD3035X_42_IF1_FORMAT2 */
+#define I2S1_XFS_MODE_SHIFT				7
+#define I2S1_XFS_MODE_MASK			BIT(I2S1_XFS_MODE_SHIFT)
+#define I2S1_XFS_MODE_BLCK_256FS_DN		0
+#define I2S1_XFS_MODE_BLCK_256FS_UP		1
+
+#define I2S1_DL_SHIFT					0
+#define I2S1_DL_WIDTH					6
+#define I2S1_DL_MASK					MASK(I2S1_DL_WIDTH, I2S1_DL_SHIFT)
+#define I2S1_DL_1BIT					0x0
+#define I2S1_DL_8BIT					0x8
+#define I2S1_DL_16BIT					0x10
+#define I2S1_DL_20BIT					0x14
+#define I2S1_DL_24BIT					0x18
+#define I2S1_DL_32BIT					0x20
+
+/* COD3035X_43_IF1_FORMAT3 */
+#define I2S1_XFS_SHIFT					0
+#define I2S1_XFS_WIDTH					8
+#define I2S1_XFS_MASK					MASK(I2S1_XFS_WIDTH, I2S1_XFS_SHIFT)
+#define I2S1_XFS_16FS					0x10
+#define I2S1_XFS_32FS					0x20
+#define I2S1_XFS_48FS					0x30
+#define I2S1_XFS_64FS					0x40
+#define I2S1_XFS_96FS					0x60
+#define I2S1_XFS_128FS					0x80
+
+/* COD3035X_44_IF1_FORMAT4 */
+#define SEL_ADC3_SHIFT					6
+#define SEL_ADC3_WIDTH					2
+#define SEL_ADC3_MASK					MASK(SEL_ADC3_WIDTH, SEL_ADC3_SHIFT)
+
+#define SEL_ADC2_SHIFT					4
+#define SEL_ADC2_WIDTH					2
+#define SEL_ADC2_MASK					MASK(SEL_ADC3_WIDTH, SEL_ADC3_SHIFT)
+
+#define SEL_ADC1_SHIFT					2
+#define SEL_ADC1_WIDTH					2
+#define SEL_ADC1_MASK					MASK(SEL_ADC3_WIDTH, SEL_ADC3_SHIFT)
+
+#define SEL_ADC0_SHIFT					0
+#define SEL_ADC0_WIDTH					2
+#define SEL_ADC0_MASK					MASK(SEL_ADC3_WIDTH, SEL_ADC3_SHIFT)
+
+#define ADC1_OUT						0
+#define ADC2_OUT						1
+#define ADC3_OUT						2
+
+/* COD3035X_45_IF1_FORMAT5 */
+#define SEL1_DAC1_SHIFT					4
+#define SEL1_DAC1_WIDTH					2
+#define SEL1_DAC1_MASK					MASK(SEL1_DAC1_WIDTH, SEL1_DAC1_SHIFT)
+
+#define SEL1_DAC0_SHIFT					0
+#define SEL1_DAC0_WIDTH					2
+#define SEL1_DAC0_MASK					MASK(SEL1_DAC0_WIDTH, SEL1_DAC0_SHIFT)
+
+#define DAC1_OUT						0
+#define DAC2_OUT						1
+#define DAC3_OUT						2
+#define DAC4_OUT						3
+
+/* COD3035X_46_ADC1 */
+#define ADC1_HPF_EN_SHIFT	3
+#define ADC1_HPF_EN_MASK	BIT(ADC1_HPF_EN_SHIFT)
+
+#define ADC1_HPF_SEL_SHIFT	1
+#define ADC1_HPF_SEL_WIDTH	2
+#define ADC1_HPF_SEL_MASK	MASK(ADC1_HPF_SEL_WIDTH, ADC1_HPF_SEL_SHIFT)
+
+#define ADC1_HPF_SEL_238HZ	0
+#define ADC1_HPF_SEL_200HZ	1
+#define ADC1_HPF_SEL_100HZ	2
+#define ADC1_HPF_SEL_14_9HZ	3
+
+#define ADC1_MUTE_AD_EN_SHIFT	0
+#define ADC1_MUTE_AD_EN_MASK	BIT(ADC1_MUTE_AD_EN_SHIFT)
+
+/**
+ * COD3035X_47_AVOLL1, COD3035X_48_AVOLR1
+ * COD3035X_4C_AVOLL2, COD3035X_4D_AVOLR2
+ */
+#define AD_DA_DVOL_SHIFT	0
+#define AD_DA_DVOL_WIDTH	8
+#define AD_DVOL_MAXNUM		0x97
+
+/* COD3035X_49_DMIC1 */
+#define SEL_DMIC_L_SHIFT	4
+#define SEL_DMIC_L_WIDTH	3
+#define SEL_DMIC_L_MASK		MASK(SEL_DMIC_L_WIDTH, SEL_DMIC_L_SHIFT)
+
+#define EN_DMIC_SHIFT          3
+#define EN_DMIC_MASK    BIT(EN_DMIC_SHIFT)
+
+#define SEL_DMIC_R_SHIFT	0
+#define SEL_DMIC_R_WIDTH	3
+#define SEL_DMIC_R_MASK		MASK(SEL_DMIC_R_WIDTH, SEL_DMIC_R_SHIFT)
+
+#define AMICL	0
+#define AMICR	1
+#define AMICC	2
+#define ZEROD	3
+#define DMIC1L	4
+#define DMIC1R	5
+#define DMIC2L	6
+#define DMIC2R	7
+
+/* COD3035X_4A_DMIC2 */
+#define DMIC_GAIN1_SHIFT	4
+#define DMIC_GAIN1_WIDTH	3
+#define DMIC_GAIN1_MASK		MASK(DMIC_GAIN1_WIDTH, DMIC_GAIN1_SHIFT)
+
+#define LEVEL1	1
+#define LEVEL2	2
+#define LEVEL3	3
+#define LEVEL4	4
+#define LEVEL5	5
+#define LEVEL6	6
+#define LEVEL7	7
+
+#define DMIC_OSR_SHIFT	2
+#define DMIC_OSR_WIDTH	2
+#define DMIC_OSR_MASK		MASK(DMIC_OSR_WIDTH, DMIC_OSR_SHIFT)
+
+#define OSR128	0
+#define OSR64	1
+#define OSR32	2
+#define OSR16	3
+
+#define DMIC_ST1_SHIFT		1
+#define DMIC_ST1_MASK 		BIT(DMIC_ST1_SHIFT)
+
+#define DMIC_ST1_ENABLE 	1
+#define DMIC_ST1_DISABLE 	0
+
+#define DMIC_ST0_SHIFT		0
+#define DMIC_ST0_MASK 		BIT(DMIC_ST0_SHIFT)
+
+#define DMIC_ST0_ENABLE 	1
+#define DMIC_ST0_DISABLE 	0
+
+/* COD3035X_4B_ADC2 */
+#define ADC2_PDB_ADCDIG2_SHIFT		7
+#define ADC2_PDB_ADCDIG2_MASK		BIT(ADC2_PDB_ADCDIG2_SHIFT)
+#define ADC2_PDB_ADCDIG2_PD			0
+#define ADC2_PDB_ADCDIG2_PU			1
+
+#define ADC2_MAXSCALE2_SHIFT	4
+#define ADC2_MAXSCALE2_WIDTH	2
+#define ADC2_MAXSCALE2_MASK	MASK(ADC2_MAXSCALE2_WIDTH, ADC2_MAXSCALE2_SHIFT)
+
+#define ADC2_MAXSCALE_1_5_DB	0
+#define ADC2_MAXSCALE_0_5_DB	1
+#define ADC2_MAXSCALE_1_0_DB	2
+#define ADC2_MAXSCALE_0_0_DB	3
+
+#define ADC2_HPF_EN_SHIFT	3
+#define ADC2_HPF_EN_MASK	BIT(ADC2_HPF_EN_SHIFT)
+
+#define ADC2_HPF_SEL_SHIFT	1
+#define ADC2_HPF_SEL_WIDTH	2
+#define ADC2_HPF_SEL_MASK	MASK(ADC2_HPF_SEL_WIDTH, ADC2_HPF_SEL_SHIFT)
+
+#define ADC2_HPF_SEL_238HZ	0
+#define ADC2_HPF_SEL_200HZ	1
+#define ADC2_HPF_SEL_100HZ	2
+#define ADC2_HPF_SEL_14_9HZ	3
+
+#define ADC2_MUTE_AD_EN_SHIFT	0
+#define ADC2_MUTE_AD_EN_MASK	BIT(ADC2_MUTE_AD_EN_SHIFT)
+
+/* COD3035X_4E_DMIC3 */
+#define DMIC_CLK_ZTE_SHIFT	7
+#define DMIC_CLK_ZTE_MASK	BIT(DMIC_CLK_ZTE_SHIFT)
+
+#define SEL_DMIC_2L_SHIFT	4
+#define SEL_DMIC_2L_WIDTH	3
+#define SEL_DMIC_2L_MASK		MASK(SEL_DMIC_2L_WIDTH, SEL_DMIC_2L_SHIFT)
+
+#define SEL_DMIC_2R_SHIFT	0
+#define SEL_DMIC_2R_WIDTH	3
+#define SEL_DMIC_2R_MASK		MASK(SEL_DMIC_2R_WIDTH, SEL_DMIC_2R_SHIFT)
+
+/* COD3035X_4F_DMIC4 */
+#define DMIC4_GAIN_SHIFT	4
+#define DMIC4_GAIN_WIDTH	3
+#define DMIC4_GAIN_MASK		MASK(DMIC4_GAIN_WIDTH, DMIC4_GAIN_SHIFT)
+
+/* COD3035X_50_DAC1 */
+#define DAC1_DEEM_SHIFT			7
+#define DAC1_DEEM_MASK			BIT(DAC1_DEEM_SHIFT)
+
+#define DAC1_MONOMIX_SHIFT		4
+#define DAC1_MONOMIX_WIDTH		3
+#define DAC1_MONOMIX_MASK		MASK(DAC1_MONOMIX_WIDTH, DAC1_MONOMIX_SHIFT)
+
+#define DAC1_DISABLE		0
+#define DAC1_R_MONO			1
+#define DAC1_L_MONO 		2
+#define DAC1_LR_SWAP		3
+#define DAC1_LR_BY_2_MONO	4
+#define DAC1_LR_MONO		5
+
+#define DAC1_INGN_MODE_SHIFT	3
+#define DAC1_INGN_MODE_MASK		BIT(DAC1_INGN_MODE_SHIFT)
+
+#define DAC1_NORMAL_MODE	0
+#define DAC1_UHQA_MODE		1
+
+#define DAC1_SOFT_MUTE_SHIFT	1
+#define DAC1_SOFT_MUTE_MASK		BIT(DAC1_SOFT_MUTE_SHIFT)
+
+/**
+ * COD3035X_51_DVOLL, COD3035X_52_DVOLR
+ */
+#define DA_DVOL_SHIFT		0
+#define DA_DVOL_WIDTH		8
+#define DA_DVOL_MAXNUM 		0xEA
+
+/* COD3035X_53_UHQA */
+#define UHQA_MODE_SHIFT		0
+#define UHQA_MODE_MASK		BIT(UHQA_MODE_SHIFT)
+
+#define UHQA_ENABLE			1
+#define UHQA_DISABLE		0
+
+/* COD3035X_54_AVC1 */
+#define DAC_VOL_BYPS_SHIFT	7
+#define DAC_VOL_BYPS_MASK	BIT(DAC_VOL_BYPS_SHIFT)
+
+#define AVC_CON_FLAG_SHIFT	6
+#define AVC_CON_FLAG_MASK	BIT(AVC_CON_FLAG_SHIFT)
+
+#define AVC_VA_FLAG_SHIFT	5
+#define AVC_VA_FLAG_MASK	BIT(AVC_AV_FLAG_SHIFT)
+
+#define AVC_MU_FLAG_SHIFT	4
+#define AVC_MU_FLAG_MASK	BIT(AVC_AV_FLAG_SHIFT)
+
+#define AVC_BYPS_SHIFT		3
+#define AVC_BYPS_MASK		BIT(AVC_BYPS_SHIFT)
+
+#define AVC_VA_EN_SHIFT		2
+#define AVC_VA_EN_MASK		BIT(AVC_VA_EN_SHIFT)
+
+#define AVC_MU_EN_SHIFT		1
+#define AVC_MU_EN_MASK		BIT(AVC_MU_EN_SHIFT)
+
+#define AVC_EN_SHIFT		0
+#define AVC_EN_MASK			BIT(AVC_EN_SHIFT)
+
+/* COD3035X_57_AVC4 */
+#define AVC_CTVOL_HP_SHIFT	0
+#define AVC_CTVOL_HP_WIDTH	3
+#define AVC_CTVOL_HP_MASK	MASK(AVC_CTVOL_HP_WIDTH, AVC_CTVOL_HP_SHIFT)
+
+#define AVC_CTVOL_HP_4DB	4
+#define AVC_CTVOL_HP_3DB	3
+#define AVC_CTVOL_HP_2DB	2
+#define AVC_CTVOL_HP_1DB	1
+#define AVC_CTVOL_HP_0DB	1
+
+/* COD3035X_5C_AVC9 */
+#define AVCDNC_SEL_SHIFT	7
+#define AVCDNC_SEL_MASK		BIT(AVCDNC_SEL_SHIFT)
+
+#define AVC_CRO_ALW_ON_SHIFT	2
+#define AVC_CRO_ALW_ON_MASK		BIT(AVC_CRO_ALW_ON_SHIFT)
+
+#define AVC_CRO_BOTH_SHIFT		1
+#define AVC_CRO_BOTH_MASK		BIT(AVC_CRO_BOTH_SHIFT)
+
+#define AVC_CRO_EN_SHIFT		0
+#define AVC_CRO_EN_MASK			BIT(AVC_CRO_EN_SHIFT)
+
+/* COD3035X_60_IRQ_SENSOR */
+#define FLG_PW_LN_SHIFT			7
+#define FLG_PW_LN_MASK			BIT(FLG_PW_LN_SHIFT)
+
+#define FLG_PW_MIC1_SHIFT		6
+#define FLG_PW_MIC1_MASK		BIT(FLG_PW_MIC1_SHIFT)
+
+#define FLG_PW_MIC2_SHIFT		5
+#define FLG_PW_MIC2_MASK		BIT(FLG_PW_MIC2_SHIFT)
+
+#define FLG_PW_MIC3_SHIFT		4
+#define FLG_PW_MIC3_MASK		BIT(FLG_PW_MIC3_SHIFT)
+
+#define FLG_MTVOL_CODEC_SHIFT	3
+#define FLG_MTVOL_CODEC_MASK	BIT(FLG_MTVOL_CODEC_SHIFT)
+
+#define FLG_PW_HP_SHIFT			2
+#define FLG_PW_HP_MASK			BIT(FLG_PW_HP_SHIFT)
+
+#define FLG_PW_EP_SHIFT			1
+#define FLG_PW_EP_MASK			BIT(FLG_PW_EP_SHIFT)
+
+#define FLG_PW_SPK_SHIFT		0
+#define FLG_PW_SPK_MASK			BIT(FLG_PW_SPK_SHIFT)
+
+/* COD3035X_61_OFFSET_AD1 */
+#define AD1_OFFSET_SIGN_SHIFT	7
+#define AD1_OFFSET_SIGN_MASK	BIT(AD1_OFFSET_SIGN_SHIFT)
+
+#define AD1_OFFSET_LV_SHIFT		0
+#define AD1_OFFSET_LV_WIDTH		7
+#define AD1_OFFSET_LV_MASK		MASK(AD1_OFFSET_LV_WIDTH, AD1_OFFSET_LV_SHIFT)
+
+/* COD3035X_62_OFFSET_AD2 */
+#define AD2_OFFSET_SIGN_SHIFT	7
+#define AD2_OFFSET_SIGN_MASK	BIT(AD2_OFFSET_SIGN_SHIFT)
+
+#define AD2_OFFSET_LV_SHIFT		0
+#define AD2_OFFSET_LV_WIDTH		7
+#define AD2_OFFSET_LV_MASK		MASK(AD2_OFFSET_LV_WIDTH, AD2_OFFSET_LV_SHIFT)
+
+/* COD3035X_63_OFFSET_DA */
+#define DA_SEL_OFFSET_SHIFT		0
+#define DA_SEL_OFFSET_WIDTH		2
+#define DA_SEL_OFFSET_MASK		MASK(DA_SEL_OFFSET_WIDTH, DA_SEL_OFFSET_SHIFT)
+
+/* COD3035X_6C_MIC_ON */
+#define EN_LN_SHIFT 7
+#define EN_LN_MASK  BIT(EN_LN_SHIFT)
+
+#define EN_MIC3_SHIFT   6
+#define EN_MIC3_MASK    BIT(EN_MIC3_SHIFT)
+
+#define EN_MIC2_SHIFT   5
+#define EN_MIC2_MASK    BIT(EN_MIC2_SHIFT)
+
+#define EN_MIC1_SHIFT   4
+#define EN_MIC1_MASK    BIT(EN_MIC1_SHIFT)
+
+#define EN_DMIC2_SHIFT  3
+#define EN_DMIC2_MASK   BIT(EN_DMIC2_SHIFT)
+
+#define EN_DMIC1_SHIFT  2
+#define EN_DMIC1_MASK   BIT(EN_DMIC1_SHIFT)
+
+/* COD3035X_71_CLK2_COD */
+#define SEL_CHCLK_HP_SHIFT		6
+#define SEL_CHCLK_HP_WIDTH		2
+#define SEL_CHCLK_HP_MAKS		MASK(SEL_CHCLK_HP_WIDTH, SEL_CHCLK_HP_SHIFT)
+
+#define SEL_CHCLK_DA_SHIFT		4
+#define SEL_CHCLK_DA_WIDTH		2
+#define SEL_CHCLK_DA_MASK		MASK(SEL_CHCLK_DA_WIDTH, SEL_CHCLK_DA_SHIFT)
+
+#define CHOP_CLK_1_BY_4		0
+#define CHOP_CLK_1_BY_8		1
+#define CHOP_CLK_1_BY_16	2
+#define CHOP_CLK_1_BY_32	3
+
+#define EN_HALF_CHOP_HP_SHIFT	2
+#define EN_HALF_CHOP_HP_WIDTH	2
+#define EN_HALF_CHOP_HP_MASK	MASK(EN_HALF_CHOP_HP_WIDTH, \
+								EN_HALF_CHOP_HP_SHIFT)
+
+#define EN_HALF_CHOP_DA_SHIFT	0
+#define EN_HALF_CHOP_DA_WIDTH	2
+#define EN_HALF_CHOP_DA_MASK	MASK(EN_HALF_CHOP_DA_WIDTH, \
+								EN_HALF_CHOP_DA_SHIFT)
+
+#define PHASE_SEL_ORIG		0
+#define PHASE_SEL_1_BY_4	1
+#define PHASE_SEL_2_BY_4	2
+#define PHASE_SEL_3_BY_4	3
+
+/* COD3035X_72_CLK3_COD */
+#define CLK_DA_INV_SHIFT		5
+#define CLK_DA_INV_MASK			BIT(CLK_DA_INV_SHIFT)
+
+#define CLK_DACHOP_INV_SHIFT	4
+#define CLK_DACHOP_INV_MASK		BIT(CLK_DACHOP_INV_SHIFT)
+
+/* COD3035X_76_CHOP_AD */
+#define EN_MIXC_CHOP_SHIFT	7
+#define EN_MIXC_CHOP_MASK	BIT(EN_MIXC_CHOP_SHIFT)
+
+#define EN_DSMC_CHOP_SHIFT	6
+#define EN_DSMC_CHOP_MASK	BIT(EN_DSMC_CHOP_SHIFT)
+
+#define EN_LN_CHOP_SHIFT	5
+#define EN_LN_CHOP_MASK		BIT(EN_LN_CHOP_SHIFT)
+
+#define EN_MIC_CHOP_SHIFT	4
+#define EN_MIC_CHOP_MASK	BIT(EN_MIC_CHOP_SHIFT)
+
+#define EN_DSM_CHOP_SHIFT	3
+#define EN_DSM_CHOP_MASK	BIT(EN_DSM_CHOP_SHIFT)
+
+#define EN_MIX_CHOP_SHIFT	2
+#define EN_MIX_CHOP_MASK	BIT(EN_MIX_CHOP_SHIFT)
+
+#define EN_MCB1_CHOP_SHIFT	1
+#define EN_MCB1_CHOP_MASK	BIT(EN_MCB1_CHOP_SHIFT)
+
+#define EN_MCB2_CHOP_SHIFT	0
+#define EN_MCB2_CHOP_MASK	BIT(EN_MCB2_CHOP_SHIFT)
+
+/* COD3035X_77_CHOP_DA */
+#define EN_DCT_CHOP_SHIFT	5
+#define EN_DCT_CHOP_MASK	BIT(EN_DCT_CHOP_SHIFT)
+
+#define EN_HP_CHOP_SHIFT	4
+#define EN_HP_CHOP_MASK		BIT(EN_HP_CHOP_SHIFT)
+
+#define EN_EP_CHOP_SHIFT	3
+#define EN_EP_CHOP_MASK		BIT(EN_EP_CHOP_SHIFT)
+
+#define EN_SPK_PGA_CHOP_SHIFT	2
+#define EN_SPK_PGA_CHOP_MASK	BIT(EN_SPK_PGA_CHOP_SHIFT)
+
+#define EN_SPK_CHOP_SHIFT	1
+#define EN_SPK_CHOP_MASK	BIT(EN_SPK_CHOP_SHIFT)
+
+/* COD3035X_78_CTRL_CP */
+#define CTMF_CP_CLK_SHIFT      0
+#define CTMF_CP_CLK_WIDTH      3
+#define CTMF_CP_CLK_MASK       MASK(CTMF_CP_CLK_WIDTH, CTMF_CP_CLK_SHIFT)
+
+#define CTMF_CP_CLK_24KHZ			0
+#define CTMF_CP_CLK_48_75KHZ		1
+#define CTMF_CP_CLK_97_5KHZ			2
+#define CTMF_CP_CLK_195KHZ			3
+#define CTMF_CP_CLK_390KHZ     		4
+#define CTMF_CP_CLK_780KHZ     		5
+#define CTMF_CP_CLK_1_5HHZ     		6
+#define CTMF_CP_CLK_3MHZ  	   		7
+
+/* COD3035X_7A_MAN_GN1 */
+#define MANGN_MSB_SHIFT      0
+#define MANGN_MSB_WIDTH      8
+#define MANGN_MSB_MASK       MASK(MANGN_MSB_WIDTH, MANGN_MSB_SHIFT)
+
+/* COD3035X_7B_MAN_GN2 */
+#define MANGN_LSB_SHIFT      0
+#define MANGN_LSB_WIDTH      8
+#define MANGN_LSB_MASK       MASK(MANGN_LSB_WIDTH, MANGN_LSB_SHIFT)
+
+/* COD3035X_80_PDB_ACC1 */
+#define DET_PDB_BTN_DET_SHIFT   6
+#define DET_PDB_BTN_DET_MASK    BIT(DET_PDB_BTN_DET_SHIFT)
+
+#define DET_PDB_MCB_LDO_SHIFT   5
+#define DET_PDB_MCB_LDO_MASK    BIT(DET_PDB_MCB_LDO_SHIFT)
+
+#define PDB_MCB2_SHIFT     		4
+#define PDB_MCB2_MASK      		BIT(PDB_MCB2_SHIFT)
+
+#define PDB_IMP_SHIFT     		3
+#define PDB_IMP_MASK      		BIT(PDB_IMP_SHIFT)
+
+#define PDB_GDET_SHIFT     		2
+#define PDB_GDET_MASK      		BIT(PDB_GDET_SHIFT)
+
+#define PDB_JD_CLK_EN_SHIFT     1
+#define PDB_JD_CLK_EN_MASK      BIT(PDB_JD_CLK_EN_SHIFT)
+
+#define PDB_JD_SHIFT			0
+#define PDB_JD_MASK				BIT(PDB_JD_SHIFT)
+
+/* COD3035X_81_PDB_ACC2 */
+#define T_PDB_BTN_DET_SHIFT   	6
+#define T_PDB_BTN_DET_MASK    	BIT(T_PDB_BTN_DET_SHIFT)
+
+#define T_PDB_MCB_LDO_SHIFT   	5
+#define T_PDB_MCB_LDO_MASK    	BIT(T_PDB_MCB_LDO_SHIFT)
+
+#define T_PDB_MCB2_SHIFT     	4
+#define T_PDB_MCB2_MASK      	BIT(T_PDB_MCB2_SHIFT)
+
+#define T_PDB_IMP_SHIFT    		3
+#define T_PDB_IMP_MASK     		BIT(T_PDB_IMP_SHIFT)
+
+#define T_PDB_GDET_SHIFT   		2
+#define T_PDB_GDET_MASK    		BIT(T_PDB_GDET_SHIFT)
+
+#define SEL_CLK_DET_SHIFT   	0
+#define SEL_CLK_DET_MASK    	BIT(SEL_CLK_DET_SHIFT)
+
+/* COD3035X_82_CTR_MCB */
+#define CTRV_MCB2_SHIFT			2
+#define CTRV_MCB2_WIDTH			2
+#define CTRV_MCB2_MASK			MASK(CTRV_MCB2_WIDTH, CTRV_MCB2_SHIFT)
+
+#define MIC_BIAS2_VO_2_8V		1
+#define MIC_BIAS2_VO_2_6V		2
+#define MIC_BIAS2_VO_3_0V		3
+
+#define CTRV_MCB_LDO_SHIFT		0
+#define CTRV_MCB_LDO_WIDTH		2
+#define CTRV_MCB_LDO_MASK		MASK(CTRV_MCB_LDO_WIDTH, CTRV_MCB_LDO_SHIFT)
+
+#define MIC_BIAS_LDO_VO_2_5V	0
+#define MIC_BIAS_LDO_VO_2_8V	1
+#define MIC_BIAS_LDO_VO_3_0V	2
+#define MIC_BIAS_LDO_VO_3_3V	3
+
+/* COD3035X_83_CTR_VTH1 */
+#define CTRV_GDET_VTH_SHIFT		4
+#define CTRV_GDET_VTH_WIDTH		3
+#define CTRV_GDET_VTH_MASK		MASK(CTRV_GDET_VTH_SHIFT, CTRV_GDET_VTH_WIDTH)
+
+#define CTRV_LDET_VTH_SHIFT		0
+#define CTRV_LDET_VTH_WIDTH		2
+#define CTRV_LDET_VTH_MASK		MASK(CTRV_LDET_VTH_WIDTH, CTRV_LDET_VTH_SHIFT)
+
+/* COD3035X_84_CTR_POP1 */
+#define CTRV_LDET_VTH_SHIFT		0
+#define CTRV_LDET_VTH_WIDTH		2
+#define CTRV_LDET_VTH_MASK		MASK(CTRV_LDET_VTH_WIDTH, CTRV_LDET_VTH_SHIFT)
+
+#define CTRV_LDET_VTH_1636		0
+#define CTRV_LDET_VTH_1565		1
+#define CTRV_LDET_VTH_1241		2
+#define CTRV_LDET_VTH_0900		3
+
+/* COD3035X_85_CTR_POP */
+#define T_CTRV_GDET_POP_SHIFT	7
+#define T_CTRV_GDET_POP_MASK	BIT(T_CTRV_GDET_POP_SHIFT)
+
+#define CTRV_GDET_POP_SHIFT		4
+#define CTRV_GDET_POP_WIDTH		3
+#define CTRV_GDET_POP_MASK		MASK(CTRV_GDET_POP_WIDTH, CTRV_GDET_POP_SHIFT)
+
+#define CTRV_LDET_POP_SHIFT		0
+#define CTRV_LDET_POP_WIDTH		2
+#define CTRV_LDET_POP_MASK		MASK(CTRV_LDET_POP_WIDTH, CTRV_LDET_POP_SHIFT)
+
+/* COD3035X_88_CTR_IMP3 */
+#define CTRV_BTN_REF_SHIFT	4
+#define CTRV_BTN_REF_WIDTH	3
+#define CTRV_BTN_REF_MASK	MASK(CTRV_BTN_REF_WIDTH, CTRV_BTN_REF_SHIFT)
+
+#define BTN_THR_VOL_0_500V	0
+#define BTN_THR_VOL_0_700V	1
+#define BTN_THR_VOL_0_750V	2
+#define BTN_THR_VOL_0_800V	3
+#define BTN_THR_VOL_0_850V	4
+#define BTN_THR_VOL_0_900V	5
+#define BTN_THR_VOL_0_950V	6
+#define BTN_THR_VOL_1_150V	7
+
+/* COD3035X_8F_CTR_DLY4 */
+#define CTRV_GDET2_VTH_SHIFT	4
+#define CTRV_GDET2_VTH_WIDTH	3
+#define CTRV_GDET2_VTH_MASK		MASK(CTRV_GDET2_VTH_WIDTH, CTRV_GDET2_VTH_SHIFT)
+
+#define GDET2_THR_VOL_0_164V		0
+#define GDET2_THR_VOL_0_300V		1
+#define GDET2_THR_VOL_0_467V		2
+#define GDET2_THR_VOL_0_514V		3
+#define GDET2_THR_VOL_0_600V		4
+#define GDET2_THR_VOL_0_675V		5
+#define GDET2_THR_VOL_0_800V		6
+#define GDET2_THR_VOL_0_900V		7
+
+/* COD3035X_93_CTR_DLY6 */
+#define DLY6_SEL_D2A_IN_JD_DATA_SHIFT	7
+#define DLY6_SEL_D2A_IN_JD_DATA_MASK	BIT(DLY6_SEL_D2A_IN_JD_DATA_SHIFT)
+
+#define DLY6_AP_POLLING_SHIFT			6
+#define DLY6_AP_POLLING_MASK			BIT(DLY6_AP_POLLING_SHIFT)
+
+#define DLY6_AP_JACK_IN_SHIFT			5
+#define DLY6_AP_JACK_IN_MASK			BIT(DLY6_AP_JACK_IN_SHIFT)
+
+#define DLY6_AP_JACK_OUT_SHIFT			4
+#define DLY6_AP_JACK_OUT_MASK			BIT(DLY6_AP_JACK_OUT_SHIFT)
+
+/* COD3035X_AE_TEST_ADC4 */
+#define GPADC_IMP_DATA_SMP_SHIFT		4
+#define GPADC_IMP_DATA_SMP_WIDTH		4
+#define GPADC_IMP_DATA_SMP_MASK			MASK(GPADC_IMP_DATA_SMP_WIDTH, \
+										GPADC_IMP_DATA_SMP_SHIFT)
+
+/* COD3035X_BB_AUTO_HP12 */
+#define IN_MU_CTMI_HPA_SHIFT  4
+#define IN_MU_CTMI_HPA_WIDTH  3
+#define IN_MU_CTMI_HPA_HP_MASK   MASK(IN_MU_CTMI_HPA_WIDTH, \
+IN_MU_CTMI_HPA_SHIFT)
+
+#define OUT_MU_CTMI_HPA_SHIFT	0
+#define OUT_MU_CTMI_HPA_WIDTH	3
+#define OUT_MU_CTMI_HPA_HP_MASK   MASK(OUT_MU_CTMI_HPA_WIDTH, \
+OUT_MU_CTMI_HPA_SHIFT)
+
+/* COD3035X_D0_CTRL_IREF1 */
+#define CTMI_VCM_SHIFT		4
+#define CTMI_VCM_WIDTH		3
+#define CTMI_VCM_MASK		MASK(CTMI_VCM_WIDTH, CTMI_VCM_SHIFT)
+
+#define CTMI_VCM_2U		0x0
+#define CTMI_VCM_3U		0x1
+#define CTMI_VCM_4U		0x2
+#define CTMI_VCM_5U		0x3
+#define CTMI_VCM_6U		0x4
+#define CTMI_VCM_7U		0x5
+#define CTMI_VCM_8U		0x6
+#define CTMI_VCM_9U		0x7
+
+#define CTMI_MIX_SHIFT		0
+#define CTMI_MIX_WIDTH		3
+#define CTMI_MIX_MASK		MASK(CTMI_MIX_WIDTH, CTMI_MIX_SHIFT)
+
+#define CTMI_MIX_1U		0x0
+#define CTMI_MIX_1_5U		0x1
+#define CTMI_MIX_2U		0x2
+#define CTMI_MIX_2_5U		0x3
+#define CTMI_MIX_3U		0x4
+#define CTMI_MIX_3_5U		0x5
+#define CTMI_MIX_4U		0x6
+#define CTMI_MIX_4_5U		0x7
+
+/* COD3035X_D1_CTRL_IREF2 */
+#define CTMI_BST_SHIFT		4
+#define CTMI_BST_WIDTH		3
+#define CTMI_BST_MASK		MASK(CTMI_BST_WIDTH, CTMI_BST_SHIFT)
+
+#define CTMI_INT1_SHIFT		0
+#define CTMI_INT1_WIDTH		3
+#define CTMI_INT1_MASK		MASK(CTMI_INT1_WIDTH, CTMI_INT1_SHIFT)
+
+#define CTMI_INT1_2U		0x0
+#define CTMI_INT1_3U		0x1
+#define CTMI_INT1_4U		0x2
+#define CTMI_INT1_5U		0x3
+#define CTMI_INT1_6U		0x4
+#define CTMI_INT1_7U		0x5
+#define CTMI_INT1_8U		0x6
+#define CTMI_INT1_9U		0x7
+
+/* COD3035X_D2_CTRL_IREF3 */
+#define CTMI_MIC2_SHIFT		4
+#define CTMI_MIC2_WIDTH		3
+#define CTMI_MIC2_MASK		MASK(CTMI_MIC2_WIDTH, CTMI_MIC2_SHIFT)
+
+#define CTMI_MIC2_1U		0x0
+#define CTMI_MIC2_1_5U		0x1
+#define CTMI_MIC2_2U		0x2
+#define CTMI_MIC2_2_5U		0x3
+#define CTMI_MIC2_3U		0x4
+#define CTMI_MIC2_3_5U		0x5
+#define CTMI_MIC2_4U		0x6
+#define CTMI_MIC2_4_5U		0x7
+
+#define CTMI_MIC1_SHIFT		0
+#define CTMI_MIC1_WIDTH		3
+#define CTMI_MIC1_MASK		MASK(CTMI_MIC1_WIDTH, CTMI_MIC1_SHIFT)
+
+#define CTMI_MIC1_1U		0x0
+#define CTMI_MIC1_1_5U		0x1
+#define CTMI_MIC1_2U		0x2
+#define CTMI_MIC1_2_5U		0x3
+#define CTMI_MIC1_3U		0x4
+#define CTMI_MIC1_3_5U		0x5
+#define CTMI_MIC1_4U		0x6
+#define CTMI_MIC1_4_5U		0x7
+
+/* COD3035X_D3_CTRL_IREF4 */
+#define CTMI_MIC_BUFF_SHIFT	4
+#define CTMI_MIC_BUFF_WIDTH	3
+#define CTMI_MIC_BUFF_MASK	MASK(CTMI_MIC_BUFF_WIDTH, CTMI_MIC_BUFF_SHIFT)
+
+#define CTMI_MIC_BUFF_1U		0x0
+#define CTMI_MIC_BUFF_1_5U		0x1
+#define CTMI_MIC_BUFF_2U		0x2
+#define CTMI_MIC_BUFF_2_5U		0x3
+#define CTMI_MIC_BUFF_3U		0x4
+#define CTMI_MIC_BUFF_3_5U		0x5
+#define CTMI_MIC_BUFF_4U		0x6
+#define CTMI_MIC_BUFF_4_5U		0x7
+
+#define CTMI_MIC3_SHIFT		0
+#define CTMI_MIC3_WIDTH		3
+#define CTMI_MIC3_MASK		MASK(CTMI_MIC3_WIDTH, CTMI_MIC3_SHIFT)
+
+#define CTMI_MIC3_1U		0x0
+#define CTMI_MIC3_1_5U		0x1
+#define CTMI_MIC3_2U		0x2
+#define CTMI_MIC3_2_5U		0x3
+#define CTMI_MIC3_3U		0x4
+#define CTMI_MIC3_3_5U		0x5
+#define CTMI_MIC3_4U		0x6
+#define CTMI_MIC3_4_5U		0x7
+
+/* COD3035X_D6_CTRL_IREF5 */
+#define CTMF_DCT_CAP_SHIFT		3
+#define CTMF_DCT_CAP_MASK BIT(CTMF_DCT_CAP_SHIFT)
+
+#define CTMF_DTC_CAP_87KHZ		1
+#define CTMF_DTC_CAP_167KHZ		0
+
+/* COD3035X_D7_CTRL_CP1 */
+#define CTRV_CP_POSREF_SHIFT	4
+#define CTRV_CP_POSREF_WIDTH	4
+#define CTRV_CP_POSREF_MASK	MASK(CTRV_CP_POSREF_WIDTH, \
+					CTRV_CP_POSREF_SHIFT)
+
+#define CTRV_CP_NEGREF_SHIFT	0
+#define CTRV_CP_NEGREF_WIDTH	4
+#define CTRV_CP_NEGREF_MASK	MASK(CTRV_CP_NEGREF_WIDTH, \
+					CTRV_CP_NEGREF_SHIFT)
+
+/* COD3035X_D8_CTRL_HP */
+#define CTMF_HP_CAP_SHIFT	0
+#define CTMF_HP_CAP_WIDTH	2
+#define CTMF_HP_CAP_MASK	MASK(CTMF_HP_CAP_WIDTH, \
+					CTMF_HP_CAP_SHIFT)
+
+#define CP_CAP_17_4pF	3
+#define CP_CAP_34_8pF	2
+#define CP_CAP_52_2pF	1
+#define CP_CAP_69_6pF	0
+
+/* COD3035X_DB_CTRL_HPS */
+#define CTMI_HP_A_SHIFT		6
+#define CTMI_HP_A_WIDTH		2
+#define CTMI_HP_A_MASK		MASK(CTMI_HP_A_WIDTH, CTMI_HP_A_SHIFT)
+
+#define CTMI_HP_1_UA		0
+#define CTMI_HP_2_UA		1
+#define CTMI_HP_3_UA		2
+#define CTMI_HP_4_UA		3
+
+/* COD3035X_DC_CTRL_EPS */
+#define CTMI_EP_A_SHIFT		6
+#define CTMI_EP_A_WIDTH		2
+#define CTMI_EP_A_MASK		MASK(CTMI_EP_A_WIDTH, CTMI_EP_A_SHIFT)
+
+#define CTMI_EP_A_1_UA		0
+#define CTMI_EP_A_2_UA		1
+#define CTMI_EP_A_3_UA		2
+#define CTMI_EP_A_4_UA		3
+
+#define CTMI_EP_P_SHIFT		3
+#define CTMI_EP_P_WIDTH		3
+#define CTMI_EP_P_MASK		MASK(CTMI_EP_P_WIDTH, CTMI_EP_P_SHIFT)
+
+#define CTMI_EP_D_SHIFT		0
+#define CTMI_EP_D_WIDTH		3
+#define CTMI_EP_D_MASK		MASK(CTMI_EP_D_WIDTH, CTMI_EP_D_SHIFT)
+
+#define CTMI_EP_P_D_2_UA	0
+#define CTMI_EP_P_D_3_UA	1
+#define CTMI_EP_P_D_3_5_UA	2
+#define CTMI_EP_P_D_4_UA	3
+#define CTMI_EP_P_D_4_5_UA	4
+#define CTMI_EP_P_D_5_UA	5
+#define CTMI_EP_P_D_6_UA	6
+#define CTMI_EP_P_D_7_UA	7
+
+/* COD3035X_E3_PRESET_AVC */
+#define HP_AVOL_SHIFT  0
+#define HP_AVOL_WIDTH  4
+#define HP_AVOL_MASK   MASK(HP_AVOL_WIDTH, \
+HP_AVOL_SHIFT)
+
+#define HP_PN_SHIFT  6
+#define HP_PN_MASK     BIT(HP_PN_SHIFT)
+
+#endif /* _COD3035X_H */
+

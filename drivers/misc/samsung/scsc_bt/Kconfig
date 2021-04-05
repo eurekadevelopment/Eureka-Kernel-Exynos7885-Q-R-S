@@ -1,0 +1,15 @@
+config SCSC_BT
+        tristate "SCSC MX BT support"
+        depends on SCSC_CORE
+
+config SCSC_BT_BLUEZ
+	default N
+        tristate "SCSC MX BlueZ support"
+        depends on SCSC_CORE
+
+config SCSC_ANT
+	default N
+        tristate "SCSC MX ANT support"
+        depends on SCSC_CORE
+	---help---
+	  This module adds support for using a ANT character device.

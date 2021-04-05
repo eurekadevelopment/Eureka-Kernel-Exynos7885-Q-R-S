@@ -1,0 +1,469 @@
+#
+# Sensor  drivers configuration
+#
+
+menuconfig SENSORS
+	bool "Sensor devices"
+	help
+	  Say Y here, and a list of sensors drivers will be displayed.
+	  Everything that didn't fit into the other categories is here. This option
+	  doesn't affect the kernel.
+
+	  If unsure, say Y.
+
+config SENSORS_CORE
+	bool "Sensors Class Support"
+	help
+	  This option enables the sensor sysfs class in /sys/class/sensors.
+	  You'll need this to do anything useful with sensorss. If unsure, say N.
+
+config SENSORS_LSM6DSL
+	tristate "STMicroelectronics LSM6DSL sensor"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LSM6DSL sensor.
+
+	   To compile this driver as a module, choose M here. The module
+	   will be called lsm6dsl.
+
+config SENSORS_LSM6DSL_I2C
+	tristate "STMicroelectronics LSM6DSL sensor"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LSM6DSL sensor.
+
+config SENSORS_LSM6DSL_SPI
+	tristate "STMicroelectronics LSM6DSL sensor"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LSM6DSL sensor.
+
+config SENSORS_LIS2DS
+	tristate "STMicroelectronics LIS2DS/LIS2DS12 sensors"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LIS2DS/LIS2DS12 sensors.
+	   It is a accelerometer device.
+	   To compile this driver as a module, choose M here. The module
+	   will be called lis2ds.
+
+config SENSORS_LIS2DS_I2C
+	tristate "STMicroelectronics LIS2DS/LIS2DS12 sensors"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LIS2DS/LIS2DS12 sensors.
+	   It is a accelerometer device.
+	   To compile this driver as a module, choose M here. The module
+	   will be called lis2ds.
+
+config SENSORS_LIS2DS_SPI
+	tristate "STMicroelectronics LIS2DS/LIS2DS12 sensors"
+	depends on (I2C || SPI) && SYSFS
+	help
+	   This driver support the STMicroelectronics LIS2DS/LIS2DS12 sensors.
+	   It is a accelerometer device.
+	   To compile this driver as a module, choose M here. The module
+	   will be called lis2ds.
+
+
+config SENSORS_K2HH
+	tristate "K2HH driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here if you use SENSORS_K2HH.
+	  This option enables accelerometer sensor using
+	  STMicroelectronic K2HH device driver.
+	  To compile this driver as a module, choose M here: the
+	  module will be called K2HH.
+
+config SENSORS_YAS539
+	tristate "YAS539 Sensor Driver"
+	depends on I2C
+	default n
+	help
+	  If you say yes here you get support for YAMAHA
+	  YAS539 Geomagnitor Sensor.
+
+config SENSORS_YAS539_A20E
+	tristate "YAS539 Sensor Driver"
+	depends on I2C
+	default n
+	help
+	  If you say yes here you get support for YAMAHA
+	  YAS539 Geomagnitor Sensor.
+
+config SENSORS_GP2AP070S
+	depends on I2C
+	tristate "GP2AP070S driver"
+	default n
+	help
+	  This option enables proximity sensor using GP2AP070S driver.
+
+config SENSORS_GP2AP110S
+	depends on I2C
+	tristate "GP2AP110S proximity sensor" 
+	default n
+	help
+	  Say Y here to enable the GP2AP110S
+	  
+config SENSORS_STK3013
+	depends on I2C
+	tristate "STK3013 driver"
+	default n
+	help
+	  This option enables proximity sensor using STK3013 driver.
+
+config SENSORS_STK3X3X
+	depends on I2C
+	tristate "STK3X3X driver"
+	default n
+	help
+	  This option enables proximity sensor using STK3X3X driver.
+
+config SENSORS_CM36658
+	depends on I2C
+	tristate "CM36658 driver"
+	default n
+	help
+	  This option enables proximity & light sensor using CM36658 driver.
+
+config SENSORS_CM36686
+	depends on I2C
+	tristate "CM36686 driver"
+	default n
+	help
+	  This option enables proximity & light sensors using CM36686 driver.
+
+config SENSORS_CM3323
+	depends on I2C
+	tristate "CM3323 driver"
+	default n
+	help
+	  Say Y here if you use cm3323.
+	  This option enables RGB sensors using
+	  Capella cm3323 device driver.
+	  Say N here if you do not use cm3323.
+
+config SENSORS_VEML3328
+	depends on I2C
+	tristate "VEML3328 driver"
+	default n
+	help
+	  Say Y here if you use veml3328.
+	  This option enables RGB sensors using
+	  Capella veml3328 device driver.
+	  Say N here if you do not use veml3328.
+
+config SENSORS_CM36672P
+	tristate "CM36672P driver"
+	depends on I2C
+	default n
+	help
+	  Say Y here if you use SENSORS_CM36672P.
+	  This option enables proximity sensor using
+	  CM36672P driver.
+	  To compile this driver as a module, choose M here: the
+	  module will be called CM36672P.
+
+config SENSORS_TCS3701
+	depends on I2C
+	tristate "TCS3701 driver"
+	default n
+	help
+	   This option enables light sensor using TCS3701 driver.
+
+config SENSORS_TMD3725
+	depends on I2C
+	tristate "TMD3725 driver"
+	default n
+	help
+	   This option enables proximity & light sensors using TMD3725 driver.
+
+config SENSORS_TMD3725_RF_NOISE_DEFENCE_CODE
+	depends on SENSORS_TMD3725
+	tristate "TMD3725 driver defence code feature"
+	default n
+	help
+	   This option enables proximity using defence code in TMD3725 driver.
+
+config SENSORS_A96T3X6
+	depends on I2C
+	tristate "A96T3X6 touchkey"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+	  Say N here if you do not use A96T3X6 for grip.
+
+config SENSORS_A96T3X6_2CH
+	depends on I2C
+	tristate "SENSORS_A96T3X6_2CH driver for grip"
+	default n
+	help
+	  Say Y here if you use SENSORS_A96T3X6_2CH for grip.
+	  This option enables grip sensors using
+	  Above SENSORS_A96T3X6_2CH device driver for grip.
+
+	  Say N here if you do not use SENSORS_A96T3X6_2CH for grip.
+
+config SENSORS_A96T3X6_A40
+	depends on I2C
+	tristate "A96T3X6 touchkey"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+	  Say N here if you do not use A96T3X6 for grip.
+
+config SENSORS_A96T3X6_A30
+	depends on I2C
+	tristate "A96T3X6 touchkey"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+	  Say N here if you do not use A96T3X6 for grip.
+
+config SENSORS_A96T3X6_A30S
+	depends on I2C
+	tristate "A96T3X6 touchkey"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+	  Say N here if you do not use A96T3X6 for grip.
+
+config SENSORS_A96T3X6_VIEW2
+	depends on I2C
+	tristate "A96T3X6 touchkey"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+	  Say N here if you do not use A96T3X6 for grip.
+
+config SENSORS_A96T3X6_SUB
+	depends on I2C
+	tristate "A96T3X6 driver for grip"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+config SENSORS_A96T3X6_SUB_VIEW2
+	depends on I2C
+	tristate "A96T3X6 driver for grip"
+	default n
+	help
+	  Say Y here if you use A96T3X6 for grip.
+	  This option enables grip sensors using
+	  Above A96T3X6 device driver for grip.
+
+config SENSORS_TC3XXK
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+	  
+	  Say N here if you do not use TC3XXK for grip.
+
+config SENSORS_TC3XXK_A7Y18LTE
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_M20
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_M30
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A40
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A30
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+
+config SENSORS_TC3XXK_A30_JPN
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A20
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A20E
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A10
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+
+	  Say N here if you do not use TC3XXK for grip Sensor.
+
+config SENSORS_TC3XXK_A10E
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+	  
+	  Say N here if you do not use TC3XXK for grip.
+
+config SENSORS_TC3XXK_A10E_KOR
+	depends on I2C
+	tristate "TC3XXK driver for grip Sensor"
+	default n
+	help
+	  Say Y here if you use TC3XXK IC for grip Sensor.
+	  This option enables grip sensors using
+	  Coreriver TC3XXK device driver for grip Sensor.
+	  
+	  Say N here if you do not use TC3XXK for grip.
+
+config SENSORS_SX9330
+	depends on I2C
+	tristate "SX9330 driver"
+	default n
+	help
+	  Say Y here if you use sx9330.
+	  This option enables grip sensors using
+	  SemTech sx9330 device driver.
+	  Say N here if you do not use sx9330.
+
+config SENSORS_SX9330_WIFI
+	depends on I2C
+	tristate "SX9330 wifi driver"
+	default n
+	help
+	  Say Y here if you use sx9330 wifi.
+	  This option enables grip sensors using
+	  SemTech sx9330 wifi device driver.
+	  Say N here if you do not use sx9330 wifi.
+
+config SENSORS_SX9360
+	depends on I2C
+	tristate "SX9360 driver"
+	default n
+	help
+	  Say Y here if you use sx9360.
+	  This option enables grip sensors using
+	  SemTech sx9360 device driver.
+	  Say N here if you do not use sx9360.
+
+config SENSORS_SX9360_WIFI
+	depends on I2C
+	tristate "SX9360 wifi driver"
+	default n
+	help
+	  Say Y here if you use sx9360 wifi.
+	  This option enables grip sensors using
+	  SemTech sx9360 wifi device driver.
+	  Say N here if you do not use sx9360 wifi.      
+
+config SENSORS_LPS22HB
+	depends on I2C
+	tristate "lps22hb driver"
+	default n
+	help
+	  Say Y here if you use lps22hb wifi.
+	  This option enables barometer sensors using
+	  SemTech lps22hb device driver.
+	  Say N here if you do not use lps22hb.
+
+config SENSORS_LSM6DSL_SUPPORT_VDIS
+	bool "SENSORS_LSM6DSL_SUPPORT_VDIS"
+	default n
+	help
+	  This enables the real time thread to support vdis.
+
+config SENSORS_AK09918C
+	tristate "AK09918C compass support"
+	default n
+	depends on I2C
+	help
+	  If you say yes here you get support for Asahi Kasei's
+	  orientation sensor AK09918C.

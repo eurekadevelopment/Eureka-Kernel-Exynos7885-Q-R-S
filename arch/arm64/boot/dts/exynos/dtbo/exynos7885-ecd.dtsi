@@ -1,0 +1,37 @@
+/*
+ * SAMSUNG EXYNOS7872 ECD device tree source
+ *
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SAMSUNG EXYNOS8895 ECD device nodes are listed in this file.
+ * EXYNOS8895 based board files can include this file and provide
+ * values for board specfic bindings.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+/ {
+	fragment@ecd {
+		target-path = "/";
+		__overlay__ {
+		#address-cells = <2>;
+		#size-cells = <1>;
+
+			/* UART_DBG */
+			exynos_console_debugger {
+				compatible = "samsung,exynos_console_debugger";
+				reg = <0x0 0x13820000 0x100>;
+				interrupts = <0 279 0>;
+				interrupt-names = "uart_irq";
+				pinctrl-names = "default";
+				pinctrl-0 = <&uart2_bus>;
+				uart_port = <2>;
+				/* <sfr_base_address sfr_size> */
+				sfr_reg = <0x10000000 0x10000000>;
+				status = "ok";
+			};
+		};
+	};
+};

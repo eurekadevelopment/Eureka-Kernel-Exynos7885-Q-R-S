@@ -1,0 +1,253 @@
+/*
+ * SAMSUNG EXYNOS7885 SoC device tree source
+ *
+ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SAMSUNG EXYNOS7885 SoC device nodes are listed in this file.
+ * EXYNOS7885 based board files can include this file and provide
+ * values for board specfic bindings.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include <dt-bindings/clock/exynos7885.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/sysmmu/sysmmu.h>
+#include <dt-bindings/camera/fimc_is.h>
+
+/ {
+	fimc_is: fimc_is@14450000 {
+		compatible = "samsung,exynos5-fimc-is";
+		reg = <0x0 0x14440000 0x10000>, /* CSIS-DMA */
+			   <0x0 0x14450000 0x10000>, /* FIMC-3AA0 */
+			   <0x0 0x14460000 0x10000>, /* FIMC-3AA1 */
+			   <0x0 0x14600000 0x10000>, /* FIMC-ISP */
+			   <0x0 0x14640000 0x10000>, /* MC-SCALER */
+			   <0x0 0x14610000 0x10000>, /* FIMC-VRA (Set A) */
+			   <0x0 0x14620000 0x10000>; /* FIMC-VRA (Set B) */
+		interrupts = <0 301 0>, /* 3AA0_0 */
+			   <0 302 0>, /* 3AA0_1 */
+			   <0 303 0>, /* 3AA1_0 */
+			   <0 304 0>, /* 3AA1_1 */
+			   <0 310 0>, /* ISP_0 */
+			   <0 311 0>, /* ISP_1 */
+			   <0 314 0>, /* MCSC */
+			   <0 312 0>; /* VRA */
+		samsung,power-domain = <&pd_cam>;
+		clocks = <&clock GATE_IS5P20P0_ISP_ISP>,
+			<&clock GATE_IS5P20P0_ISP_MCSC>,
+			<&clock GATE_IS5P20P0_ISP_VRA>,
+			<&clock GATE_IS5P20P0_ISP_GDC>,
+			<&clock GATE_SMMU_IS0>,
+			<&clock GATE_SMMU_IS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_3AA1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_3AA0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS_DMA>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS2>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS3>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_SMMU>,
+
+			<&clock CIS_CLK0>,
+			<&clock CIS_CLK1>,
+			<&clock CIS_CLK2>;
+		clock-names = "GATE_IS_ISP",
+			"GATE_IS_MCSC",
+			"GATE_IS_VRA",
+			"GATE_IS_GDC",
+			"GATE_SMMU_IS0",
+			"GATE_SMMU_IS1",
+			"GATE_CAM_3AA1",
+			"GATE_CAM_3AA0",
+			"GATE_CAM_CSIS_DMA",
+			"GATE_CAM_CSIS0",
+			"GATE_CAM_CSIS1",
+			"GATE_CAM_CSIS2",
+			"GATE_CAM_CSIS3",
+			"GATE_CAM_SMMU",
+
+			"CIS_CLK0",
+			"CIS_CLK1",
+			"CIS_CLK2";
+		status = "ok";
+		iommus = <&sysmmu_isp0>, <&sysmmu_isp1>, <&sysmmu_cam>;
+		#cooling-cells = <2>; /* min followed by max */
+	};
+
+	mipi_phy_csis_m0s4A: phy_isp_csis0@14510840 {
+		compatible = "samsung,mipi-phy-s4";
+		reg = <0x0 0x14510840 0x4>; /* SYSREG address for reset */
+		reg_index = <0>;
+		samsung,pmu-syscon = <&pmu_system_controller>;
+		isolation       = <0x0680>; /* PMU address offset */
+		reset           = <8>; /* reset bit */
+		#phy-cells = <1>;
+	};
+
+	mipi_phy_csis_m0s4B: phy_isp_csis1@14510840 {
+		compatible = "samsung,mipi-phy-s4";
+		reg_index = <0>;
+		samsung,pmu-syscon = <&pmu_system_controller>;
+		isolation       = <0x067c>; /* PMU address offset */
+		reset           = <16>; /* reset bit */
+		#phy-cells = <1>;
+	};
+
+	mipi_phy_csis_m0s4C: phy_isp_csis2@14510840 {
+		compatible = "samsung,mipi-phy-s4";
+		reg_index = <0>;
+		samsung,pmu-syscon = <&pmu_system_controller>;
+		isolation       = <0x067C>; /* PMU address offset */
+		reset           = <24>; /* reset bit */
+		#phy-cells = <1>;
+	};
+
+	mipi_phy_csis_m4s2: phy_isp_csis3@14510840 {
+		compatible = "samsung,mipi-phy-csis";
+		reg_index = <0>;
+		samsung,pmu-syscon = <&pmu_system_controller>;
+		isolation       = <0x0678>; /* PMU address offset */
+		reset           = <0>; /* reset bit */
+		#phy-cells = <1>;
+	};
+
+	fimc_is_sensor0: fimc_is_sensor@14410000 {
+		/* BACK/CSIS1 */
+		compatible = "samsung,exynos5-fimc-is-sensor";
+		reg = <0x0 0x14410000 0x10000>; /* MIPI-CSI1 */
+		interrupts = <0 298 0>; /* MIPI-CSI1 */
+		samsung,power-domain = <&pd_cam>;
+		phys = <&mipi_phy_csis_m0s4A 0>;
+		phy-names = "csis_dphy";
+		clocks = <&clock CIS_CLK0>,
+			<&clock CIS_CLK1>,
+			<&clock CIS_CLK2>,
+
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS_DMA>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS2>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS3>;
+
+		clock-names = "CIS_CLK0",
+			"CIS_CLK1",
+			"CIS_CLK2",
+
+			"GATE_CAM_CSIS_DMA",
+			"GATE_CAM_CSIS0",
+			"GATE_CAM_CSIS1",
+			"GATE_CAM_CSIS2",
+			"GATE_CAM_CSIS3";
+		iommus = <&sysmmu_cam>;
+	};
+
+	fimc_is_sensor1: fimc_is_sensor@14400000 {
+		/* FRONT/CSIS0 */
+		compatible = "samsung,exynos5-fimc-is-sensor";
+		reg = <0x0 0x14400000 0x10000>; /* MIPI-CSI0 */
+		interrupts = <0 297 0>; /* MIPI-CSI0 */
+		samsung,power-domain = <&pd_cam>;
+		phys = <&mipi_phy_csis_m0s4B 0>;
+		phy-names = "csis_dphy";
+		clocks = <&clock CIS_CLK0>,
+			<&clock CIS_CLK1>,
+			<&clock CIS_CLK2>,
+
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS_DMA>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS2>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS3>;
+
+		clock-names = "CIS_CLK0",
+			"CIS_CLK1",
+			"CIS_CLK2",
+
+			"GATE_CAM_CSIS_DMA",
+			"GATE_CAM_CSIS0",
+			"GATE_CAM_CSIS1",
+			"GATE_CAM_CSIS2",
+			"GATE_CAM_CSIS3";
+		iommus = <&sysmmu_cam>;
+	};
+
+	fimc_is_sensor2: fimc_is_sensor@14420000 {
+		/* FRONT/CSIS2 */
+		compatible = "samsung,exynos5-fimc-is-sensor";
+		reg = <0x0 0x14420000 0x10000>; /* MIPI-CSI2 */
+		interrupts = <0 299 0>; /* MIPI-CSI2 */
+		samsung,power-domain = <&pd_cam>;
+		phys = <&mipi_phy_csis_m0s4C 0>;
+		phy-names = "csis_dphy";
+		clocks = <&clock CIS_CLK0>,
+			<&clock CIS_CLK1>,
+			<&clock CIS_CLK2>,
+
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS_DMA>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS2>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS3>;
+
+		clock-names = "CIS_CLK0",
+			"CIS_CLK1",
+			"CIS_CLK2",
+
+			"GATE_CAM_CSIS_DMA",
+			"GATE_CAM_CSIS0",
+			"GATE_CAM_CSIS1",
+			"GATE_CAM_CSIS2",
+			"GATE_CAM_CSIS3";
+		iommus = <&sysmmu_cam>;
+	};
+
+	fimc_is_sensor3: fimc_is_sensor@14430000 {
+		/* CSIS3 */
+		compatible = "samsung,exynos5-fimc-is-sensor";
+		reg = <0x0 0x14430000 0x10000>; /* MIPI-CSI3 */
+		interrupts = <0 300 0>; /* MIPI-CSI3 */
+		samsung,power-domain = <&pd_cam>;
+		phys = <&mipi_phy_csis_m4s2 0>;
+		phy-names = "csis_dphy";
+		clocks = <&clock CIS_CLK0>,
+			<&clock CIS_CLK1>,
+			<&clock CIS_CLK2>,
+
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS_DMA>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS0>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS1>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS2>,
+			<&clock GATE_IS6P20P0_CAM_S_CAM_CSIS3>;
+
+		clock-names = "CIS_CLK0",
+			"CIS_CLK1",
+			"CIS_CLK2",
+
+			"GATE_CAM_CSIS_DMA",
+			"GATE_CAM_CSIS0",
+			"GATE_CAM_CSIS1",
+			"GATE_CAM_CSIS2",
+			"GATE_CAM_CSIS3";
+		iommus = <&sysmmu_cam>;
+	};
+
+	camerapp_gdc: gdc@0x14630000 {
+		compatible = "samsung,exynos5-camerapp-gdc";
+		reg = <0x0 0x14630000 0x10000>;
+		interrupts = <0 313 0>;
+
+		samsung,power-domain = <&pd_isp>;
+		clocks = <&clock GATE_IS5P20P0_ISP_GDC>,
+		       <&clock GATE_SMMU_IS0>;
+
+		/* TODO: Need to check */
+		clock-names = "gate",
+			"gate2";
+
+		iommus = <&sysmmu_isp0>;
+	};
+};

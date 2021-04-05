@@ -1,0 +1,91 @@
+/*
+ * SAMSUNG EXYNOS device tree source for reserved-memory
+ *
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/memreserve/ 0xE0000000 0xD00000;
+
+/ {
+	reserved_memory: reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		fb_handover: framebuffer@0xEC000000 {
+			compatible = "exynos,dpu_fb_handover";
+			reg = <0x0 0xEC000000 0x1400000>;
+		};
+
+		modem_if {
+			compatible = "exynos,modem_if";
+			reg = <0x0 0xF5400000 0x8800000>;
+		};
+
+		cp_ram_logging {
+			compatible = "exynos,cp_ram_logging";
+			reg = <0x0 0xFDC00000 0x2000000>;
+		};
+
+		gnss_reserved: gnss_if {
+			compatible = "exynos,gnss_if";
+			reg = <0x0 0xFFC00000 0x400000>;
+		};
+		
+		tima_mem: tima_region@0xB8000000 {
+			compatible = "removed-dma-pool";
+			reg = <0x0 0xB8000000 0x200000>;
+		};
+	
+		sec_debug_magic {
+			compatible = "exynos,sec_debug_magic";
+			reg = <0x0 0x80000000 0x1000>;
+		};
+		
+		seclog_mem {
+			compatible = "exynos,seclog";
+			reg = <0x0 0xC0000000 0x80000>;
+		};
+
+		wifibt_if {
+			compatible = "exynos,wifibt_if";
+			reg = <0x0 0xE9000000 0x400000>;
+		};
+
+		abox_rmem: abox_rmem@0xE9400000 {
+			compatible = "exynos,abox_rmem";
+			reg = <0x0 0xE9400000 0x400000>;
+		};
+
+		btabox_rmem {
+			compatible = "exynos,btabox_rmem";
+			size = <0x400000>;
+		};
+
+		crypto {
+			compatible = "exynos8890-ion,crypto";
+			ion,reusable;
+			size = <0x2000000>;
+			alignment = <0x0 0x00400000>;
+			id = <1>;
+		};
+
+		video_stream {
+			compatible = "exynos8890-ion,vstream";
+			ion,secure;
+			ion,reusable;
+			/* TUI : 1080x2220 32bpp 3frames < 28MiB*/
+			/* DRM : 72 MiB */
+			size = <0x4800000>;
+			alignment = <0x0 0x00400000>;
+			id = <3>;
+			compat-id = <25 31>;
+			alloc-ranges = <0x0 0x80000000 0x80000000>;
+		};
+	};
+};

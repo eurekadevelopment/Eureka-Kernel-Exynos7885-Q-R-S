@@ -1,0 +1,21 @@
+menu "Vendor Feature Setting"
+	depends on EXYNOS_FIMC_IS
+
+choice
+	prompt "Use vender features"
+	depends on EXYNOS_FIMC_IS
+	default VENDER_DEFAULT_LEGACY
+	help
+	  Use the vender specific features.
+
+config VENDER_DEFAULT_LEGACY
+        bool "Default"
+config VENDER_MCD_LEGACY
+        bool "MCD"
+config VENDER_PSV_LEGACY
+        bool "PSV"
+endchoice
+
+source "drivers/media/platform/exynos/fimc-legacy/vendor/psv/Kconfig"
+source "drivers/media/platform/exynos/fimc-legacy/vendor/mcd/Kconfig"
+endmenu

@@ -1,0 +1,12 @@
+
+source "drivers/media/platform/exynos/fimc-legacy/ischain/Kconfig"
+source "drivers/media/platform/exynos/fimc-legacy/sensor/Kconfig"
+
+#menu depth1
+menu "Base Feature Setting"
+	depends on EXYNOS_FIMC_IS
+
+source "drivers/media/platform/exynos/fimc-legacy/hardware/Kconfig"
+endmenu
+
+source "drivers/media/platform/exynos/fimc-legacy/vendor/Kconfig"

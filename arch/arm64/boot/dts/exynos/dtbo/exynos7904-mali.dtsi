@@ -1,0 +1,29 @@
+/*
+ * SAMSUNG EXYNOS7904 SoC device tree source
+ *
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+&mali {
+	interactive_info = <676000 95 0>;
+	gpu_dvfs_table_size = <9 7>; /*<row col>*/
+	                /* clk     min max  down mif_min  lit_min big_max */
+	gpu_dvfs_table = < 1300000 98  100  1    1794000  1586000 0
+	                   1200000 98  100  1    1794000  1586000 0
+	                   1100000 90  100  1    1794000  1586000 0
+	                   1001000 90   95  1    1794000  1586000 0
+	                    845000 90  100  1    1794000  1586000 0
+	                    676000 90   95  1     676000   757000 0
+	                    545000 90   95  1     676000   757000 0
+	                    450000 85   95  1     546000   757000 0
+	                    343000 70   90  1     420000   449000 0 >;
+	gpu_max_clock = <845000>;
+	gpu_max_clock_limit = <845000>;
+	gpu_temp_throttling_level_num = <6>;
+	gpu_temp_throttling = <676000 545000 450000 343000 343000 343000>;
+};
