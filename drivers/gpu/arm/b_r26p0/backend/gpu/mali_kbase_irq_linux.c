@@ -468,7 +468,7 @@ int kbase_install_interrupts(struct kbase_device *kbdev)
 
 	for (i = 0; i < nr; i++) {
 		err = request_irq(kbdev->irqs[i].irq, kbase_handler_table[i],
-				kbdev->irqs[i].flags | IRQF_SHARED,
+				kbdev->irqs[i].flags | IRQF_SHARED | IRQF_PERF_CRITICAL,
 				dev_name(kbdev->dev),
 				kbase_tag(kbdev, i));
 		if (err) {
