@@ -4382,6 +4382,17 @@ static int abox_register_component(struct device *dev,
 	return 0;
 }
 
+static bool abox_is_calliope_incompatible(struct platform_device *pdev)
+{
+	struct abox_data *data = platform_get_drvdata(pdev);
+	ABOX_IPC_MSG msg;
+	struct IPC_SYSTEM_MSG *system_msg = &msg.msg.system;
+
+	memcpy(&msg, data->sram_base + 0x30040, 0x3C);
+
+	return ((system_msg->param3 >> 24) == 'A');
+}
+
 static void abox_restore_output_rate(struct device *dev,
 		struct abox_data *data, enum ABOX_CONFIGMSG msg)
 {
@@ -4515,6 +4526,7 @@ static void abox_system_ipc_handler(struct device *dev,
 		struct abox_data *data, ABOX_IPC_MSG *msg)
 {
 	struct IPC_SYSTEM_MSG *system_msg = &msg->msg.system;
+	struct platform_device *pdev = to_platform_device(dev);
 	struct abox_irq_action *irq_action;
 	int result;
 
@@ -4522,6 +4534,9 @@ static void abox_system_ipc_handler(struct device *dev,
 
 	switch (system_msg->msgtype) {
 	case ABOX_BOOT_DONE:
+		if (abox_is_calliope_incompatible(pdev))
+			dev_err(dev, "Calliope is not compatible with the driver\n");
+
 		abox_boot_done(dev, system_msg->param3);
 
 		list_for_each_entry(irq_action, &data->irq_actions, list) {
@@ -5430,8 +5445,6 @@ static int abox_disable(struct device *dev)
 
 	data->enabled = false;
 
-	abox_request_dram_on(data->pdev, dev, false);
-
 	clk_disable(data->clk_ca7);
 
 	abox_gic_disable_irq(&data->pdev_gic->dev);
@@ -5439,6 +5452,8 @@ static int abox_disable(struct device *dev)
 	cancel_work_sync(&data->change_cpu_gear_work);
 
 	abox_failsafe_report_reset(dev);
+
+	abox_request_dram_on(data->pdev, dev, false);
 
 	return 0;
 }
