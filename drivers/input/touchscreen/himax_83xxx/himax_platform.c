@@ -858,12 +858,6 @@ int himax_chip_common_probe(struct i2c_client *client,
 		goto err_check_functionality_failed;
 	}
 
-	if (hx_bootmode == 2) {
-		input_err(true, &client->dev, "%s : Do not load driver due to : device entered recovery mode %d\n",
-			__func__, hx_bootmode);
-		return -ENODEV;
-	}
-
 	if (lcdtype == 0) {
 		input_err(true, &client->dev, "%s %s: lcd is not attached\n",
 			HIMAX_LOG_TAG, __func__);
