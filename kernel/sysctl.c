@@ -131,7 +131,7 @@ static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
 #ifdef CONFIG_INCREASE_MAXIMUM_SWAPPINESS
-static int max_swappiness = 200;
+static int max_swappiness = 250;
 #endif
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
