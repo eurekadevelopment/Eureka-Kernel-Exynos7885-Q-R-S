@@ -59,6 +59,8 @@
 #include <linux/delay.h>
 #include <linux/cpuset.h>
 #include <linux/atomic.h>
+#include <linux/binfmts.h>
+#include <linux/devfreq_boost.h>
 
 /*
  * pidlists linger the following amount before being destroyed.  The goal
@@ -2775,6 +2777,13 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
 	ret = cgroup_procs_write_permission(tsk, cgrp, of);
 	if (!ret)
 		ret = cgroup_attach_task(cgrp, tsk, threadgroup);
+
+	/* This covers boosting for app launches and app transitions */
+	if (!ret && !threadgroup &&
+	    !strcmp(of->kn->parent->name, "top-app") &&
+	    is_zygote_pid(tsk->parent->pid)) {
+		devfreq_boost_kick_max(DEVFREQ_EXYNOS_MIF, 500);
+	}
 
 	put_task_struct(tsk);
 	goto out_unlock_threadgroup;
