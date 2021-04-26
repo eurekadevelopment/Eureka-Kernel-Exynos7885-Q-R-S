@@ -190,3 +190,11 @@ config SEC_INCELL
 	default n
 	help
 	  say y to enable incell data & function for Samsung.
+
+config STATE_NOTIFIER
+	bool "State Notifier"
+	default n
+	help
+	  State notifier driver deeply hooks into our panel and sends notification
+	  to drivers whenever screen turns on/off - even for doze mode.
+	  Say y to enable this driver.
