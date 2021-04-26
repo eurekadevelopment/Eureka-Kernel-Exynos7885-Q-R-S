@@ -1190,8 +1190,12 @@ CONFIG_OF_RESERVED_MEM=y
 CONFIG_BLK_DEV=y
 # CONFIG_BLK_DEV_NULL_BLK is not set
 CONFIG_ZRAM=y
+<<<<<<< HEAD:arch/arm64/configs/exynos7885-a40_defconfig
 # CONFIG_ZRAM_WRITEBACK is not set
 # CONFIG_ZRAM_MEMORY_TRACKING is not set
+=======
+CONFIG_ZRAM_WRITEBACK=y
+>>>>>>> 453394c6df8c... defconfigs: Enable Zram_writeback and different compression algorithms:arch/arm64/configs/exynos7885-a40_oneui_defconfig
 # CONFIG_BLK_DEV_COW_COMMON is not set
 CONFIG_BLK_DEV_LOOP=y
 CONFIG_BLK_DEV_LOOP_MIN_COUNT=16
@@ -5286,9 +5290,15 @@ CONFIG_CRYPTO_DEFLATE=y
 # CONFIG_CRYPTO_ZLIB is not set
 CONFIG_CRYPTO_LZO=y
 # CONFIG_CRYPTO_842 is not set
+<<<<<<< HEAD:arch/arm64/configs/exynos7885-a40_defconfig
 # CONFIG_CRYPTO_LZ4 is not set
 # CONFIG_CRYPTO_LZ4HC is not set
 # CONFIG_CRYPTO_ZSTD is not set
+=======
+CONFIG_CRYPTO_LZ4=y
+CONFIG_CRYPTO_LZ4HC=y
+CONFIG_CRYPTO_ZSTD=y
+>>>>>>> 453394c6df8c... defconfigs: Enable Zram_writeback and different compression algorithms:arch/arm64/configs/exynos7885-a40_oneui_defconfig
 
 #
 # Random Number Generation
