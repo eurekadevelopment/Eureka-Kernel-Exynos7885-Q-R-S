@@ -54,6 +54,23 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
 	__k;								   \
 })
 
+/**
+ * kthread_run_low_power - create and wake a low-power thread.
+ *
+ * Same as kthread_run(), but with the kthread bound to low-power CPUs.
+ */
+#define kthread_run_low_power(threadfn, data, namefmt, ...)		   \
+({									   \
+	struct task_struct *__k						   \
+		= kthread_create(threadfn, data, namefmt, ## __VA_ARGS__); \
+	if (!IS_ERR(__k)) {						   \
+		__k->flags |= PF_LOW_POWER;				   \
+		kthread_bind_mask(__k, cpu_lp_mask);			   \
+		wake_up_process(__k);					   \
+	}								   \
+	__k;								   \
+})
+
 void kthread_bind(struct task_struct *k, unsigned int cpu);
 void kthread_bind_mask(struct task_struct *k, const struct cpumask *mask);
 int kthread_stop(struct task_struct *k);
