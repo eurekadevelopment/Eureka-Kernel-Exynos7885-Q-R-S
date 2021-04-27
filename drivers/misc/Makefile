@@ -62,6 +62,7 @@ obj-$(CONFIG_USIM_DETECT)	+= usim_det/
 obj-$(CONFIG_SEC_MODEM_IF)  += modem_if/
 obj-$(CONFIG_GNSS_SHMEM_IF)    += gnss_if/
 obj-$(CONFIG_SEC_SIPC_MODEM_IF)	+= modem_v1/
+obj-$(CONFIG_BATTERY_SAVER)	+= battery_saver.o
 obj-$(CONFIG_EXYNOS_IMA)	+= exynos_ima.o
 obj-y				+= samsung/
 # TIMA
