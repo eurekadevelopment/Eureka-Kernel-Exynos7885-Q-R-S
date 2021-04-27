@@ -37,7 +37,7 @@ static void __init init_irq_default_affinity(void)
 #ifdef CONFIG_SCHED_HMP
 	cpumask_copy(irq_default_affinity, &hmp_slow_cpu_mask);
 #else
-	cpumask_setall(irq_default_affinity);
+	cpumask_set_cpu(0, irq_default_affinity);
 #endif
 }
 #else
