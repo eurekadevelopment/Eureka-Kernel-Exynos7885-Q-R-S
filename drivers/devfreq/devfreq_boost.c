@@ -5,6 +5,7 @@
 
 #define pr_fmt(fmt) "devfreq_boost: " fmt
 
+#include <linux/battery_saver.h>
 #include <linux/devfreq_boost.h>
 #include <linux/fb.h>
 #include <linux/input.h>
@@ -36,7 +37,7 @@ static void __devfreq_boost_kick(struct boost_dev *b)
 	unsigned long flags;
 
 	spin_lock_irqsave(&b->lock, flags);
-	if (!b->df) {
+	if ((!b->df) || is_battery_saver_on()) {
 		spin_unlock_irqrestore(&b->lock, flags);
 		return;
 	}
@@ -64,7 +65,7 @@ static void __devfreq_boost_kick_max(struct boost_dev *b,
 	unsigned long flags, new_expires;
 
 	spin_lock_irqsave(&b->lock, flags);
-	if (!b->df) {
+	if ((!b->df) || is_battery_saver_on()) {
 		spin_unlock_irqrestore(&b->lock, flags);
 		return;
 	}
