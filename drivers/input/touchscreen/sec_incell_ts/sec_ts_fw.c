@@ -748,7 +748,7 @@ static int sec_ts_firmware_update(struct sec_ts_data *ts, const u8 *data, size_t
 		input_err(true, &ts->client->dev, "%s: fail to write Sense_off in fw_update function\n", __func__);
 
 	fw_hd = (fw_header *)fd;
-	num_chunk = fw_hd->chunk_num[0] && 0xFF;
+	num_chunk = fw_hd->chunk_num[0] & 0xFF;
 	/*fd += sizeof(fw_header);*/
 /*
 	if (fw_hd->signature != SEC_TS_FW_HEADER_SIGN) {
