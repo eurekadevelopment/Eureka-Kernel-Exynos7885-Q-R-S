@@ -1603,7 +1603,7 @@ static struct v4l2_queryctrl controls[] = {
 		.type = V4L2_CTRL_TYPE_INTEGER,
 		.name = "Get extra buffer size",
 		.minimum = 0,
-		.maximum = (2 << 31) - 1,
+		.maximum = ((uint64_t)2 << 31) - 1,
 		.step = 1,
 		.default_value = 0,
 	},
