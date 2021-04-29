@@ -667,7 +667,7 @@ static int s5p_mfc_enc_get_buf_update_val(struct s5p_mfc_ctx *ctx,
 	struct s5p_mfc_buf_ctrl *buf_ctrl;
 
 	list_for_each_entry(buf_ctrl, head, list) {
-		if ((buf_ctrl->id == id)) {
+		if ((buf_ctrl->id = id)) {
 			buf_ctrl->val = value;
 			mfc_debug(5, "++id: 0x%08x val: %d\n",
 					buf_ctrl->id, buf_ctrl->val);
@@ -1098,7 +1098,7 @@ static int s5p_mfc_enc_set_buf_ctrls_val(struct s5p_mfc_ctx *ctx, struct list_he
 			MFC_WRITEL(value, S5P_FIMV_E_H264_NAL_CONTROL);
 		}
 
-		if ((buf_ctrl->id == V4L2_CID_MPEG_MFC51_VIDEO_I_PERIOD_CH)) {
+		if ((buf_ctrl->id = V4L2_CID_MPEG_MFC51_VIDEO_I_PERIOD_CH)) {
 			value = MFC_READL(S5P_FIMV_E_GOP_CONFIG2);
 			buf_ctrl->old_val |= (value << 16) & 0x3FFF0000;
 			value &= ~(0x3FFF);
