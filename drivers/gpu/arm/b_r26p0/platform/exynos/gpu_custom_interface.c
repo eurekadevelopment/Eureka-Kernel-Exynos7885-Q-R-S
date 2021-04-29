@@ -469,6 +469,7 @@ static ssize_t show_dvfs(struct device *dev, struct device_attribute *attr, char
 	return ret;
 }
 
+/*
 static ssize_t set_dvfs(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	if (sysfs_streq("0", buf))
@@ -478,6 +479,7 @@ static ssize_t set_dvfs(struct device *dev, struct device_attribute *attr, const
 
 	return count;
 }
+*/
 
 static ssize_t show_governor(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -856,6 +858,7 @@ static ssize_t show_max_lock_dvfs(struct device *dev, struct device_attribute *a
 	return ret;
 }
 
+/*
 static ssize_t set_max_lock_dvfs(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	int ret, clock = 0;
@@ -895,6 +898,7 @@ static ssize_t set_max_lock_dvfs(struct device *dev, struct device_attribute *at
 
 	return count;
 }
+*/
 
 static ssize_t show_min_lock_dvfs(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -928,6 +932,7 @@ static ssize_t show_min_lock_dvfs(struct device *dev, struct device_attribute *a
 	return ret;
 }
 
+/*
 static ssize_t set_min_lock_dvfs(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
 	int ret, clock = 0;
@@ -970,6 +975,7 @@ static ssize_t set_min_lock_dvfs(struct device *dev, struct device_attribute *at
 
 	return count;
 }
+*/
 
 static ssize_t show_down_staycount(struct device *dev, struct device_attribute *attr, char *buf)
 {
