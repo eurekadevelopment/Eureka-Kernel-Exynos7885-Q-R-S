@@ -617,7 +617,7 @@ extern void untrack_pfn(struct vm_area_struct *vma, unsigned long pfn,
 #ifdef CONFIG_UKSM
 static inline int is_uksm_zero_pfn(unsigned long pfn)
 {
-	extern unsigned long uksm_zero_pfn;
+	extern __read_mostly unsigned long uksm_zero_pfn;
         return pfn == uksm_zero_pfn;
 }
 #else
@@ -640,7 +640,7 @@ static inline int is_zero_pfn(unsigned long pfn)
 #else
 static inline int is_zero_pfn(unsigned long pfn)
 {
-	extern unsigned long zero_pfn;
+	extern __read_mostly unsigned long zero_pfn;
 	return (pfn == zero_pfn) || (is_uksm_zero_pfn(pfn));
 }
 
