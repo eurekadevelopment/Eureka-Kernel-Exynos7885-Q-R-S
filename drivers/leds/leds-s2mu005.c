@@ -1228,7 +1228,7 @@ static int s2mu005_led_probe(struct platform_device *pdev)
 		led_data->cdev.flags = 0;
 		led_data->cdev.brightness = data->brightness;
 		led_data->cdev.max_brightness = led_data->data->id ?
-		S2MU005_TORCH_OUT_I_400MA : S2MU005_FLASH_OUT_I_1200MA;
+		(enum led_brightness) S2MU005_TORCH_OUT_I_400MA : (enum led_brightness) S2MU005_FLASH_OUT_I_1200MA;
 
 		mutex_init(&led_data->lock);
 		spin_lock_init(&led_data->value_lock);
