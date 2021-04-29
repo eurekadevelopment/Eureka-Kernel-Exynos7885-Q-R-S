@@ -181,7 +181,7 @@ int fimc_is_hw_3aa_mode_change(struct fimc_is_hw_ip *hw_ip, u32 instance, ulong 
 		BUG_ON(!framemgr);
 
 		framemgr_e_barrier(framemgr, 0);
-		frame = peek_frame(framemgr, FS_HW_CONFIGURE);
+		frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_CONFIGURE);
 		framemgr_x_barrier(framemgr, 0);
 		if (frame) {
 			shot = frame->shot;

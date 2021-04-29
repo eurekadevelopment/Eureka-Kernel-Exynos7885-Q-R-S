@@ -1292,7 +1292,7 @@ void fimc_is_hw_mcsc_frame_done(struct fimc_is_hw_ip *hw_ip, struct fimc_is_fram
 	case IS_SHOT_SUCCESS:
 		framemgr = hw_ip->framemgr;
 		framemgr_e_barrier_common(framemgr, 0, flags);
-		frame = peek_frame(framemgr, FS_HW_WAIT_DONE);
+		frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 		framemgr_x_barrier_common(framemgr, 0, flags);
 		if (frame == NULL) {
 			mserr_hw("[F:%d] frame(null) @FS_HW_WAIT_DONE!!", instance,
