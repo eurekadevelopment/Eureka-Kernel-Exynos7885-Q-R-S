@@ -2804,7 +2804,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
 		/* Was the nodev implicitly added in mount? */
 		if ((mnt->mnt_ns->user_ns != &init_user_ns) &&
 		    !(sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT)) {
-			mnt_flags |= MNT_NODEV;
+		mnt_flags |= MNT_NODEV;
 		} else {
 			return -EPERM;
 		}
@@ -3374,7 +3374,7 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	if (flags & MS_NOEXEC)
 		mnt_flags |= MNT_NOEXEC;
 	//if (flags & MS_NOATIME)
-		mnt_flags |= MNT_NOATIME;
+	mnt_flags |= MNT_NOATIME;
 	//if (flags & MS_NODIRATIME)
 		mnt_flags |= MNT_NODIRATIME;
 	if (flags & MS_STRICTATIME)
