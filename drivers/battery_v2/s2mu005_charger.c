@@ -918,7 +918,7 @@ static int s2mu005_get_vsys_charging_health(struct s2mu005_charger_data *charger
 	switch(data) {
 	case 0x3:
 		pr_info("%s: VSYS OVP\n", __func__);
-		psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_SYSOVLO, value);
+		psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_SYSOVLO, value);
 		return POWER_SUPPLY_HEALTH_VSYS_OVP;
 	case 0x4:
 		pr_info("%s: VSYS UVLO\n", __func__);
@@ -1044,7 +1044,7 @@ static int sec_chg_set_property(struct power_supply *psy,
 		const union power_supply_propval *val)
 {
 	struct s2mu005_charger_data *charger = power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 	int buck_state = ENABLE;
 	union power_supply_propval value;
 
@@ -1308,8 +1308,7 @@ static int sec_chg_set_property(struct power_supply *psy,
 				msleep(50);
 				/* set JIG_QBAT_OFF */
 				s2mu005_update_reg(charger->client, 0xA7, 0x00, 0x80);
-				psy_do_property( "s2mu005-fuelgauge", set,
-					POWER_SUPPLY_EXT_PROP_FUELGAUGE_FACTORY, value);
+				psy_do_property( "s2mu005-fuelgauge", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_FUELGAUGE_FACTORY, value);
 			} else {
 				pr_info("%s: Bypass exit for current measure\n", __func__);
 				/* Force QBAT Off */
@@ -1548,8 +1547,7 @@ static void s2mu005_ivr_irq_work(struct work_struct *work)
 		}
 
 		value.intval = s2mu005_get_input_current_limit(charger->client);
-		psy_do_property("battery", set,
-				POWER_SUPPLY_EXT_PROP_AICL_CURRENT, value);
+		psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_AICL_CURRENT, value);
 	}
 
 

@@ -889,10 +889,10 @@ static int s2mu005_get_rawsoc(struct s2mu005_fuelgauge_data *fuelgauge)
 		psy_do_property("s2mu005-charger", get, POWER_SUPPLY_PROP_CHARGING_ENABLED, value);
 		charging_enabled = value.intval;
 		value.intval = SEC_BAT_CHG_MODE_CHARGING_OFF;
-		psy_do_property("s2mu005-charger", set, POWER_SUPPLY_PROP_CHARGING_ENABLED, value);
+		psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_PROP_CHARGING_ENABLED, value);
 
 		if (fuelgauge->reg_OTP_52 != reg_OTP_52 || fuelgauge->reg_OTP_53 != reg_OTP_53) {
-			psy_do_property("s2mu005-charger", set, POWER_SUPPLY_EXT_PROP_FUELGAUGE_RESET, value);
+			psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_FUELGAUGE_RESET, value);
 
 			s2mu005_write_and_verify_reg_byte(fuelgauge->i2c, 0x1F, 0x40);
 			msleep(50);
@@ -905,7 +905,7 @@ static int s2mu005_get_rawsoc(struct s2mu005_fuelgauge_data *fuelgauge)
 				__func__, fuelgauge->reg_OTP_52, fuelgauge->reg_OTP_53, reg_OTP_52, reg_OTP_53);
 
 			if (fuelgauge->reg_OTP_52 != reg_OTP_52 || fuelgauge->reg_OTP_53 != reg_OTP_53) {
-				psy_do_property("s2mu005-charger", set, POWER_SUPPLY_EXT_PROP_FUELGAUGE_RESET, value);
+				psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_FUELGAUGE_RESET, value);
 
 				s2mu005_write_and_verify_reg_byte(fuelgauge->i2c, 0x1F, 0x40);
 				msleep(50);
@@ -959,10 +959,10 @@ static int s2mu005_get_rawsoc(struct s2mu005_fuelgauge_data *fuelgauge)
 	mutex_unlock(&fuelgauge->fg_lock);
 
 	if (fg_reset) {
-		psy_do_property("s2mu005-charger", set, POWER_SUPPLY_PROP_CHARGE_ENABLED, value);
+		psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_PROP_CHARGE_ENABLED, value);
 		if (charging_enabled) {
 			value.intval = SEC_BAT_CHG_MODE_CHARGING;
-			psy_do_property("s2mu005-charger", set, POWER_SUPPLY_PROP_CHARGING_ENABLED, value);
+			psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_PROP_CHARGING_ENABLED, value);
 		}
 	}
 
@@ -1079,7 +1079,7 @@ static int s2mu005_get_rawsoc(struct s2mu005_fuelgauge_data *fuelgauge)
 
 				fuelgauge->mode = LOW_SOC_VOLTAGE_MODE;
 				value.intval = fuelgauge->mode;
-				psy_do_property("s2mu005-charger", set, POWER_SUPPLY_PROP_SCOPE, value);
+				psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_PROP_SCOPE, value);
 
 				s2mu005_read_reg_byte(fuelgauge->i2c, 0x26, &temp);
 				temp |= 0x01;
@@ -1104,7 +1104,7 @@ static int s2mu005_get_rawsoc(struct s2mu005_fuelgauge_data *fuelgauge)
 
 				fuelgauge->mode = CURRENT_MODE;
 				value.intval = fuelgauge->mode;
-				psy_do_property("s2mu005-charger", set, POWER_SUPPLY_PROP_SCOPE, value);
+				psy_do_property("s2mu005-charger", set, (enum power_supply_property) POWER_SUPPLY_PROP_SCOPE, value);
 
 				s2mu005_read_reg_byte(fuelgauge->i2c, 0x4B, &temp);
 				temp &= ~0x02;
@@ -2100,7 +2100,7 @@ static int s2mu005_fg_set_property(struct power_supply *psy,
 #endif
 		case POWER_SUPPLY_PROP_MAX ... POWER_SUPPLY_EXT_PROP_MAX:
 			{
-				enum power_supply_ext_property ext_psp = psp;
+				enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 				u8 temp = 0;
 				switch (ext_psp) {
 				case POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING:

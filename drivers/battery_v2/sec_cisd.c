@@ -76,7 +76,7 @@ bool sec_bat_cisd_check(struct sec_battery_info *battery)
 				 __func__, battery->voltage_now);
 			/* IFPMIC specific error rate % on VBAT value needs to be applied for max_voltage_thr*/
 			vbat_val.intval = true;
-			psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_VBAT_OVP,
+			psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_VBAT_OVP,
 					vbat_val);
 			pcisd->data[CISD_DATA_VBAT_OVP]++;
 			pcisd->data[CISD_DATA_VBAT_OVP_PER_DAY]++;
