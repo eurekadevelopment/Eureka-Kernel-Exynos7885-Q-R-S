@@ -140,7 +140,7 @@ static int gp2ap_write_settings(struct gp2ap_data *data)
 	
 	data->led_reg_val = led_reg_val;
 
-	data->bytes = snprintf(tmp_buf, PAGE_SIZE, "%d,%d,%d",
+	data->bytes = snprintf(tmp_buf, sizeof(tmp_buf), "%d,%d,%d",
 					led_reg_val, ps_high_th, ps_low_th);
 
 	buf = kzalloc(sizeof(char) * (data->bytes), GFP_KERNEL);
