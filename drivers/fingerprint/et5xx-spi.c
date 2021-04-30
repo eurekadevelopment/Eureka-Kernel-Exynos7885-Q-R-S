@@ -119,7 +119,7 @@ int etspi_Interrupt_Init(
 		goto done;
 	}
 
-	if (etspi->drdy_irq_flag == DRDY_IRQ_DISABLE | IRQF_PERF_CRITICAL) {
+	if (etspi->drdy_irq_flag == (DRDY_IRQ_DISABLE | IRQF_PERF_CRITICAL)) {
 		if (request_irq
 			(gpio_irq, etspi_fingerprint_interrupt
 			, int_ctrl, "etspi_irq", etspi) < 0) {
@@ -140,7 +140,7 @@ int etspi_Interrupt_Free(struct etspi_data *etspi)
 	pr_info("%s\n", __func__);
 
 	if (etspi != NULL) {
-		if (etspi->drdy_irq_flag == DRDY_IRQ_ENABLE | IRQF_PERF_CRITICAL) {
+		if (etspi->drdy_irq_flag == (DRDY_IRQ_ENABLE | IRQF_PERF_CRITICAL)) {
 			if (!etspi->int_count)
 				disable_irq_nosync(gpio_irq);
 
