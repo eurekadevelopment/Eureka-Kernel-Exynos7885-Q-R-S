@@ -141,7 +141,7 @@ struct fimc_is_resourcemgr {
 	struct mutex				sysreg_lock;
 };
 
-int fimc_is_resourcemgr_probe(struct fimc_is_resourcemgr *resourcemgr, void *private_data);
+int __init fimc_is_resourcemgr_probe(struct fimc_is_resourcemgr *resourcemgr, void *private_data);
 int fimc_is_resource_open(struct fimc_is_resourcemgr *resourcemgr, u32 rsc_type, void **device);
 int fimc_is_resource_get(struct fimc_is_resourcemgr *resourcemgr, u32 rsc_type);
 int fimc_is_resource_put(struct fimc_is_resourcemgr *resourcemgr, u32 rsc_type);
