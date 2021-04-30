@@ -720,7 +720,7 @@ void scsc_service_mifintrbit_bit_set(struct scsc_service *service, int which_bit
 
 	mif_abs = scsc_mx_get_mif_abs(mx);
 
-	return mif_abs->irq_bit_set(mif_abs, which_bit, dir);
+	return mif_abs->irq_bit_set(mif_abs, which_bit, (enum scsc_mif_abs_target) dir);
 }
 EXPORT_SYMBOL(scsc_service_mifintrbit_bit_set);
 
@@ -761,7 +761,7 @@ int scsc_service_mifintrbit_alloc_fromhost(struct scsc_service *service, enum sc
 {
 	struct scsc_mx *mx = service->mx;
 
-	return mifintrbit_alloc_fromhost(scsc_mx_get_intrbit(mx), dir);
+	return mifintrbit_alloc_fromhost(scsc_mx_get_intrbit(mx), (enum scsc_mif_abs_target) dir);
 }
 EXPORT_SYMBOL(scsc_service_mifintrbit_alloc_fromhost);
 
@@ -769,7 +769,7 @@ int scsc_service_mifintrbit_free_fromhost(struct scsc_service *service, int whic
 {
 	struct scsc_mx *mx = service->mx;
 
-	return mifintrbit_free_fromhost(scsc_mx_get_intrbit(mx), which_bit, dir);
+	return mifintrbit_free_fromhost(scsc_mx_get_intrbit(mx), which_bit, (enum scsc_mif_abs_target) dir);
 }
 EXPORT_SYMBOL(scsc_service_mifintrbit_free_fromhost);
 

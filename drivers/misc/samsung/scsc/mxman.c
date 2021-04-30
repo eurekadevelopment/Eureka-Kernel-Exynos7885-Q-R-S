@@ -1371,9 +1371,9 @@ static void mxman_failure_work(struct work_struct *work)
 	}
 	/* Signal panic to r4 and m4 processors */
 	SCSC_TAG_INFO(MXMAN, "Setting MIFINTRBIT_RESERVED_PANIC_R4\n");
-	mif->irq_bit_set(mif, MIFINTRBIT_RESERVED_PANIC_R4, SCSC_MIFINTR_TARGET_R4);
+	mif->irq_bit_set(mif, MIFINTRBIT_RESERVED_PANIC_R4, (enum scsc_mif_abs_target) SCSC_MIFINTR_TARGET_R4);
 	SCSC_TAG_INFO(MXMAN, "Setting MIFINTRBIT_RESERVED_PANIC_M4\n");
-	mif->irq_bit_set(mif, MIFINTRBIT_RESERVED_PANIC_M4, SCSC_MIFINTR_TARGET_M4);
+	mif->irq_bit_set(mif, MIFINTRBIT_RESERVED_PANIC_M4, (enum scsc_mif_abs_target) SCSC_MIFINTR_TARGET_M4);
 	srvman_freeze_services(srvman);
 	if (mxman->mxman_state == MXMAN_STATE_FAILED) {
 		mxman->last_panic_time = local_clock();
