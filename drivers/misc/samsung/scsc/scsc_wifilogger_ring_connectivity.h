@@ -27,7 +27,7 @@ extern u32 cring_lev;
 bool scsc_wifilogger_ring_connectivity_init(void);
 
 int scsc_wifilogger_ring_connectivity_driver_event(wlog_verbose_level lev,
-						   u16 driver_event_id, u8 tag_count, ...);
+						   u16 driver_event_id, int tag_count, ...);
 
 int scsc_wifilogger_ring_connectivity_fw_event(wlog_verbose_level lev, u16 fw_event_id,
 					       u64 fw_timestamp, void *fw_bulk_data, size_t fw_blen);
