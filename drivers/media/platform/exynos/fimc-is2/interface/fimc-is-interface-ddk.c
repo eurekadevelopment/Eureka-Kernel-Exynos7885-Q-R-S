@@ -35,23 +35,23 @@ bool check_dma_done(struct fimc_is_hw_ip *hw_ip, u32 instance_id, u32 fcount)
 	BUG_ON(!framemgr);
 
 	framemgr_e_barrier_common(framemgr, 0, flags);
-	frame = peek_frame(framemgr, FS_HW_WAIT_DONE);
+	frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 	framemgr_x_barrier_common(framemgr, 0, flags);
 
 	if (frame == NULL) {
 flush_config_frame:
 		framemgr_e_barrier_common(framemgr, 0, flags);
-		frame = peek_frame(framemgr, FS_HW_CONFIGURE);
+		frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_CONFIGURE);
 		if (frame) {
 			if (unlikely(frame->fcount + frame->cur_buf_index < hw_fcount)) {
-				trans_frame(framemgr, frame, FS_HW_WAIT_DONE);
+				trans_frame(framemgr, frame, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 				framemgr_x_barrier_common(framemgr, 0, flags);
 				fimc_is_hardware_frame_ndone(hw_ip, frame, frame->instance, IS_SHOT_INVALID_FRAMENUMBER);
 				goto flush_config_frame;
 			} else if (unlikely(frame->fcount + frame->cur_buf_index == hw_fcount)) {
-				trans_frame(framemgr, frame, FS_HW_WAIT_DONE);
+				trans_frame(framemgr, frame, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 				framemgr_x_barrier_common(framemgr, 0, flags);
-				fimc_is_hardware_frame_ndone(hw_ip, frame, frame->instance, IS_SHOT_INVALID_FRAMENUMBER);
+				fimc_is_hardware_frame_ndone(hw_ip, frame, frame->instance, (enum ShotErrorType) IS_SHOT_INVALID_FRAMENUMBER);
 				return true;
 			}
 		}
@@ -74,7 +74,7 @@ flush_config_frame:
 	if (((frame->num_buffers > 1) && (expected_fcount != frame->fcount))
 		|| ((frame->num_buffers == 1) && (expected_fcount != (frame->fcount + frame->cur_buf_index)))) {
 		framemgr_e_barrier_common(framemgr, 0, flags);
-		list_frame = find_frame(framemgr, FS_HW_WAIT_DONE, frame_fcount,
+		list_frame = find_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE, frame_fcount,
 					(void *)(ulong)expected_fcount);
 		framemgr_x_barrier_common(framemgr, 0, flags);
 		if (list_frame == NULL) {
@@ -84,7 +84,7 @@ flush_config_frame:
 				frame->fcount, frame->cur_buf_index);
 flush_wait_done_frame:
 			framemgr_e_barrier_common(framemgr, 0, flags);
-			frame = peek_frame(framemgr, FS_HW_WAIT_DONE);
+			frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 			if (frame) {
 				if (unlikely(frame->fcount < expected_fcount)) {
 					framemgr_x_barrier_common(framemgr, 0, flags);
@@ -359,7 +359,7 @@ static void fimc_is_lib_camera_callback(void *this, enum lib_cb_event_type event
 
 		framemgr = hw_ip->framemgr;
 		framemgr_e_barrier_common(framemgr, 0, flags);
-		frame = peek_frame(framemgr, FS_HW_WAIT_DONE);
+		frame = peek_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 		framemgr_x_barrier_common(framemgr, 0, flags);
 
 		if (frame) {
