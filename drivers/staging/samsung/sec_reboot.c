@@ -110,7 +110,7 @@ static void sec_power_off(void)
 	local_irq_disable();
 
 	psy_do_property("ac", get, POWER_SUPPLY_PROP_ONLINE, ac_val);
-	psy_do_property("ac", get, POWER_SUPPLY_EXT_PROP_WATER_DETECT, water_val);
+	psy_do_property("ac", get, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_WATER_DETECT, water_val);
 	psy_do_property("usb", get, POWER_SUPPLY_PROP_ONLINE, usb_val);
 	psy_do_property("wireless", get, POWER_SUPPLY_PROP_ONLINE, wpc_val);
 	pr_info("[%s] AC[%d], USB[%d], WPC[%d], WATER[%d]\n",
