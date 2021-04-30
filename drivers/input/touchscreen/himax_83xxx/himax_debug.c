@@ -1515,8 +1515,8 @@ bool himax_ts_diag_func(void)
 				snprintf(temp_buf, sizeof(temp_buf), "%4d\t",
 					mutual_data[i]);
 			}
-			strlcat(&write_buf[i * strlen(temp_buf)], temp_buf,
-				strlen(temp_buf));
+			strscpy(&write_buf[i * strlen(temp_buf)], temp_buf,
+				sizeof(write_buf));
 		}
 
 		for (i = 0; i < x_channel; i++) {
@@ -1527,9 +1527,9 @@ bool himax_ts_diag_func(void)
 			else
 				snprintf(temp_buf, sizeof(temp_buf), "%4d\t",
 					 self_data[i]);
-			strlcat(&write_buf
+			strscpy(&write_buf
 				[(i + x_channel * y_channel) * strlen(temp_buf)],
-				temp_buf, strlen(temp_buf));
+				temp_buf, sizeof(write_buf));
 		}
 
 /* save raw data in file */
