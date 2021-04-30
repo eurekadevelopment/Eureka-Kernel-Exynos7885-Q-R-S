@@ -646,8 +646,7 @@ static int usb_blocked_chg_control(int set)
 	else
 		val.intval = USB_CURRENT_UNCONFIGURED;
 
-	psy_do_property("battery", set,
-			POWER_SUPPLY_EXT_PROP_USB_CONFIGURE, val);
+	psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_USB_CONFIGURE, val);
 
 	return 0;
 
@@ -725,8 +724,7 @@ static int usb_notifier_probe(struct platform_device *pdev)
 			       MUIC_NOTIFY_DEV_USB);
 #endif
 #if defined(CONFIG_VBUS_NOTIFIER)
-	vbus_notifier_register(&pdata->vbus_nb, vbus_handle_notification,
-			       MUIC_NOTIFY_DEV_USB);
+	vbus_notifier_register(&pdata->vbus_nb, vbus_handle_notification, MUIC_NOTIFY_DEV_USB);
 #endif
 	dev_info(&pdev->dev, "usb notifier probe\n");
 	return 0;
