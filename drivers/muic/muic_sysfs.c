@@ -479,7 +479,7 @@ static ssize_t muic_sysfs_set_afc_disable(struct device *dev,
 #endif
 
 	psy_val.intval = param_val;
-	psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_HV_DISABLE, psy_val);
+	psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_HV_DISABLE, psy_val);
 
 	pr_info("%s afc_disable(%d)\n", __func__, pdata->afc_disable);
 	if (curr_val != pdata->afc_disable)

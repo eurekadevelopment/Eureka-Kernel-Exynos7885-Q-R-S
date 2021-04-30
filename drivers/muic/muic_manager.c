@@ -1000,7 +1000,7 @@ static int muic_manager_set_property(struct power_supply *psy,
 {
 	struct muic_interface_t *muic_if =
 		power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 #if defined(CONFIG_MUIC_SUPPORT_POWERMETER)
 	int ret;
 #endif
