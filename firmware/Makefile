@@ -152,7 +152,6 @@ fw-shipped-$(CONFIG_TOUCHSCREEN_FTS) += tsp_stm/fts6ct108_view2.fw
 fw-shipped-$(CONFIG_TOUCHSCREEN_FTS1BA90A) += tsp_stm/fts1ba90a_gta3_00.fw tsp_stm/fts1ba90a_gta3.fw
 fw-shipped-$(CONFIG_TOUCHSCREEN_MELFAS_MMS449) += tsp_melfas/mms449_s5neo.fw
 fw-shipped-$(CONFIG_TOUCHSCREEN_MELFAS_MMS438) += tsp_melfas/mms438_j7duo.fw
-fw-shipped-$(CONFIG_TOUCHSCREEN_MELFAS_MSS100_A30KOR) += tsp_melfas/mss100_a30.fw tsp_melfas/mss100_a30_old.fw
 fw-shipped-$(CONFIG_TOUCHSCREEN_MELFAS_MSS100) += tsp_melfas/mss100_m30_00.fw tsp_melfas/mss100_m30.fw tsp_melfas/mss100_m30_old.fw \
 													tsp_melfas/mss100_a30.fw tsp_melfas/mss100_a30_old.fw tsp_melfas/mss100_a30_jpn.fw
 fw-shipped-$(CONFIG_TOUCHSCREEN_MMS144) += tsp_melfas/DIABLO_CoreV54_V35_master.fw
