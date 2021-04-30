@@ -1728,7 +1728,7 @@ static int s2mu106_fg_set_property(struct power_supply *psy,
 {
 	struct s2mu106_fuelgauge_data *fuelgauge =
 				power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 	u8 temp = 0;
 
 	switch (psp) {

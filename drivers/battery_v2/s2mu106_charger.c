@@ -834,7 +834,7 @@ static int s2mu106_chg_set_property(struct power_supply *psy,
 		const union power_supply_propval *val)
 {
 	struct s2mu106_charger_data *charger = power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 	int buck_state = ENABLE;
 	union power_supply_propval value;
 	int ret;
@@ -985,8 +985,7 @@ static int s2mu106_chg_set_property(struct power_supply *psy,
 #endif
 			s2mu106_update_reg(charger->i2c, 0xE5, 0x08, 0x0F);
 			value.intval = SEC_BAT_FGSRC_SWITCHING_OFF;
-			psy_do_property("s2mu106-fuelgauge", set,
-				POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
+			psy_do_property("s2mu106-fuelgauge", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
 
 			charger->input_current = s2mu106_get_input_current_limit(charger);
 			s2mu106_update_reg(charger->i2c, 0x19, 0x4E, 0x7F);
@@ -1006,8 +1005,7 @@ static int s2mu106_chg_set_property(struct power_supply *psy,
 			s2mu106_set_regulation_vsys(charger, 4400);
 
 			value.intval = SEC_BAT_FGSRC_SWITCHING_ON;
-			psy_do_property("s2mu106-fuelgauge", set,
-				POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
+			psy_do_property("s2mu106-fuelgauge", set, (enum power_supply_property)  POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
 		}
 		break;
 	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_REGULATION:
@@ -1086,12 +1084,10 @@ static int s2mu106_chg_set_property(struct power_supply *psy,
 					POWER_SUPPLY_PROP_PM_FACTORY, value);
 
 				value.intval = SEC_BAT_FGSRC_SWITCHING_OFF;
-				psy_do_property("s2mu106-fuelgauge", set,
-					POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
+				psy_do_property("s2mu106-fuelgauge", set, (enum power_supply_property) 	POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
 
 				value.intval = true;
-				psy_do_property("muic-manager", set,
-					POWER_SUPPLY_EXT_PROP_CURRENT_MEASURE, value);
+				psy_do_property("muic-manager", set, (enum power_supply_property) 	POWER_SUPPLY_EXT_PROP_CURRENT_MEASURE, value);
 
 				/* VBUS UVLO disable */
 				s2mu106_update_reg(charger->i2c, 0x39, 0xC0, 0xC0);
@@ -1107,12 +1103,10 @@ static int s2mu106_chg_set_property(struct power_supply *psy,
 				s2mu106_update_reg(charger->i2c, 0x38, 0x00, 0x03);
 				s2mu106_update_reg(charger->i2c, 0xE5, 0x08, 0x0F);
 
-				psy_do_property("s2mu106-usbpd", set,
-					POWER_SUPPLY_EXT_PROP_CURRENT_MEASURE, value);
+				psy_do_property("s2mu106-usbpd", set, (enum power_supply_property) 	POWER_SUPPLY_EXT_PROP_CURRENT_MEASURE, value);
 			} else {
 				value.intval = SEC_BAT_FGSRC_SWITCHING_ON;
-				psy_do_property("s2mu106-fuelgauge", set,
-					POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
+				psy_do_property("s2mu106-fuelgauge", set, (enum power_supply_property)  POWER_SUPPLY_EXT_PROP_INBAT_VOLTAGE_FGSRC_SWITCHING, value);
 
 				pr_info("%s: Bypass exit for current measure\n", __func__);
 				s2mu106_update_reg(charger->i2c, S2MU106_CHG_CTRL0, 0x00, 0x0F);
@@ -1422,8 +1416,7 @@ static void s2mu106_ivr_irq_work(struct work_struct *work)
 		}
 
 		value.intval = s2mu106_get_input_current_limit(charger);
-		psy_do_property("battery", set,
-				POWER_SUPPLY_EXT_PROP_AICL_CURRENT, value);
+		psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_AICL_CURRENT, value);
 	}
 
 	if (charger->irq_ivr_enabled == 1) {
