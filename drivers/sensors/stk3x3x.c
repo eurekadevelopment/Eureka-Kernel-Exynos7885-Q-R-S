@@ -539,11 +539,11 @@ static void stk3x3x_work_func_pocket_read(struct work_struct *work)
 	else
 		reg_value = (uint8_t)ret;
 
-		reg_value &= (~(STK3X3X_STATE_EN_PS_MASK | STK3X3X_STATE_EN_WAIT_MASK | STK3X3X_STATE_EN_INTELL_PRST_MASK));
+	reg_value &= (~(STK3X3X_STATE_EN_PS_MASK | STK3X3X_STATE_EN_WAIT_MASK | STK3X3X_STATE_EN_INTELL_PRST_MASK));
 
 	stk3x3x_set_ps_thd(ps_data, ps_data->prox_thd_h, ps_data->prox_thd_l);
 
-		reg_value |= (STK3X3X_STATE_EN_WAIT_MASK | STK3X3X_STATE_EN_PS_MASK | STK3X3X_STATE_EN_INTELL_PRST_MASK);
+	reg_value |= (STK3X3X_STATE_EN_WAIT_MASK | STK3X3X_STATE_EN_PS_MASK | STK3X3X_STATE_EN_INTELL_PRST_MASK);
 
 
 	ret = STK3X3X_REG_READ_MODIFY_WRITE(ps_data, STK3X3X_STATE_REG, reg_value, 0xFF);
