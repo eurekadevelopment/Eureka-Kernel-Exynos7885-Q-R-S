@@ -1081,7 +1081,7 @@ static struct attribute_group fimc_is_debug_attr_group = {
 	.attrs	= fimc_is_debug_entries,
 };
 
-static int fimc_is_probe(struct platform_device *pdev)
+static int __init fimc_is_probe(struct platform_device *pdev)
 {
 	struct exynos_platform_fimc_is *pdata;
 #if defined (ENABLE_IS_CORE) || defined (USE_MCUCTL)
