@@ -13,7 +13,7 @@
 static bool pktfate_monitor_started;
 
 static wifi_tx_report txr;
-static wifi_tx_report rxr;
+static wifi_rx_report rxr;
 static struct scsc_wlog_ring *fate_ring_tx;
 static struct scsc_wlog_ring *fate_ring_rx;
 
