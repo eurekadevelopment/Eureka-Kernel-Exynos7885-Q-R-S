@@ -7,3 +7,5 @@ obj-$(CONFIG_USB_NOTIFY_LAYER)		+= usb_notify_layer.o
 usb_notify_layer-y			:= usb_notify.o  usb_notify_sysfs.o dock_notify.o
 obj-$(CONFIG_USB_NOTIFIER)		+= usb_notifier.o
 
+subdir-ccflags-y += \
+	-Wno-enum-conversion
