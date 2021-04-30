@@ -79,7 +79,7 @@ int scsc_wifilogger_ring_connectivity_fw_event(wlog_verbose_level lev, u16 fw_ev
 EXPORT_SYMBOL(scsc_wifilogger_ring_connectivity_fw_event);
 
 int scsc_wifilogger_ring_connectivity_driver_event(wlog_verbose_level lev,
-						   u16 driver_event_id, u8 tag_count, ...)
+						   u16 driver_event_id, int tag_count, ...)
 {
 	int							i;
 	u64							timestamp;
