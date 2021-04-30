@@ -3376,7 +3376,7 @@ static int s2mu106_usbpd_set_property(struct power_supply *psy,
 	struct s2mu106_usbpd_data *pdic_data =
 		power_supply_get_drvdata(psy);
 	struct i2c_client *i2c = pdic_data->i2c;
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property)psp;
 	u8 data = 0;
 
 	switch (psp) {
