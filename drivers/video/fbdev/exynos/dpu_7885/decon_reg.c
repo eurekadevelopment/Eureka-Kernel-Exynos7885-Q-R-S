@@ -1807,7 +1807,7 @@ void decon_reg_configure_lcd(u32 id, struct decon_param *p)
 		if (dsi_mode == DSI_MODE_DUAL_DSI)
 			d_path = DPATH_NOCOMP_SPLITTER_FF0FF1_FORMATTER01_DSIMIF01;
 		else if (id == 2)
-			d_path = DECON2_NOCOMP_FF0_FORMATTER0_DISPIF;
+			d_path = (enum decon_data_path) DECON2_NOCOMP_FF0_FORMATTER0_DISPIF;
 		else
 			d_path = DPATH_NOCOMP_FF0_FORMATTER0_DSIMIF0;
 		decon_reg_set_data_path(id, d_path, e_path);
