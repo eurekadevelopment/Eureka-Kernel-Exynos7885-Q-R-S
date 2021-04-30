@@ -996,7 +996,7 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
 	struct s3c24xx_uart_info *info = ourport->info;
 	unsigned long rate;
 	unsigned int cnt, baud, quot, best_quot = 0;
-	char clkname[MAX_CLK_NAME_LENGTH];
+	/* char clkname[MAX_CLK_NAME_LENGTH]; */
 	int calc_deviation, deviation = (1 << 30) - 1;
 
 	for (cnt = 0; cnt < info->num_clks; cnt++) {
