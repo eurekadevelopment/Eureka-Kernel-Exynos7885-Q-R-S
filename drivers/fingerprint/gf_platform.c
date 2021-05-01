@@ -446,7 +446,7 @@ int gfspi_get_gpio_dts_info(struct device *dev, struct gf_device *gf_dev)
 
 	if (of_property_read_string_index(np, "goodix,chip_id", 0,
 			(const char **)&gf_dev->chipid))
-		gf_dev->chipid = '\0';
+		gf_dev->chipid = NULL;
 	pr_info("%s, Chip ID:%s\n", __func__, gf_dev->chipid);
 
 	gf_dev->p = pinctrl_get_select_default(dev);
