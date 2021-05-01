@@ -1896,7 +1896,7 @@ int sensor_gc5035_cis_wait_streamoff(struct v4l2_subdev *subdev)
 			break;
 		}
 
-		if ((read_value == 0x00)) {
+		if (read_value == 0x00) {
 			break;
 		}
 		msleep(POLL_TIME_MS);
