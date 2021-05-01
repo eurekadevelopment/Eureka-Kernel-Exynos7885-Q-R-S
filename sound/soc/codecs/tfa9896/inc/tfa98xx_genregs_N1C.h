@@ -1,10 +1,22 @@
+/* 
+ * Copyright (C) 2014-2020 NXP Semiconductors, All Rights Reserved.
+ * Copyright 2020 GOODIX 
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ */
+
+
 /** Filename: Tfa98xx_genregs.h
- *  This file was generated automatically on 09/01/15 at 09:40:23.
+ *  This file was generated automatically on 09/01/15 at 09:40:23. 
  *  Source file: TFA9888_N1C_I2C_regmap_V1.xlsx
  */
 
 #ifndef TFA2_GENREGS_H
 #define TFA2_GENREGS_H
+
 
 #define TFA98XX_SYS_CONTROL0              0x00
 #define TFA98XX_SYS_CONTROL1              0x01
@@ -52,7 +64,6 @@
 #define TFA98XX_AUDIO_CONTROL             0x51
 #define TFA98XX_AMPLIFIER_CONFIG          0x52
 #define TFA98XX_AUDIO_CONTROL2            0x5a
-#define TFA98XX_CTRL_SAAM_PGA             0x60
 #define TFA98XX_DCDC_CONTROL0             0x70
 #define TFA98XX_CF_CONTROLS               0x90
 #define TFA98XX_CF_MAD                    0x91
@@ -529,7 +540,7 @@
 /*
  * flag_clocks_stable
  */
-#define TFA98XX_STATUS_FLAGS0_CLKS                        (0x1<<5)
+#define TFA98XX_STATUS_FLAGS0_CLKS                        (0x1<<6)
 #define TFA98XX_STATUS_FLAGS0_CLKS_POS                           5
 #define TFA98XX_STATUS_FLAGS0_CLKS_LEN                           1
 #define TFA98XX_STATUS_FLAGS0_CLKS_MAX                           1
@@ -3386,20 +3397,6 @@
 
 
 /*
- * (0x60)-pga_control0
- */
-
-/*
- * pga_gain_set
- */
-#define TFA98XX_CTRL_SAAM_PGA_SAAMGAIN                      (0x3<<8)
-#define TFA98XX_CTRL_SAAM_PGA_SAAMGAIN_POS                         8
-#define TFA98XX_CTRL_SAAM_PGA_SAAMGAIN_LEN                         2
-#define TFA98XX_CTRL_SAAM_PGA_SAAMGAIN_MAX                         3
-#define TFA98XX_CTRL_SAAM_PGA_SAAMGAIN_MSK                     0x300
-
-
-/*
  * (0x70)-dcdc_control0
  */
 
@@ -3854,9 +3851,11 @@
 #define TFA98XX_KEY2_PROTECTED_MTP0_USERDEF_MAX                  7
 #define TFA98XX_KEY2_PROTECTED_MTP0_USERDEF_MSK               0x70
 
+
 /*
  * (0xf4)-KEY1_protected_MTP4
  */
+
 
 /*
  * (0xf5)-KEY1_protected_MTP5

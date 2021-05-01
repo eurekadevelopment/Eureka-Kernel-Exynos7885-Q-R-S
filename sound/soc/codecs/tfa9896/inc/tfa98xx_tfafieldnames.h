@@ -1,13 +1,23 @@
+/* 
+ * Copyright (C) 2014-2020 NXP Semiconductors, All Rights Reserved.
+ * Copyright 2020 GOODIX 
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ */
 
-struct tfa_bf_name {
-	unsigned short bf_enum;
-	char  *bf_name;
-};
 
-struct tfa_irq_name {
-	unsigned short irq_enum;
-	char  *irq_name;
-};
+typedef struct TfaBfName {
+   unsigned short bfEnum;
+   char  *bfName;
+} tfaBfName_t;
+
+typedef struct TfaIrqName {
+	unsigned short irqEnum;
+	char  *irqName;
+} tfaIrqName_t;
 
 #include "tfa1_tfafieldnames.h"
 #include "tfa2_tfafieldnames_N1C.h"
@@ -18,7 +28,14 @@ struct tfa_irq_name {
 #include "tfa9872_tfafieldnames.h"
 #include "tfa9912_tfafieldnames.h"
 #include "tfa9896_tfafieldnames.h"
+#include "tfa9873_tfafieldnames.h"
+#include "tfa9873_tfafieldnames_B0.h"
+#include "tfa9874_tfafieldnames.h"
+#include "tfa9878_tfafieldnames.h"
 #include "tfa9894_tfafieldnames.h"
+#include "tfa9894_tfafieldnames_N2.h"
+#include "tfa9875_tfafieldnames.h"
+#include "tfa9875_tfafieldnames_A1.h"
 
 /* missing 'common' defs break the build but unused in TFA1 context */
 #define TFA1_BF_AMPINSEL -1
@@ -38,21 +55,29 @@ struct tfa_irq_name {
 #define TFA1_BF_ACKDMG	 -1
 #define TFA1_BF_SSRIGHTE -1
 #define TFA1_BF_SSLEFTE	 -1
+#define TFA1_BF_R25CL	 -1
+#define TFA1_BF_R25CR	 -1
 #define TFA1_BF_SWPROFIL 0x8045    /*!< profile save   */
 #define TFA1_BF_SWVSTEP  0x80a5    /*!< vstep save  */
 
-/* missing 'common' defs break the build but unused in TFA2 context */
-#define TFA2_BF_CFSM	-1
+/* missing 'common' defs break the build */
+#define TFA2_BF_CFSM -1
+
 
 /* MTP access uses registers
  *  defs are derived from corresponding bitfield names as used in the BF macros
  */
-#define MTPKEY2 MTPK /* unlock key2 MTPK */
-#define MTP0 MTPOTC /* MTP data */
+#define MTPKEY2  	MTPK		/* unlock key2 MTPK */
+#define MTP0     	MTPOTC 	/* MTP data */
 #define MTP_CONTROL CIMTP	/* copy i2c to mtp */
 
 /* interrupt enable register uses HW name in TFA2 */
 #define TFA2_BF_INTENVDDS TFA2_BF_IEVDDS
+
+
+/* TFA9891 specific bit field names */
+#define TFA1_BF_SAAMGAIN 0x2202
+#define TFA2_BF_SAAMGAIN -1
 
 /* TFA9872 specific bit field names */
 #define TFA2_BF_IELP0 TFA9872_BF_IELP0
@@ -117,3 +142,7 @@ struct tfa_irq_name {
 #define TFA1_BF_LP1 -1
 #define TFA1_BF_R25C -1
 #define TFA1_BF_SAMMODE	 -1
+
+/* TDM STATUS fields not available on TFA1 */
+#define TFA1_BF_TDMLUTER -1
+#define TFA1_BF_TDMERR -1
