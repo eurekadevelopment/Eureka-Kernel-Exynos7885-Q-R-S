@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
 
 # Set default directories
 ROOT_DIR=$(pwd)
@@ -26,14 +27,13 @@ PROJECT_NAME="Eureka Kernel"
 CORES=$(nproc --all)
 SELINUX_STATUS=""
 TYPE="oneui"
-REV=1.0
+REV=6.5
+PCUSER=chatur
 USER=Chatur
 ZIPNAME=Eureka_Rx.x_Axxx_xxxx_x_x.zip
 DEFAULT_NAME=Eureka_Rx.x_Axxx_P/Q/R
 GCC_ARM64_FILE=aarch64-linux-gnu-
 GCC_ARM32_FILE=arm-linux-gnueabi-
-AROMA_DIR="oneui"
-AROMA_ZIP="oneui.zip"
 CLANGC="nope"
 
 # Export commands
@@ -84,8 +84,7 @@ DEVICE_A505=A505
 ######################## Android OS list #######################
 
 androidp="Android 9 (Pie)"
-androidq="Android 10 (Q)"
-androidr="Android 11 (R)"
+androidr="Android 10 (Q) 11 (R)"
 
 ################################################################
 
@@ -134,22 +133,61 @@ CLEAN_SOURCE()
 	  }
 	fi
 	
-	if [ -e "kernel_zip/aroma/aroma_files/$AROMA_DIR/Image" ]
+	ADDITIONAL_CLEANUP
+	sleep 1	
+}
+
+CLANG_CLEAN()
+{
+	echo "*****************************************************"
+	echo " "
+	echo "              Cleaning kernel source"
+	echo " "
+	echo "*****************************************************"
+	
+	rm -rf out
+	if [ -e "kernel_zip/anykernel/Image" ]
 	then
 	  {
-	     rm -rf kernel_zip/aroma/aroma_files/$AROMA_DIR/Image
-	     rm -rf kernel_zip/aroma/aroma_files/$AROMA_DIR/$AROMA_ZIP
-	     rm -rf kernel_zip/aroma/dtbo/dtbo.img
+	     rm -rf arch/$ARCH/boot/Image
+	     rm -rf arch/$ARCH/boot/dtbo.img
+	     rm -rf kernel_zip/anykernel/Image
+	     rm -rf kernel_zip/anykernel/dtbo.img
 	  }
 	fi
-	sleep 1	
+	
+	ADDITIONAL_CLEANUP
+}
+
+ADDITIONAL_CLEANUP()
+{	
+	if [ -e "drivers/usb/gadget/.oneui_mtp" ]
+	then
+		rm -rf drivers/usb/gadget/.oneui_mtp
+	fi
+	
+	if [ -e "drivers/usb/gadget/.gsi_mtp" ]
+	then
+		rm -rf drivers/usb/gadget/.gsi_mtp
+	fi
+	
+	if [ -e "security/selinux/.permissive" ]
+	then
+		rm -rf security/selinux/.permissive
+	fi
+	
+	if [ -e "security/selinux/.enforcing" ]
+	then
+		rm -rf security/selinux/.enforcing
+	fi
 }
 
 BUILD_KERNEL()
 {
 	echo "*****************************************************"
-	echo "           Building kernel for $DEVICE_Axxx          "
+	echo "      Building kernel for $DEVICE_Axxx android $ANDROID"
 	export ANDROID_MAJOR_VERSION=$ANDROID
+	export PLATFORM_VERSION=$AND_VER
 	export LOCALVERSION=-$VERSION
 	make  $DEFCONFIG
 	make -j$CORES
@@ -180,27 +218,17 @@ AUTO_TOOLCHAIN()
 	     export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
 	     export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
 	  }
-	elif [ -e "clang/clang9.0.3" ]
+	elif [ -e "toolchain/pro_clang13" ]
 	then
 	  {
 	     echo " "
-	     echo "Using Clang 9.0.3 as main compiler"
+	     echo "Using Proton Clang 13 as main compiler"
+	     echo " "
 	     GCC_ARM64_FILE=aarch64-linux-gnu-
 	     GCC_ARM32_FILE=arm-linux-gnueabi-
 	     export CLANGC="OK"
 	     echo " "
 	  }
-	#elif [ -e "toolchain/gcc9" ]
-	#then
-	#  {
-	#     echo " "
-	#     echo "Using Gcc v9.1 toolchain"
-	#     echo " "
-	#     GCC_ARM64_FILE=aarch64-linux-gnu-
-	#     GCC_ARM32_FILE=arm-linux-gnueabi-
-	#     export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
-	#     export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
-	#  }
 	else
 	  echo " "
 	  echo "WARNING: Toolchain directory couldn't be found"
@@ -212,33 +240,18 @@ AUTO_TOOLCHAIN()
 
 CLANG()
 {
-if [ -e "toolchain/gcc9" ]
-then
-{
+	export LOCALVERSION=-$VERSION
+	export PLATFORM_VERSION=$AND_VER
 	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG
-	PATH="$KERNEL_DIR/clang/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
+	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
 	make -j$CORES O=out \
 	ARCH=arm64 \
 	ANDROID_MAJOR_VERSION=$ANDROID \
 	CC=clang \
-	LD_LIBRARY_PATH="$KERNEL_DIR/clang/lib64:$LD_LIBRARY_PATH" \
+	LD_LIBRARY_PATH="$KERNEL_DIR/toolchain/lib:$LD_LIBRARY_PATH" \
 	CLANG_TRIPLE=aarch64-linux-gnu- \
 	CROSS_COMPILE=$GCC_ARM64_FILE \
 	CROSS_COMPILE_ARM32=$GCC_ARM32_FILE
-}
-else
-{
-	echo -e "*****************************************************"
-	echo -e "                                                     "
-	echo -e "      WARNNG: CLANG REQUIRES ATLEAST GCC 9 TOOLCHAIN "
-	echo -e "      TO COMPILE SUCCESSFULLY! EXITING SCRIPT.."
-	echo -e "                                                     "
-	echo -e "*****************************************************"
-	sleep 2
-	exit
-}
-fi
-
 }
 
 ZIPPIFY()
@@ -260,7 +273,7 @@ ZIPPIFY()
 		
 		# Go to anykernel directory
 		cd kernel_zip/anykernel
-		zip -r9 $ZIPNAME META-INF modules patch ramdisk tools anykernel.sh Image dtbo.img version
+		zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtbo.img version
 		chmod 0777 $ZIPNAME
 		# Change back into kernel source directory
 		cd ..
@@ -271,64 +284,6 @@ ZIPPIFY()
 	fi
 }
 
-AROMA_ZIP()
-{
-	# Make Eureka Aroma zip
-	
-	if [ -e "arch/$ARCH/boot/Image" ]
-	then
-	{
-		echo -e "*****************************************************"
-		echo -e "                                                     "
-		echo -e "         Building Eureka Aroma flashable zip         "
-		echo -e "                                                     "
-		echo -e "*****************************************************"
-		
-		# Copy Image and dtbo.img to aroma directory
-		cp -f arch/$ARCH/boot/dtbo.img kernel_zip/aroma/dtbo/dtbo.img
-		if [ "${TYPE}" == "oneui" ];
-		then                     
-		  {
-		      AROMA_DIR="oneui"
-		      AROMA_ZIP="oneui.zip"
-		  }
-		elif [ "${TYPE}" == "gsi" ];
-		then
-		  if [ "${SELINUX_B}" == "enforcing" ];
-		  then
-		     {
-		         AROMA_DIR="gsi_enf"
-		         AROMA_ZIP="gsi_enf.zip"
-		     }
-		  elif [ "${SELINUX_B}" == "permissive" ];
-		  then
-		     {
-		         AROMA_DIR="gsi_perm"
-		         AROMA_ZIP="gsi_perm.zip"
-		     }
-		   fi
-		fi
-		
-		echo " "
-		echo " Starting process for building Aroma zip for "$AROMA_DIR" "
-		echo " "
-		cp -f arch/$ARCH/boot/Image kernel_zip/aroma/aroma_files/$AROMA_DIR/Image
-		cd kernel_zip/aroma/aroma_files/$AROMA_DIR
-		zip -r9 $AROMA_ZIP META-INF modules patch ramdisk tools anykernel.sh Image version
-		cd ..
-		sleep 1
-		cd ..
-		cp -f aroma_files/$AROMA_DIR/$AROMA_ZIP kernel/$AROMA_ZIP
-		chmod 0777 kernel/$AROMA_ZIP
-		
-		zip -r9 Aroma_R"$REV"_"$DEVICE_Axxx".zip dtbo kernel magisk META-INF spectrum
-		chmod 0777 Aroma_R"$REV"_"$DEVICE_Axxx".zip
-		cd ..
-		sleep 1
-		cd ..
-	}
-	fi
-}
 PROCESSES()
 {
 	# Allow user to choose how many cores to be taken by compiler
@@ -349,7 +304,7 @@ PROCESSES()
 ENTER_VERSION()
 {
 	# Enter kernel revision for this build.
-	read -p "Please type kernel version without R (E.g: 4.7) : " rev;
+	read -p "Please type kernel version without R (E.g: 6.5) : " rev;
 	if [ "${rev}" == "" ]; then
 		echo " "
 		echo "     Using '$REV' as version"
@@ -364,14 +319,15 @@ ENTER_VERSION()
 USER()
 {
 	# Setup KBUILD_BUILD_USER
-	echo "Current build username is $USER"
+	echo " Current build username is $USER"
 	echo " "
-	read -p "Please type build_user (E.g: Chatur) : " user;
+	read -p " Please type build_user (E.g: Chatur) : " user;
 	if [ "${user}" == "" ]; then
 		echo " "
 		echo "     Using '$USER' as Username"
 	else
 		export KBUILD_BUILD_USER=$user
+		USER=$user
 		echo " "
 		echo "     build_user = $user"
 	fi
@@ -391,7 +347,7 @@ SELINUX()
 	echo -e "***************************************************************";
 	echo "             Select which version you wish to build               ";
 	echo -e "***************************************************************";
-	echo "Available versions:";
+	echo " Available versions:";
 	echo " "
 	echo "  1. Build OneUI version of Eureka with ENFORCING SElinux";
 	echo " "
@@ -399,7 +355,7 @@ SELINUX()
 	echo " "
 	echo "  3. Build GSI version of Eureka with ENFORCING SElinux";
 	echo " "
-	echo "Leave empty to exit this script";
+	echo "  4. Leave empty to exit this script";
 	echo " "
 	echo " "
 	read -n 1 -p "Select your choice: " -s choice;
@@ -439,12 +395,12 @@ SELINUX()
 		if [ ${SELINUX_B} == "permissive" ]
 		then
 		echo " "
-		echo "Using permissive selinux"
+		echo " Using permissive selinux"
 			cp -rf $(pwd)/build_files/gsi/selinux security/
 		elif [ ${SELINUX_B} == "enforcing" ]
 		then
 		echo " "
-		echo "Using enforcing selinux"
+		echo " Using enforcing selinux"
 			cp -rf $(pwd)/build_files/oneui/selinux security/
 		fi
 	sleep 2
@@ -481,6 +437,18 @@ ONEUI_STATE()
 	# Always return gadget and selinux folders to OneUI state else git will mark those folders as changed
 	cp -rf $(pwd)/build_files/oneui/gadget drivers/usb/
 	cp -rf $(pwd)/build_files/oneui/selinux security/
+	
+	rm -rf drivers/usb/gadget/.oneui_mtp
+	rm -rf security/selinux/.enforcing
+	
+	# Since wireguard checks for update during compilation, its group will change from $user to root.
+	# So change it back to default user group. Do this only for me. Gabriel does not need that i guess.
+	if [ ${USER} == "Chatur" ]
+	then
+	{
+	chown -R $PCUSER $(pwd)/net/wireguard
+	}
+	fi
 }
 
 UPDATE_BUILD_FILES()
@@ -543,12 +511,10 @@ COMMON_STEPS()
 	fi
 	ZIPPIFY
 	sleep 1
-	AROMA_ZIP
-	sleep 1
 	if [ ${CLANGC} == "OK" ]
 	then
 	{
-		rm -rf out
+		CLANG_CLEAN
 	}
 	else
 	{
@@ -572,7 +538,7 @@ OS_MENU()
 	# Give the choice to choose Android Version
 	PS3='
 Please select your Android Version: '
-	menuos=("$androidp" "$androidq" "$androidr" "Exit")
+	menuos=("$androidp" "$androidr" "Exit")
 	select menuos in "${menuos[@]}"
 	do
 	    case $menuos in
@@ -585,18 +551,9 @@ Please select your Android Version: '
 			echo " "
 			break
 			;;
-		"$androidq")
-			echo " "
-			echo "Android 10 (Q) chosen as Android Major Version"
-			ANDROID=q
-			AND_VER=10
-			sleep 2
-			echo " "
-			break
-			;;
 		"$androidr")
 			echo " "
-			echo "Android 11 (R) chosen as Android Major Version"
+			echo "Android 10 (Q) / 11 (R) chosen as Android Major Version"
 			ANDROID=r
 			AND_VER=11
 			sleep 2
@@ -627,9 +584,7 @@ AUTO_TOOLCHAIN
 if [ ${CLANGC} == "OK" ]
 then
 	{
-	echo " "
-	echo "Removing temporary files if available"
-	rm -rf out
+	CLANG_CLEAN
 	sleep 2
 	}
 else
@@ -656,28 +611,34 @@ echo "*             $PROJECT_NAME Build Script             *"
 echo "*                  Developer: Chatur                 *"
 echo "*                Co-Developer: Gabriel               *"
 echo "*                                                    *"
-echo "*          Compiling kernel using Linaro-GCC         *"
+if [ ${CLANGC} == "OK" ]
+then
+echo "*      Compiling kernel using Proton Clang 13        *"
+else
+echo "*        Compiling kernel using gay toochain         *"
+fi
 echo "*                                                    *"
-echo "* Some information about parameters set:             *"
-echo -e "*  > Architecture: $ARCH                             *"
-echo    "*  > Jobs: $CORES                                         *"
-echo    "*  > Revision for this build: R$REV                   *"
-echo    "*  > Version chosen: $TYPE                           *"
-echo    "*  > SElinux Status: $SELINUX_B                       *"
-echo    "*  > Kernel Name Template: $VERSION    *"
-echo    "*  > Build user: $KBUILD_BUILD_USER                              *"
-echo    "*  > Build machine: $KBUILD_BUILD_HOST                       *"
-echo    "*  > Build started on: $BUILD_START                    *"
-echo    "*  > ARM64 Toolchain exported                        *"
-echo    "*  > ARM32 Toolchain exported                        *"
-echo -e "******************************************************"
+echo "******************************************************"
+echo " Some informations about parameters set:		"
+echo -e "    > Architecture: $ARCH				"
+echo    "    > Jobs: $CORES					"
+echo    "    > Revision for this build: R$REV			"
+echo    "    > Version chosen: $TYPE				"
+echo    "    > SElinux Status: $SELINUX_B			"
+echo    "    > Kernel Name Template: $VERSION			"
+echo    "    > Build user: $KBUILD_BUILD_USER			"
+echo    "    > Build machine: $KBUILD_BUILD_HOST		"
+echo    "    > Build started on: $BUILD_START			"
+echo    "    > ARM64 Toolchain exported				"
+echo    "    > ARM32 Toolchain exported				"
+echo -e "*****************************************************"
 echo " "
 
-echo "Devices avalaible for compilation: "
+echo " Devices avalaible for compilation: "
 echo " "
 PS3='
-Please select your device: '
-menuoptions=("$SM_A105X" "$SM_A205X" "$SM_A305X" "$SM_A307X" "$SM_A405X" "$SM_A505X" "Exit")
+ Please select your device: '
+menuoptions=("$SM_A105X" "$SM_A205X" "$SM_A202X" "$SM_A305X" "$SM_A307X" "$SM_A405X" "$SM_A505X" "Exit")
 select menuoptions in "${menuoptions[@]}"
 do
     case $menuoptions in
@@ -700,6 +661,17 @@ do
 		echo " "
 		DEVICE_Axxx=$DEVICE_A205
 		DEFCONFIG=exynos7885-a20_"$TYPE"_"$SELINUX_STATUS"defconfig
+		COMMON_STEPS
+		break
+		;;
+	"$SM_A202X")
+		echo " "
+        	echo "Android versions available: "
+        	echo " "
+		OS_MENU
+		echo " "
+		DEVICE_Axxx=$DEVICE_A202
+		DEFCONFIG=exynos7885-a20e_"$TYPE"_"$SELINUX_STATUS"defconfig
 		COMMON_STEPS
 		break
 		;;
