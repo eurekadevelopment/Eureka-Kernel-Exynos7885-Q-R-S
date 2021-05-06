@@ -1,0 +1,28 @@
+/*
+ * SAMSUNG A10 board device tree source
+ *
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	fragment@motor {
+		target-path = "/";
+		__overlay__ {
+			/* VIBRATOR */
+			sec_vib {
+				compatible = "sec_vib";
+				sec_vib_pdata {
+					status = "okay";
+					sec_vib,max_timeout = <10000>;
+					sec_vib,ldo_type = <1>;
+					sec_vib,ldo_en = <&gpp0 3 1>;
+				};
+			};
+		};
+	};
+};

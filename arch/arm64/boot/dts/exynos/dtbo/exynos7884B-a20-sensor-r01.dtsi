@@ -1,0 +1,153 @@
+/*
+ * SAMSUNG UNIVERSAL7904 board device tree source
+ *
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+&pinctrl_0 { //11CB0000
+	
+	acc_int: acc-int {
+		samsung,pins = "gpa0-3";
+		samsung,pin-function = <0xf>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+	
+	grip_int: grip-int {
+		samsung,pins = "gpa0-6";
+		samsung,pin-function = <0xf>;
+		samsung,pin-pud = <3>;
+		samsung,pin-drv = <0>;
+	};
+		
+	proxy_int: proxy-int {
+		samsung,pins = "gpa0-4";
+		samsung,pin-function = <0xf>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+};
+
+
+&pinctrl_3 { //139B0000
+
+	grip_i2c: grip-2c {
+		samsung,pins = "gpp7-1", "gpp7-0";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <3>;
+		samsung,pin-drv = <0>;
+	};
+
+	i2c5_bus: i2c5-bus {
+		samsung,pins = "gpp4-3", "gpp4-2";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+
+	i2c6_bus: i2c6-bus {
+		samsung,pins = "gpp4-5", "gpp4-4";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+	};
+};
+
+ &hsi2c_8 {
+	gpios = <&gpp7 0 0
+			&gpp7 1 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&grip_i2c>;
+	clock-frequency = <400000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	sx9360-i2c@28 {
+		compatible = "sx9360";
+		pinctrl-names = "default";
+		pinctrl-0 = <&grip_int>;
+		reg = <0x28>;
+		interrupt-parent = <&gpa0>;
+		interrupts = <6 0 0>;
+		sx9360,nirq-gpio = <&gpa0 6 0>;
+
+		sx9360,reggnrlctrl2 = <0x32>;		/* scanperiod: 102ms */
+		sx9360,regafeparam1phm = <0x58>;	/* again : 7.5 pF, sampling freq : 62.50 khz */
+		sx9360,regafeparam1phr = <0x36>;	/* reference phase again : 5.25 pF, sampling freq : 83.33 khz */
+		sx9360,regproxctrl0phm = <0x1A>;	/* gain: x4, rawfilt : 1-1/4 */
+		sx9360,regproxctrl0phr = <0x22>;	/* reference phase gain: x8, rawfilt : 1-1/4 */
+		sx9360,regproxctrl5 = <0x23>;		/* threshold: 612 */
+		sx9360,regproxctrl4 = <0x15>;		/* hysteresis: small, closedeb: 2 samples, fardeb: 2 samples */
+		sx9360,regproxctrl3 = <0x0C>;		/* AVGPOSFILT: 1/256, AVGNEGFILT: 1/2 */
+		sx9360,regafeparam0phm = <0x0F>;	/* resolution: 1204 */
+		sx9360,regafeparam0phr = <0x0F>;	/* reference phase  resolution: 1204 */
+	};
+};
+
+ &i2c_5 {
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c5_bus>;
+
+		stk@47 {
+			compatible = "stk,stk3x3x";
+			reg = <0x47>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&proxy_int>;
+			interrupt-parent = <&gpa0>;
+			interrupts = <4 0 0>;
+			stk,gpio_int = <&gpa0 4 0>;
+			stk,prox_thd_h = <240>;
+			stk,prox_thd_l = <220>;
+			stk,sunlight_thd_h = <240>;
+			stk,sunlight_thd_l = <220>;
+			stk,first_cal_adc_limit = <200>;
+			stk,first_cal_thd_h = <240>;
+			stk,first_cal_thd_l = <220>;
+			stk,intel_prst = <0>;
+			stk,ps_it = <0x04>;
+		};
+ };
+
+ &i2c_6 {
+
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c6_bus>;
+
+		lsm6dsl@6b {
+			compatible = "st,lsm6dsl";
+			reg = <0x6b>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&acc_int>;
+			interrupt-parent = <&gpa0>;
+			interrupts = <3 0 0>;
+			st,irq_gpio = <&gpa0 3 0>;
+			st,orientation = <0 1 1 1 2 1 1 1 0>;
+		};
+
+		yas539@2e {
+			compatible = "yas_magnetometer";
+			reg = <0x2e>;
+			yas,orientation = <2>;
+			yas,softiron = <9730 490 100 490 9990 10 100 10 10290>;
+			yas,softiron_sign = <2 2 2 2 2 2 2 2 2>;
+		};
+ };

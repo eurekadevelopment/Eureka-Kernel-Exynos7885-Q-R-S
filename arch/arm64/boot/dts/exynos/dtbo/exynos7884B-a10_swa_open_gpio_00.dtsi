@@ -1,0 +1,167 @@
+/*
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "exynos_gpio_config_macros.dtsi"
+
+/* 0x11CB_0000(ALIVE): etc0~1, gpa0~2, gpq0 */
+&pinctrl_0 {
+	 /*
+	  * Note:
+	  *   Please do not make "sleep-state" node for GPA group GPIOs.
+	  *   GPA group doesn't have power-down status.
+	  */
+	pinctrl-names = "default";
+	pinctrl-0 = <&initial0>;
+	initial0: initial-state {
+		PIN_OUT_SET_PULL(etc0-0, 1, LV1, DOWN);	/* AP_JTAG_TRST_N */
+		PIN_OUT_SET(gpa1-1, 1, LV1);	/* IFPMIC_MRSTB  */
+		PIN_IN(gpq0-0, DOWN, LV1);	/* NC */
+		PIN_IN(gpq0-1, DOWN, LV1);	/* NC */
+	};
+};
+
+/* 0x148F_0000(DISPAUD): gpb0~2 */
+&pinctrl_1 {
+	pinctrl-names = "sleep";
+	pinctrl-0 = <&sleep1>;
+	sleep1: sleep-state {
+		PIN_SLP(gpb0-0, INPUT, DOWN);	/* PM_I2S0_CLK */
+		PIN_SLP(gpb0-1, INPUT, DOWN);	/* PM_I2S0_BCLK */
+		PIN_SLP(gpb0-2, INPUT, DOWN);	/* PM_I2S0_SYNC */
+		PIN_SLP(gpb0-3, INPUT, DOWN);	/* PM_I2S0_DO */
+		PIN_SLP(gpb0-4, INPUT, DOWN);	/* PM_I2S0_DI */
+
+		PIN_SLP(gpb1-0, INPUT, DOWN);	/* FB_I2S1_SDI */
+		PIN_SLP(gpb1-1, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpb1-2, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpb1-3, INPUT, DOWN);	/* NC */
+
+		PIN_SLP(gpb2-0, INPUT, DOWN);	/* SPK_I2S3_BCLK */
+		PIN_SLP(gpb2-1, INPUT, DOWN);	/* SPK_I2S3_WS */
+		PIN_SLP(gpb2-2, INPUT, DOWN);	/* SPK_I2S3_DO */
+		PIN_SLP(gpb2-3, INPUT, DOWN);	/* SPK_I2S3_DI */
+		PIN_SLP(gpb2-4, INPUT, DOWN);	/* FM_SPDY_TO_S612 */
+	};
+};
+
+/* 0x1343_0000(FSYS): gpf0,2~4 */
+&pinctrl_2 {
+	pinctrl-names = "sleep";
+	pinctrl-0 = <&sleep2>;
+	sleep2: sleep-state {
+		PIN_SLP(gpf0-0, OUT0, NONE);	/* SD_0_CLK */
+		PIN_SLP(gpf0-1, OUT1, NONE);	/* SD_0_CMD */
+		PIN_SLP(gpf0-2, INPUT, DOWN);	/* SD_0_RDQS */
+		PIN_SLP(gpf0-3, PREV, NONE);	/* SD_0_HWreset */
+
+		PIN_SLP(gpf2-0, OUT0, NONE);	/* SD_0_DATA_0 */
+		PIN_SLP(gpf2-1, OUT0, NONE);	/* SD_0_DATA_1 */
+		PIN_SLP(gpf2-2, OUT0, NONE);	/* SD_0_DATA_2 */
+		PIN_SLP(gpf2-3, OUT0, NONE);	/* SD_0_DATA_3 */
+		PIN_SLP(gpf2-4, OUT0, NONE);	/* SD_0_DATA_4 */
+		PIN_SLP(gpf2-5, OUT0, NONE);	/* SD_0_DATA_5 */
+		PIN_SLP(gpf2-6, OUT0, NONE);	/* SD_0_DATA_6 */
+		PIN_SLP(gpf2-7, OUT0, NONE);	/* SD_0_DATA_7 */
+
+		PIN_SLP(gpf4-0, OUT0, NONE);	/* SD_2_CLK */
+		PIN_SLP(gpf4-1, OUT0, NONE);	/* SD_2_CMD */
+		PIN_SLP(gpf4-2, OUT0, NONE);	/* SD_2_DATA_0 */
+		PIN_SLP(gpf4-3, OUT0, NONE);	/* SD_2_DATA_1 */
+		PIN_SLP(gpf4-4, OUT0, NONE);	/* SD_2_DATA_2 */
+		PIN_SLP(gpf4-5, OUT0, NONE);	/* SD_2_DATA_3 */
+
+		PIN_SLP(gpf3-0, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpf3-1, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpf3-2, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpf3-3, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpf3-4, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpf3-5, INPUT, DOWN);	/* NC */
+	};
+};
+
+/* 0x139B_0000(TOP): gpp0~8, gpg0~4, gpc0~2 */
+&pinctrl_3 {
+	pinctrl-names = "default","sleep";
+	pinctrl-0 = <&initial3>;
+	pinctrl-1 = <&sleep3>;
+	initial3: initial-state {
+		PIN_OUT_SET_PULL(gpp0-3, 0, LV1, DOWN);	/* MOT_LDO */
+		PIN_OUT_SET_PULL(gpp8-1, 1, LV1, NONE);	/* SENSOR_LDO_3P3_EN */
+		PIN_OUT_SET_PULL(gpg3-1, 1, LV1, NONE);	/* SENSOR_LDO_1P8_EN */
+		PIN_OUT_SET_PULL(gpg2-7, 0, LV1, DOWN);	/* CAM_FLASH_EN */
+		PIN_OUT_SET_PULL(gpg0-1, 0, LV1, DOWN);	/* CAM_TORCH_EN */
+		PIN_IN(gpc0-0, DOWN, LV1);	/* NC */
+		PIN_IN(gpp8-0, DOWN, LV1);	/* NC */
+		PIN_IN(gpg2-2, DOWN, LV1);	/* NC */
+		PIN_IN(gpg3-6, DOWN, LV1);	/* NC */
+		PIN_IN(gpg3-7, NONE, LV1);	/* HW_REV0 */
+		PIN_IN(gpg4-0, NONE, LV1);	/* HW_REV1 */
+		PIN_IN(gpg4-1, NONE, LV1);	/* HW_REV2 */
+
+};
+	sleep3: sleep-state {
+		PIN_SLP(gpp0-3, OUT0, DOWN);	/* MOT_LDO */
+
+		PIN_SLP(gpp1-0, INPUT, NONE);	/* FG_I2C_SDA */
+		PIN_SLP(gpp1-1, INPUT, NONE);	/* FG_I2C_SCL */
+		PIN_SLP(gpp1-2, PREV, NONE);	/* IF_PMIC_I2C_SDA */
+		PIN_SLP(gpp1-3, PREV, NONE);	/* IF_PMIC_I2C_SCL */
+
+		PIN_SLP(gpp2-0, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpp2-1, INPUT, DOWN);	/* NC */
+
+		PIN_SLP(gpp3-0, INPUT, NONE);	/* SPK_AMP_I2C_SDA */
+		PIN_SLP(gpp3-1, INPUT, NONE);	/* SPK_AMP_I2C_SCL */
+
+		PIN_SLP(gpp4-0, INPUT, NONE);	/* LCD_BL_SDA_1P8 */
+		PIN_SLP(gpp4-1, INPUT, NONE);	/* LCD_BL_SCL_1P8 */
+		PIN_SLP(gpp4-2, INPUT, NONE);	/* PROXY_I2C_SDA */
+		PIN_SLP(gpp4-3, INPUT, NONE);	/* PROXY_I2C_SCL */
+		PIN_SLP(gpp4-4, INPUT, NONE);	/* SENSOR_SDA_1P8 */
+		PIN_SLP(gpp4-5, INPUT, NONE);	/* SENSOR_SCL_1P8 */
+
+		PIN_SLP(gpg0-1, PREV, NONE);	/* TORCH_SET */
+		PIN_SLP(gpg0-2, PREV, DOWN);	/* FM_LNA_EN */
+		PIN_SLP(gpg1-0, PREV, NONE);	/* LCD_BLIC_ON */
+		PIN_SLP(gpg1-1, PREV, NONE);	/* PMIC_WRSTBI */
+		PIN_SLP(gpg1-2, PREV, NONE);	/* LCD_EN_1P8 */
+		PIN_SLP(gpg1-6, PREV, NONE);	/* GRIP_LDO_EN */
+
+		PIN_SLP(gpg2-0, PREV, NONE);	/* MLCD_RST */
+		PIN_SLP(gpg2-2, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpg2-3, PREV, NONE);	/* PANEL_EN_P */
+		PIN_SLP(gpg2-6, PREV, NONE);	/* PANEL_EN_N */
+		PIN_SLP(gpg2-7, PREV, NONE);	/* FLASH_SET */
+		PIN_SLP(gpg2-5, INPUT, DOWN);	/* RCAM2_RST */
+		PIN_SLP(gpp8-0, INPUT, DOWN);   /* NC */
+		PIN_SLP(gpp8-1, PREV, NONE);	/* SENSOR_LDO_3P3_EN */
+		PIN_SLP(gpg3-1, PREV, NONE);	/* SENSOR_LDO_1P8_EN */
+		PIN_SLP(gpg3-2, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpg3-3, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpg3-4, INPUT, DOWN);	/* RCAM1_RST */
+		PIN_SLP(gpg3-5, INPUT, DOWN);	/* FCAM_RST_N */
+		PIN_SLP(gpg3-6, INPUT, DOWN);	/* NC */
+		PIN_SLP(gpg3-7, INPUT, NONE);	/* HW_REV0 */
+
+		PIN_SLP(gpg4-0, INPUT, NONE);	/* HW_REV1 */
+		PIN_SLP(gpg4-1, INPUT, NONE);	/* HW_REV2 */
+
+		PIN_SLP(gpc1-0, INPUT, DOWN);	/* FCAM_I2C_SDA */
+		PIN_SLP(gpc1-1, INPUT, DOWN);	/* FCAM_I2C_SCL */
+		PIN_SLP(gpc1-2, INPUT, DOWN);	/* RCAM1_I2C_SDA */
+		PIN_SLP(gpc1-3, INPUT, DOWN);	/* RCAM1_I2C_SCL */
+		PIN_SLP(gpc1-4, INPUT, DOWN);	/* RCAM2_RCAM3_I2C_SDA */
+		PIN_SLP(gpc1-5, INPUT, DOWN);	/* RCAM2_RCAM3_I2C_SCL */
+		PIN_SLP(gpc1-6, INPUT, DOWN);	/* CAM_EEP_I2C_SDA */
+		PIN_SLP(gpc1-7, INPUT, DOWN);	/* CAM_EEP_I2C_SCL */
+		
+		PIN_SLP(gpc2-2, INPUT, NONE);	/* TSP_I2C_SDA */
+		PIN_SLP(gpc2-3, INPUT, NONE);	/* TSP_I2C_SCL */
+	};
+};

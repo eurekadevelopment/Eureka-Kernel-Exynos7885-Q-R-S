@@ -1,0 +1,41 @@
+/*
+ * SAMSUNG UNIVERSAL7885 board device tree source
+ *
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ *             http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/ {
+	fragment@modemif {
+		target-path = "/";
+		__overlay__ {
+			shmem: shmem@F6E00000 {
+				compatible = "samsung,exynos-shm_ipc";
+
+				shmem,cp_size = <0x7900000>; /* CP 121MB */
+				shmem,vss_size = <0x700000>; /* VSS 7MB */
+				shmem,ipc_offset = <0x8000000>; /* 128MB(CP 121MB + VSS 7MB) */
+				shmem,ipc_size = <0x800000>; /* 8MB */
+			};
+		};
+	};
+};
+
+&reserved_memory {
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	modem_if {
+		compatible = "exynos,modem_if";
+		reg = <0x0 0xF5400000 0x8800000>;
+	};
+
+	cp_ram_logging {
+		compatible = "exynos,cp_ram_logging";
+		reg = <0x0 0xFDC00000 0x2000000>;
+	};
+};

@@ -1,0 +1,52 @@
+/*
+ * SAMSUNG EXYNOS7884B board device tree source
+
+ *
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/plugin/;
+
+#include "exynos7884B-a10_common.dtsi"
+#include "exynos7884B-a10_kor_open_gpio_00.dtsi"
+/ {
+	compatible = "samsung,A10 KOR OPEN 00", "samsung,EXYNOS7884B";
+
+	dtbo-hw_rev = <0>;
+    dtbo-hw_rev_end = <2>;
+
+
+	fragment@model {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			model = "Samsung A10 KOR OPEN 00 board based on EXYNOS7884B-Built by Eureka Team-R6.x";
+
+			i2c@20 {
+				tc3xxk@20 {
+					coreriver,fw_name = "coreriver/tc305k_a10_eur_kor.fw";
+				};
+			};
+
+			speedy@11CE0000 {
+				audio_codec_cod3035x: cod3035x@03 {
+					use-feature-flag = <0x29>;
+				};
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */
+
+&hsi2c_5 {
+	touchscreen@48 {
+		status = "okay";
+	};
+};

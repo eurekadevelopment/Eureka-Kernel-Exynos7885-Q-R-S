@@ -1,4 +1,32 @@
-config MACH_EXYNOS7885_A40_GLOBAL
+config MACH_EXYNOS7885_A10_OPEN
+	bool "Build Dtbo image for SM-A105"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for Galaxy A10.
+
+config MACH_EXYNOS7885_A20_GLOBAL
+	bool "Build Dtbo image for SM-A205"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for galaxy A20.
+
+config MACH_EXYNOS7885_A20e_OPEN
+	bool "Build Dtbo image for SM-A202"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for Galaxy A20e.
+
+config MACH_EXYNOS7885_A30_OPEN
+	bool "Build Dtbo image for SM-A305"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for Galaxy A30.
+
+config MACH_EXYNOS7885_A40_OPEN
 	bool "Build Dtbo image for SM-A405"
 	depends on SOC_EXYNOS7885
 	default n
