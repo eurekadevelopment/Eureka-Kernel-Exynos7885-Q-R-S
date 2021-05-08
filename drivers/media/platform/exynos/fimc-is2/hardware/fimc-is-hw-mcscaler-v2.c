@@ -1571,22 +1571,13 @@ int fimc_is_hw_mcsc_poly_phase(struct fimc_is_hw_ip *hw_ip, struct param_mcs_inp
 	fimc_is_scaler_set_poly_src_size(hw_ip->regs, output_id, src_pos_x, src_pos_y,
 		src_width, src_height);
 
-	if (((src_width <= (out_width * MCSC_POLY_QUALITY_RATIO_DOWN))
-		&& (out_width <= (src_width * MCSC_POLY_RATIO_UP)))
-		|| (output_id == MCSC_OUTPUT3 || output_id == MCSC_OUTPUT4)) {
+	if ((src_width <= (out_width * MCSC_POLY_RATIO_DOWN))
+		&& (out_width <= (src_width * MCSC_POLY_RATIO_UP))) {
 		poly_dst_width = out_width;
 		post_en = false;
-	} else if ((src_width <= (out_width * MCSC_POLY_QUALITY_RATIO_DOWN * MCSC_POST_RATIO_DOWN))
-		&& ((out_width * MCSC_POLY_QUALITY_RATIO_DOWN) < src_width)) {
-		poly_dst_width = MCSC_ROUND_UP(src_width / MCSC_POLY_QUALITY_RATIO_DOWN, 2);
-		if (poly_dst_width > MCSC_POST_MAX_WIDTH)
-			poly_dst_width = MCSC_POST_MAX_WIDTH;
-		post_en = true;
 	} else if ((src_width <= (out_width * MCSC_POLY_RATIO_DOWN * MCSC_POST_RATIO_DOWN))
-		&& ((out_width *  MCSC_POLY_QUALITY_RATIO_DOWN * MCSC_POST_RATIO_DOWN) < src_width)) {
-		poly_dst_width = MCSC_ROUND_UP(out_width * MCSC_POST_RATIO_DOWN, 2);
-		if (poly_dst_width > MCSC_POST_MAX_WIDTH)
-			poly_dst_width = MCSC_POST_MAX_WIDTH;
+		&& ((out_width * MCSC_POLY_RATIO_DOWN) < src_width)) {
+		poly_dst_width = MCSC_ROUND_UP(src_width / MCSC_POLY_RATIO_DOWN, 2);
 		post_en = true;
 	} else {
 		mserr_hw("hw_mcsc_poly_phase: Unsupported H ratio, (%dx%d)->(%dx%d)\n",
@@ -1595,21 +1586,16 @@ int fimc_is_hw_mcsc_poly_phase(struct fimc_is_hw_ip *hw_ip, struct param_mcs_inp
 		post_en = true;
 	}
 
-	if (((src_height <= (out_height * MCSC_POLY_QUALITY_RATIO_DOWN))
-		&& (out_height <= (src_height * MCSC_POLY_RATIO_UP)))
-		|| (output_id == MCSC_OUTPUT3 || output_id == MCSC_OUTPUT4)) {
+	if ((src_height <= (out_height * MCSC_POLY_RATIO_DOWN))
+		&& (out_height <= (src_height * MCSC_POLY_RATIO_UP))) {
 		poly_dst_height = out_height;
 		post_en = false;
-	} else if ((src_height <= (out_height * MCSC_POLY_QUALITY_RATIO_DOWN * MCSC_POST_RATIO_DOWN))
-		&& ((out_height * MCSC_POLY_QUALITY_RATIO_DOWN) < src_height)) {
-		poly_dst_height = (src_height / MCSC_POLY_QUALITY_RATIO_DOWN);
-		post_en = true;
 	} else if ((src_height <= (out_height * MCSC_POLY_RATIO_DOWN * MCSC_POST_RATIO_DOWN))
-		&& ((out_height * MCSC_POLY_QUALITY_RATIO_DOWN * MCSC_POST_RATIO_DOWN) < src_height)) {
-		poly_dst_height = (out_height * MCSC_POST_RATIO_DOWN);
+		&& ((out_height * MCSC_POLY_RATIO_DOWN) < src_height)) {
+		poly_dst_height = (src_height / MCSC_POLY_RATIO_DOWN);
 		post_en = true;
 	} else {
-		mserr_hw("hw_mcsc_poly_phase: Unsupported V ratio, (%dx%d)->(%dx%d)\n",
+		mserr_hw("hw_mcsc_poly_phase: Unsupported H ratio, (%dx%d)->(%dx%d)\n",
 			instance, hw_ip, src_width, src_height, out_width, out_height);
 		poly_dst_height = (src_height / MCSC_POLY_RATIO_DOWN);
 		post_en = true;
