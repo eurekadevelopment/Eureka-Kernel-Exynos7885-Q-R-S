@@ -700,7 +700,7 @@
 			flash_current = <1500>;
 			preflash_current = <200>;
 			movie_current = <200>;
-			torch_current = <90>;
+			torch_current = <250>;
 			factory_current = <350>;
 			//front_torch_current = <300>;
 			flashlight_current = <50 75 125 175 250>;
