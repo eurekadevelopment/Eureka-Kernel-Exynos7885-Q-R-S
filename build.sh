@@ -387,23 +387,16 @@ SELINUX()
 		   };;
 	esac
 
-	# setup selinux files
-	if [ ! -d security/selinux ]; then
-		mkdir security/selinux;
-	fi;
-
 		if [ ${SELINUX_B} == "permissive" ]
 		then
 		echo " "
 		echo " Using permissive selinux"
-			cp -rf $(pwd)/build_files/gsi/selinux security/
 		elif [ ${SELINUX_B} == "enforcing" ]
 		then
 		echo " "
 		echo " Using enforcing selinux"
-			cp -rf $(pwd)/build_files/oneui/selinux security/
 		fi
-	sleep 2
+	sleep 1
 }
 
 MTP_FIX()
@@ -522,7 +515,6 @@ COMMON_STEPS()
 	}
 	fi
 	sleep 1
-	ONEUI_STATE
 	echo " "
 	DISPLAY_ELAPSED_TIME
 	echo " "
@@ -603,8 +595,6 @@ USER
 #UPDATE_BUILD_FILES
 clear
 SELINUX
-clear
-MTP_FIX
 clear
 echo "******************************************************"
 echo "*             $PROJECT_NAME Build Script             *"
