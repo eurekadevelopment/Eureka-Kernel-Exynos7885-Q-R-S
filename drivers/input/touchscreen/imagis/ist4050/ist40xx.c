@@ -257,7 +257,11 @@ int ist40xx_set_input_device(struct ist40xx_data *data)
 	set_bit(BTN_TOUCH, data->input_dev->keybit);
 	set_bit(BTN_TOOL_FINGER, data->input_dev->keybit);
 	set_bit(INPUT_PROP_DIRECT, data->input_dev->propbit);
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 	set_bit(KEY_HOMEPAGE, data->input_dev->keybit);
+#else
+	set_bit(KEY_WAKEUP, data->input_dev->keybit);
+#endif
 	set_bit(KEY_INT_CANCEL, data->input_dev->keybit);
 
 	input_set_abs_params(data->input_dev, ABS_MT_PALM, 0, 1, 0, 0);
@@ -415,13 +419,25 @@ void ist40xx_special_cmd(struct ist40xx_data *data, int cmd)
 					input_info(true, &data->client->dev,
 							"AOT Double Tap Trigger\n");
 
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 					input_report_key(data->input_dev,
 							 KEY_HOMEPAGE,
 							 true);
+#else
+					input_report_key(data->input_dev,
+							 KEY_WAKEUP,
+							 true);
+#endif
 					input_sync(data->input_dev);
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 					input_report_key(data->input_dev,
 							 KEY_HOMEPAGE,
 							 false);
+#else
+					input_report_key(data->input_dev,
+							 KEY_WAKEUP,
+							 false);
+#endif
 					input_sync(data->input_dev);
 					/* request from sensor team */
 					input_report_abs(data->input_dev_proximity, 

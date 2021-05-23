@@ -1314,9 +1314,17 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 			input_sync(info->input_dev);
 		} else if (zinitix_bit_test(lpm_mode_reg.data, BIT_EVENT_AOD)) {
 			if (info->aot_enable) {
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 				input_report_key(info->input_dev, KEY_HOMEPAGE, 1);
+#else
+				input_report_key(info->input_dev, KEY_WAKEUP, 1);
+#endif
 				input_sync(info->input_dev);
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 				input_report_key(info->input_dev, KEY_HOMEPAGE, 0);
+#else
+				input_report_key(info->input_dev, KEY_WAKEUP, 0);
+#endif
 				input_sync(info->input_dev);
 				/* request from sensor team */
 				if (info->pdata->support_ear_detect) {
@@ -10247,7 +10255,11 @@ static int bt532_ts_probe(struct i2c_client *client,
 
 	if(pdata->support_lpm_mode){
 		set_bit(KEY_BLACK_UI_GESTURE, info->input_dev->keybit);
+#ifdef CONFIG_USB_ANDROID_SAMSUNG_MTP
 		set_bit(KEY_HOMEPAGE, info->input_dev->keybit);
+#else
+		set_bit(KEY_WAKEUP, info->input_dev->keybit);
+#endif
 	}
 
 	input_set_abs_params(info->input_dev, ABS_MT_POSITION_X,
