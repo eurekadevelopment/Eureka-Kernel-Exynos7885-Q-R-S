@@ -424,26 +424,26 @@
 		*  34	CABLE_MAX, 
 		*/
 			cable-info {
-				default_input_current = <1000>;
+				default_input_current = <1200>;
 				default_charging_current = <1200>;
 				full_check_current_1st = <325>;
 				full_check_current_2nd = <175>;
 
 				current_group_1 {
 					cable_number = <1 4 19 21 22 23 30>;
-					input_current = <500>;
-					charging_current = <500>;
+					input_current = <1200>;
+					charging_current = <1200>;
 				};
 
 				current_group_2 {
 					cable_number = <2 25 31>;
-					input_current = <1000>;
-					charging_current = <1000>;
+					input_current = <1200>;
+					charging_current = <1200>;
 				};
 
 				current_group_3 {
 					cable_number = <5 32>;
-					input_current = <900>;
+					input_current = <1200>;
 					charging_current = <1200>;
 				};
 
@@ -461,20 +461,20 @@
 
 				current_group_6 {
 					cable_number = <10 12 14 15 27>;
-					input_current = <900>;
+					input_current = <1200>;
 					charging_current = <1200>;
 				};
 
 				current_group_7 {
 					cable_number = <13>;
-					input_current = <700>;
+					input_current = <1200>;
 					charging_current = <1200>;
 				};
 
 				current_group_8 {
 					cable_number = <24>;
-					input_current = <1000>;
-					charging_current = <450>;
+					input_current = <1200>;
+					charging_current = <1200>;
 				};
 
 				current_group_9 {
@@ -485,13 +485,13 @@
 
 				current_group_10 {
 					cable_number = <11 16 28>;
-					input_current = <650>;
+					input_current = <1200>;
 					charging_current = <1200>;
 				};
 
 				current_group_11 {
 					cable_number = <29>;
-					input_current = <500>;
+					input_current = <1200>;
 					charging_current = <1200>;
 				};
 			};
