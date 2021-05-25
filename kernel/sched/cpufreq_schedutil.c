@@ -389,7 +389,7 @@ static ssize_t freqvar_boost_store(struct gov_attr_set *attr_set, const char *bu
 
 	return count;
 }
-static struct governor_attr freqvar_boost = __ATTR_RW(freqvar_boost);
+static struct governor_attr freqvar_boost = __ATTR_WO(freqvar_boost);
 #endif /* CONFIG_FREQVAR_SCHEDTUNE */
 
 static struct governor_attr rate_limit_us = __ATTR_RW(rate_limit_us);
