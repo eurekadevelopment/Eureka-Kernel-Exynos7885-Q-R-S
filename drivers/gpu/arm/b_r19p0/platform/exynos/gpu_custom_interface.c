@@ -27,7 +27,7 @@
 
 #ifdef CONFIG_SOC_EXYNOS7885
 #define GPU_MAX_VOLT		1150000		/*Max voltage in uV of GPU according to last_kmsg log*/
-#define GPU_MIN_VOLT		500000		/*Min voltage in uV of GPU according to last_kmsg log is 600000*/
+#define GPU_MIN_VOLT		400000		/*Min voltage in uV of GPU according to last_kmsg log is 600000*/
 #define GPU_VOLT_STEP		6250
 #else
 #error "Please define gpu voltage ranges for current SoC."
