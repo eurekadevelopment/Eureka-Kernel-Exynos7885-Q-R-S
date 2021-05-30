@@ -123,7 +123,7 @@ static unsigned long recheck_delay;
 static unsigned long last_change_time;
 static unsigned int  load_sample_rate = 20; /* msec */
 static struct cpu_limits rqb_freq_limits[MAX_CLUSTERS];
-static enum cpuhp_state rqb_hp_online;
+// static enum cpuhp_state rqb_hp_online;
 static struct workqueue_struct *rqbalance_wq;
 static struct delayed_work rqbalance_work;
 static RQBALANCE_STATE rqbalance_state;
@@ -694,7 +694,7 @@ static int frequency_limits_set(struct notifier_block *nb,
 
 	return NOTIFY_OK;
 }
-
+/*
 static struct notifier_block frequency_limits_nb = {
 	.notifier_call = frequency_limits_set,
 };
@@ -712,7 +712,7 @@ static int cfl_hotplug_notify(unsigned int cpu)
 
 	return 0;
 }
-
+*/
 static ssize_t store_ulong_delay(struct cpuquiet_attribute *cattr, const char *buf,
 				size_t count)
 {

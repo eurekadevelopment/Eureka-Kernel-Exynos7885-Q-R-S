@@ -74,23 +74,17 @@ choice
 config CPU_QUIET_MSM
 	bool "MSM CPUquiet Driver"
 	depends on HOTPLUG_CPU && ARCH_QCOM
-	default n
 	help
 	 This is the CPUquiet driver for MSM SoCs. It supports
 	 automatic hotplugging of CPU cores using the CPUquiet
 	 governor.
-	 
-	 If unsure, say N.
 
 config CPU_QUIET_EXYNOS
 	bool "Exynos CPUquiet Driver"
 	depends on HOTPLUG_CPU && ARCH_EXYNOS
-	default n
 	help
 	 This is the CPUquiet driver for Exynos SoCs. It supports
 	 automatic hotplugging of CPU cores.
-
-	 If unsure, say N.
 endchoice
 
 endif
