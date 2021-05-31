@@ -28,7 +28,7 @@
 #include <linux/netdevice.h>
 #include <linux/sysfs.h>
 
-#ifdef CONFIG_ARCH_EXYNOS
+#ifdef CONFIG_EXYNOS_HOTPLUG
 #include <soc/samsung/exynos-cpu_hotplug.h>
 #endif
 
@@ -448,7 +448,7 @@ static ssize_t online_store(struct device *dev, struct device_attribute *attr,
 	bool val;
 	int ret;
 
-#ifdef CONFIG_ARCH_EXYNOS
+#ifdef CONFIG_EXYNOS_HOTPLUG
 	if (!strcmp(dev->bus->name, "cpu")) {
 		pr_info("Block cpu/online node by Exynos cpu-hotplug\n");
 		return -EPERM;
