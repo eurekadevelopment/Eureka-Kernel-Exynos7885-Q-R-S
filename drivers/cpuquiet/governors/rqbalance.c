@@ -961,9 +961,6 @@ int rqbalance_pm_notify(struct notifier_block *notify_block,
 	case PM_POST_SUSPEND:
 	case PM_POST_HIBERNATION:
 	case PM_POST_RESTORE:
-		cpuquiet_wake_cpu(1, false);
-		cpuquiet_wake_cpu(2, false);
-		cpuquiet_wake_cpu(3, false);
 		rqbalance_state = UP;
 		rqbalance_kickstart();
 		break;
