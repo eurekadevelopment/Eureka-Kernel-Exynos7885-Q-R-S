@@ -478,6 +478,14 @@ do_devicecheck;
 do_versioncheck;
 do_levelcheck;
 
+if [ -e /dev/block/bootdevice/by-name/boot ]; then
+	dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/backup-boot.img
+	if [ $? -eq 0 ]; then
+		ui_print "Your previous boot image saved to /sdcard/backup-boot.img"
+		ui_print ""
+	fi
+fi
+
 ui_print "Installing...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 [ -f tools/$CORE ] || $BB ln -s $AKHOME/tools/ak*-core.sh $AKHOME/tools/$CORE;
