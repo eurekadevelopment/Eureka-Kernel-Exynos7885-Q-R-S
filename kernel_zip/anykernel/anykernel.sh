@@ -1,12 +1,13 @@
 # AnyKernel3 Ramdisk Mod Script
 # osm0sis @ xda-developers
-# Edit for R6.7 by @chatur27 on XDA
+
 ## AnyKernel setup
 # begin properties
 properties() { '
-kernel.string=
-do.devicecheck=0
+kernel.string=Eureka Kernel by Chatur27 & Gabriel260br @ xda-developers
+do.devicecheck=1
 do.modules=0
+do.systemless=1
 do.cleanup=1
 do.cleanuponabort=0
 device.name1=
@@ -15,37 +16,40 @@ device.name3=
 device.name4=
 device.name5=
 supported.versions=
+supported.patchlevels=
 '; } # end properties
 
 # shell variables
-block=/dev/block/platform/13500000.dwmmc0/by-name/boot;
+block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;
 dtboblock=/dev/block/platform/13500000.dwmmc0/by-name/dtbo;
 is_slot_device=0;
 ramdisk_compression=auto;
 
+
 ## AnyKernel methods (DO NOT CHANGE)
 # import patching functions/variables - see for reference
 . tools/ak3-core.sh;
+
 
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
 set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
-# Change permissions
-chmod 755 /system/bin/busybox;
 
 ## AnyKernel install
+#Method 1:
+#dump_boot;
+#write_boot;
+
+#Method 2:
 split_boot;
-
 ui_print "- Installing Eureka kernel";
-
+ui_print " "
 flash_boot;
 
-ui_print " "
 ui_print "- Installing/updating Eureka dtbo";
 ui_print " ";
-
 flash_dtbo;
 
 mount /system/
@@ -74,3 +78,4 @@ ui_print "- enable/update latest spectrum support";
 ui_print " ";
 
 ## end install
+
