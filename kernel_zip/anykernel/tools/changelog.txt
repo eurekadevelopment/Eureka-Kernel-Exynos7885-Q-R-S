@@ -1,9 +1,9 @@
-Kernel latest version: Eureka_R6.7
-Author: Chatur
+Kernel latest version: Eureka R7.0
+Developers: Eureka Team members
 Contact info:
- * Telegram: chatur2709
+ * Telegram: @Chatur2709 (Main Dev), @Gabriel260BR (Co-Dev), @noobboi0211 (new) and @roynatech (new)
  * XDA: Chatur27
- 
+
 ################## Author's useless notice
 I'm not responsible for anything which happens to your device although this kernel has been tested before
 being released officially. Kernel update will be released mostly every month now except if a major bug has to
@@ -214,11 +214,56 @@ contact the maintainer of the GSI for any fix. Tested Superior GSI android 11 an
 
 84) Upstreamed kernel version from 4.4.265 to 4.4.267 (latest)
 
-85) Unified kernel sources for A10, A20 and A20e
-
-86) ...
+85) Unified kernel sources for A10, A20, A20e, A30, A30s and A40
 
 
+##################  MAIN FEATURES OF R7.0 (last update by Chatur27 - Main Dev. The project will taken
+up by Gabriel, Chris and Soo-Hwan)
+
+86) Switched unified kernel source to A40 R latest source
+
+87) Oneui 3.x kernel will be available for all supported devices
+
+88) Updated Wireguard driver to latest version
+
+89) Eureka Defender has not been activated because of some users denying that feature
+
+90) Fixed double tap to wake for some devices using custom ROMs
+
+91) Fixed low torch/flashlight brightness on custom ROMs (dtbo based)
+
+92) Increased A10 input charging current upto 1.2 A (dtbo based)
+
+93) Updated TFA98xx audio codec driver from 4.2.0 to 6.7.8 (latest) - Used by A20, A20e, A30, A30s and A40
+
+94) Some tweaks to reduce jitter and UI lags
+
+95) Added a new fingerprint boost driver
+
+96) More battery tweaks to reduce idle battery drain
+
+97) Added support for exFAT filesystem - More details later
+
+98) Upstream Linux Kernel Version from 4.4.267 to 4.4.270
+
+99) Fixed almost all warnings in kernel source
+
+100) Improvements to MTP and ADB driver
+
+101) Special kernel edition for those who like the old gpu driver
+
+102) Nuked inefficient Exynos Hotplug driver. Replaced it by another hotplug driver.
+
+103) You can manually turn off cores to save power but at the cost of performance.
+
+104) Custom dtbos are/will be available for customizing the kernel to your needs.
+
+105) There will be only 2 kernels as from now, namely enforcing or permissive. Works on custom roms,
+gsi and oneui based roms.
+
+106) Fix the issue where the 2 lower gpu frequencies had the same voltage when -100mv was applied to them.
+
+107) ..
 
 
 
