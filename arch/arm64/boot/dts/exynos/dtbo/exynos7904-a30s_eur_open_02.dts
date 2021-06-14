@@ -1,0 +1,135 @@
+/*
+ * SAMSUNG EXYNOS7904 board device tree source
+
+ *
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/plugin/;
+
+#include "exynos7904-a30s_common.dtsi"
+#include "exynos7904-a30s_eur_open_gpio_02.dtsi"
+#include "exynos7904-a30s_fingerprint_00.dtsi"
+
+/ {
+	compatible = "samsung,A30S EUR OPEN 001_PV2", "samsung,EXYNOS7904";
+
+	dtbo-hw_rev = <2>;
+	dtbo-hw_rev_end = <2>;
+
+
+	fragment@model {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			model = "Samsung A30S EUR OPEN 001_PV2 board based on EXYNOS7904-Built by Eureka Team-R6.x";
+
+			speedy@11CE0000 {
+				audio_codec_cod3035x: cod3035x@03 {
+					water-threshold-max = <2801>;
+					water-threshold-min = <286>;
+					aux-cable-detect-adc = <255>;
+					fake-jack-adc = <253>;
+				};
+			};
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */
+
+&pinctrl_0 {	/*11CB0000*/
+	nfc_clk: nfc-clk {
+		samsung,pins = "gpq0-0";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+	};
+
+	nfc_int: nfc-int {
+		samsung,pins = "gpa1-0";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <1>;
+	};
+};
+
+&pinctrl_3 {	/*139B0000*/
+	nfc_pvdd_en: nfc_pvdd_en {
+		samsung,pins = "gpp6-4";
+		samsung,pin-function = <1>;
+		samsung,pin-pud = <0>;
+		samsung,pin-val = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_firm: nfc_firm {
+		samsung,pins = "gpp3-2";
+		samsung,pin-function = <1>;
+		samsung,pin-pud = <0>;
+		samsung,pin-val = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_pd: nfc_pd {
+		samsung,pins = "gpp2-2";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_clk_req: nfc_clk_req {
+		samsung,pins = "gpp2-3";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <1>;
+		samsung,pin-drv = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_det: nfc-det {
+		samsung,pins = "gpg2-2";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <0>;
+	};
+};
+
+&usi_0 {
+	usi_mode = "hsi2c0_hsi2c1";
+	status = "okay";
+};
+
+&hsi2c_5{
+	status = "okay";
+	clock-frequency = <400000>;
+	sec-nfc@27{
+		compatible = "sec-nfc";
+		reg = <0x27>;
+
+		interrupt-parent = <&gpa1>;
+		interrupts = <0 0 0>;
+
+		sec-nfc,nfc_pd = <&gpp2 2 0x2>;
+		sec-nfc,firm-gpio = <&gpp3 2 1>;
+		sec-nfc,irq-gpio = <&gpa1 0 0>;
+		sec-nfc,nfc_clkreq = <&gpp2 3 0x2>;
+		sec-nfc,pvdd_en = <&gpp6 4 1>;
+		sec-nfc,check_nfc =<&gpg2 2 0x0>;
+		clkctrl-reg = <0x11C8600C>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_pd &nfc_firm &nfc_int &nfc_clk &nfc_pvdd_en &nfc_clk_req &nfc_det>;
+	};
+};
+
+&dwmmc_2 {
+    card-detect-invert;
+};

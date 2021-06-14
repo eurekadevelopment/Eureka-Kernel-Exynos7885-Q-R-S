@@ -38,6 +38,12 @@ dtbo-$(CONFIG_MACH_EXYNOS7885_A30_OPEN) := \
 	exynos/dtbo/exynos7904-a30_swa_open_01.dtbo \
 	exynos/dtbo/exynos7904-a30_swa_open_02.dtbo
 
+dtbo-$(CONFIG_MACH_EXYNOS7885_A30s_OPEN) := \
+	exynos/dtbo/exynos7904-a30s_eur_open_00.dtbo \
+	exynos/dtbo/exynos7904-a30s_eur_open_01.dtbo \
+	exynos/dtbo/exynos7904-a30s_eur_open_02.dtbo \
+	exynos/dtbo/exynos7904-a30s_eur_open_03.dtbo
+
 dtbo-$(CONFIG_MACH_EXYNOS7885_A40_OPEN) := \
 	exynos/dtbo/exynos7904-a40_eur_open_00.dtbo \
 	exynos/dtbo/exynos7904-a40_eur_open_01.dtbo

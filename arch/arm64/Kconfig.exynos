@@ -26,6 +26,13 @@ config MACH_EXYNOS7885_A30_OPEN
 	help
 	Say Y here if you want to enable building dtbo for Galaxy A30.
 
+config MACH_EXYNOS7885_A30s_OPEN
+	bool "Build Dtbo image for SM-A307"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for Galaxy A30s.
+
 config MACH_EXYNOS7885_A40_OPEN
 	bool "Build Dtbo image for SM-A405"
 	depends on SOC_EXYNOS7885
