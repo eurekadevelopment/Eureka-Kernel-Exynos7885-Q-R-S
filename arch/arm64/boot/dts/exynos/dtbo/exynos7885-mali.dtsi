@@ -22,8 +22,8 @@
 	                    545000 90   95  1     676000   757000 0
 	                    450000 85   95  1     546000   757000 0
 	                    343000 70   90  1     420000   449000 0 >;
-	gpu_max_clock = <1100000>;
-	gpu_max_clock_limit = <1100000>;
+	gpu_max_clock = <1300000>;
+	gpu_max_clock_limit = <1300000>;
 	gpu_temp_throttling_level_num = <6>;
-	gpu_temp_throttling = <845000 676000 450000 343000 343000 343000>;
+	gpu_temp_throttling = <1300000 1300000 1200000 845000 676000 450000>;
 };

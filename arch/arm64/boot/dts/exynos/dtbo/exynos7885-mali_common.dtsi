@@ -52,8 +52,8 @@
 		gpu_mo_min_clock = <676000>;
 		gpu_boost_gpu_min_lock = <0>;
 		gpu_boost_egl_min_lock = <1248000>;
-		//gpu_vk_boost_max_lock = <338000>;
-		//gpu_vk_boost_mif_min_lock = <1794000>;
+		gpu_vk_boost_max_lock = <338000>;
+		gpu_vk_boost_mif_min_lock = <1794000>;
 		gpu_bts_support = <0>;
 		gpu_asv_cali_lock_val = <0>; /*Should check this value when MALI_ASV_CALIBRATION_SUPPORT is enabled*/
 		gpu_set_pmu_duration_reg = <0>; /* only for KC for now*/
