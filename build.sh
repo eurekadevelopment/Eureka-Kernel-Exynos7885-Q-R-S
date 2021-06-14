@@ -269,11 +269,12 @@ ZIPPIFY()
 		
 		# Copy Image and dtbo.img to anykernel directory
 		cp -f arch/$ARCH/boot/Image kernel_zip/anykernel/Image
+		cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
 		cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 		
 		# Go to anykernel directory
 		cd kernel_zip/anykernel
-		zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtbo.img version
+		zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img dtbo.img version
 		chmod 0777 $ZIPNAME
 		# Change back into kernel source directory
 		cd ..

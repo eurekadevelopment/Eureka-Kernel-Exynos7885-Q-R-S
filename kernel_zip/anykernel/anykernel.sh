@@ -5,7 +5,7 @@
 # begin properties
 properties() { '
 kernel.string=Eureka Kernel by Chatur27 & Gabriel260br @ xda-developers
-do.devicecheck=1
+do.devicecheck=0
 do.modules=0
 do.systemless=1
 do.cleanup=1
@@ -20,11 +20,10 @@ supported.patchlevels=
 '; } # end properties
 
 # shell variables
-block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;
+block=/dev/block/platform/13500000.dwmmc0/by-name/boot;
 dtboblock=/dev/block/platform/13500000.dwmmc0/by-name/dtbo;
 is_slot_device=0;
 ramdisk_compression=auto;
-
 
 ## AnyKernel methods (DO NOT CHANGE)
 # import patching functions/variables - see for reference
@@ -45,16 +44,16 @@ set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 #Method 2:
 split_boot;
 ui_print "- Installing Eureka kernel";
-ui_print " "
 flash_boot;
+
+ui_print " ";
+ui_print "- Installing/updating Eureka dtb";
+ui_print " ";
+flash_dtb;
 
 ui_print "- Installing/updating Eureka dtbo";
 ui_print " ";
 flash_dtbo;
-
-mount /system/
-mount /system_root/
-mount -o rw,remount -t auto /system >/dev/null;
 
 ## Copy additional files to internal storage
 cp /tmp/anykernel/tools/espectrum.zip /data/media/0/enable_spectrum_support.zip;
@@ -64,9 +63,6 @@ chmod 755 /data/media/0/enable_spectrum_support.zip;
 cp /tmp/anykernel/tools/changelog.txt /data/media/0/changelog.txt;
 chmod 755 /data/media/0/changelog.txt;
 
-umount /system;
-umount /system_root;
-
 ui_print "- Installation finished successfully";
 ui_print " ";
 
@@ -74,7 +70,7 @@ ui_print "- Thank you for using Eureka Kernel :)";
 ui_print " ";
 
 ui_print "- Flash zip found on your internal storage to";
-ui_print "- enable/update latest spectrum support";
+ui_print "enable/update latest spectrum support";
 ui_print " ";
 
 ## end install

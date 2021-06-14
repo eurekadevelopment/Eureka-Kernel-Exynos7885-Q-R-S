@@ -470,7 +470,7 @@ if [ -f version ]; then
   ui_printfile version;
   ui_print " ";
 fi;
-ui_print " " "AnyKernel3 by osm0sis @ xda-developers" " " " ";
+#ui_print " " "AnyKernel3 by osm0sis @ xda-developers" " " " ";
 
 setup_env;
 
@@ -478,15 +478,15 @@ do_devicecheck;
 do_versioncheck;
 do_levelcheck;
 
-if [ -e /dev/block/bootdevice/by-name/boot ]; then
-	dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/backup-boot.img
+if [ -e /dev/block/platform/13500000.dwmmc0/by-name/boot ]; then
+	dd if=/dev/block/platform/13500000.dwmmc0/by-name/boot of=/sdcard/backup-boot.img
 	if [ $? -eq 0 ]; then
-		ui_print "Your previous boot image saved to /sdcard/backup-boot.img"
-		ui_print ""
+		ui_print "- Your previous boot image is saved to /sdcard/backup-boot.img";
+		ui_print " ";
 	fi
 fi
 
-ui_print "Installing...";
+#ui_print "Installing...";
 CORE=$($BB grep -oE 'ak.*core.sh' anykernel.sh);
 [ -f tools/$CORE ] || $BB ln -s $AKHOME/tools/ak*-core.sh $AKHOME/tools/$CORE;
 PATH="$AKHOME/bin:$PATH" home=$AKHOME $BB ash anykernel.sh $2;
@@ -503,4 +503,4 @@ if [ "$(file_getprop anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
-ui_print " " " " "Done!";
+#ui_print " " " " "Done!";

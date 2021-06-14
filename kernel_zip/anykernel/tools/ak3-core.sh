@@ -406,6 +406,11 @@ flash_boot() {
   fi;
 }
 
+# flash_dtb (flash dtb only)
+flash_dtb() {
+  dd if=/tmp/anykernel/dtb.img of=/dev/block/platform/13500000.dwmmc0/by-name/dtb;
+}
+
 # flash_dtbo (flash dtbo only)
 flash_dtbo() {
   local i dtbo dtboblock;
@@ -764,7 +769,8 @@ setup_ak() {
     ;;
   esac;
   if [ ! "$no_block_display" ]; then
-    ui_print "$block";
+    #ui_print "$block";
+    ui_print "";
   fi;
 }
 ###
