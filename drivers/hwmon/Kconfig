@@ -1766,6 +1766,11 @@ config SENSORS_SEC_THERMISTOR
       interpretation. The driver uses s3c adc driver and needs
       adc-temperature mapping table for conversion.
 
+config NO_THROTTLING
+    tristate "Disable GPU throttling"
+    depends on SENSORS_SEC_THERMISTOR
+    default n
+
 if ACPI
 
 comment "ACPI drivers"
