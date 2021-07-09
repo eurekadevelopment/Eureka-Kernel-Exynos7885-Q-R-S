@@ -1291,8 +1291,8 @@ int slsi_mlme_add_sched_scan(struct slsi_dev                    *sdev,
 		0x01,				/* OUI Subtype: Scan timing */
 		0x00, 0x00, 0x00, 0x00,		/* Min_Period:  filled later in the function */
 		0x00, 0x00, 0x00, 0x00,		/* Max_Period:  filled later in the function */
-		0x00,				/* Exponent */
-		0x00,				/* Step count */
+		0x01,				/* Exponent */
+		0x01,				/* Step count */
 		0x00, 0x00			/* Skip first period: false*/
 	};
 
@@ -1358,10 +1358,13 @@ int slsi_mlme_add_sched_scan(struct slsi_dev                    *sdev,
 		return r;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0))
-	SLSI_U32_TO_BUFF_LE(request->scan_plans->interval * 1000, &scan_timing_ie[7]);
+	SLSI_U32_TO_BUFF_LE(request->scan_plans->interval * 1000 * 1000, &scan_timing_ie[7]);
+	SLSI_U32_TO_BUFF_LE(request->scan_plans->interval * 1000 * 1000, &scan_timing_ie[11]);
 #else
 	SLSI_U32_TO_BUFF_LE(request->interval * 1000, &scan_timing_ie[7]);
+	SLSI_U32_TO_BUFF_LE(request->interval * 1000, &scan_timing_ie[11]);
 #endif
+
 	fapi_append_data(req, scan_timing_ie, sizeof(scan_timing_ie));
 	fapi_append_data(req, ies, ies_len);
 
@@ -1886,18 +1889,19 @@ int slsi_mlme_start(struct slsi_dev *sdev, struct net_device *dev, u8 *bssid, st
 	SLSI_NET_DBG1(dev, SLSI_MLME, "mlme_start_req(vif:%u, bssid:%pM, ssid:%.*s, hidden:%d)\n", ndev_vif->ifnum, bssid, (int)settings->ssid_len, settings->ssid, settings->hidden_ssid);
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 9))
-	if (append_vht_ies)
+	if (append_vht_ies) {
 		vht_ies_len = SLSI_VHT_CAPABILITIES_IE_LEN + SLSI_VHT_OPERATION_IE_LEN;
 
-	recv_vht_capab_ie = cfg80211_find_ie(WLAN_EID_VHT_CAPABILITY, settings->beacon.tail,
+	    recv_vht_capab_ie = cfg80211_find_ie(WLAN_EID_VHT_CAPABILITY, settings->beacon.tail,
 					     settings->beacon.tail_len);
-	if (recv_vht_capab_ie)
-		vht_ies_len -= (recv_vht_capab_ie[1] + 2);
+	    if (recv_vht_capab_ie)
+		    vht_ies_len -= (recv_vht_capab_ie[1] + 2);
 
-	recv_vht_operation_ie = cfg80211_find_ie(WLAN_EID_VHT_OPERATION, settings->beacon.tail,
+	    recv_vht_operation_ie = cfg80211_find_ie(WLAN_EID_VHT_OPERATION, settings->beacon.tail,
 						 settings->beacon.tail_len);
-	if (recv_vht_operation_ie)
-		vht_ies_len -= (recv_vht_operation_ie[1] + 2);
+	    if (recv_vht_operation_ie)
+		    vht_ies_len -= (recv_vht_operation_ie[1] + 2);
+	}
 
 	if (ndev_vif->chandef->width == NL80211_CHAN_WIDTH_80) {
 		/* Ext Capab are not advertised by driver and so the IE would not be sent by hostapd.

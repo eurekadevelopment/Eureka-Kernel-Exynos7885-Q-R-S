@@ -27,6 +27,7 @@
 #ifdef __KERNEL__
 
 #define THREADINFO_GFP		(GFP_KERNEL | __GFP_NOTRACK | __GFP_ZERO)
+#define FUSE_THREADINFO_GFP	(GFP_NOFS | __GFP_NOTRACK | __GFP_ZERO)
 
 /*
  * flag set/clear/test wrappers

@@ -3286,7 +3286,8 @@ __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order,
 	gfp_t gfp_highuser_movable = GFP_HIGHUSER | __GFP_MOVABLE;
 	
 	gfp_mask &= gfp_allowed_mask;
-	
+	if (unlikely(current->flags & PF_NOFS_MASK))
+		gfp_mask &= ~__GFP_FS;
 
 	// The request GFP_HIGHUSER | __GFP_MOVABLE also allocates from CMA.
 	if ((gfp_highuser_movable & gfp_mask) == gfp_highuser_movable)

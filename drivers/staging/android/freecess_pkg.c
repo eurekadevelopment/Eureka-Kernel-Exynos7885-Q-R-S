@@ -23,18 +23,6 @@
 static atomic_t uid_rec[MAX_REC_UID];
 extern void binders_in_transcation(int uid);
 
-int pkg_stat_show(struct seq_file *m, void *v)
-{
-	int i;
-
-	for (i = 0; i < MAX_REC_UID; i++)
-		if (atomic_read(&uid_rec[i]))
-			seq_printf(m, "%d\t", atomic_read(&uid_rec[i]));
-	seq_printf(m, "\n");
-
-	return 0;
-}
-
 static void freecess_add_uid(uid_t uid)
 {
 	int i, j;
@@ -254,15 +242,32 @@ static int __init kfreecess_pkg_init(void)
 {
 	int ret;
 	int i;
+	struct net *net;
 
 	for (i = 0; i < MAX_REC_UID; i++)
 		atomic_set(&uid_rec[i], 0);
 	
-	ret = nf_register_hooks(freecess_nf_ops, ARRAY_SIZE(freecess_nf_ops));
+	rtnl_lock();
+	for_each_net(net) {
+		ret = nf_register_net_hooks(net, freecess_nf_ops,
+						ARRAY_SIZE(freecess_nf_ops));
+		if (ret < 0) {
+			pr_err("nf_register_hooks(freecess hooks) error\n");
+			break;
+		}
+	}
+	rtnl_unlock();
+
 	if (ret < 0) {
-		pr_err("nf_register_hooks(freecess hooks) error\n");
+		rtnl_lock();
+		for_each_net(net) {
+			nf_unregister_net_hooks(net, freecess_nf_ops,
+						ARRAY_SIZE(freecess_nf_ops));
+		}
+		rtnl_unlock();
 		return -1;
 	}
+	
 	pr_err("nf_register_hooks(freecess hooks) success\n");
 
 	register_kfreecess_hook(MOD_PKG, kfreecess_pkg_hook);
@@ -273,10 +278,17 @@ static int __init kfreecess_pkg_init(void)
 
 static void __exit kfreecess_pkg_exit(void)
 {
+	struct net *net;
+
 	unregister_kfreecess_hook(MOD_PKG);
 	unregister_kfreecess_hook(MOD_CFB);
-	
-	nf_unregister_hooks(freecess_nf_ops, ARRAY_SIZE(freecess_nf_ops));
+
+	rtnl_lock();
+	for_each_net(net) {
+		nf_unregister_net_hooks(net, freecess_nf_ops,
+					ARRAY_SIZE(freecess_nf_ops));
+	}
+	rtnl_unlock();
 }
 
 

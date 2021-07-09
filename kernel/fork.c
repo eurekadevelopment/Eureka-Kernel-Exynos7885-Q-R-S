@@ -169,7 +169,9 @@ void __weak arch_release_thread_stack(unsigned long *stack)
 static unsigned long *alloc_thread_stack_node(struct task_struct *tsk,
 						  int node)
 {
-	struct page *page = alloc_kmem_pages_node(node, THREADINFO_GFP,
+	gfp_t gfp_mask = current->flags & PF_NOFREEZE ? FUSE_THREADINFO_GFP :
+				THREADINFO_GFP;
+	struct page *page = alloc_kmem_pages_node(node, gfp_mask,
 						  THREAD_SIZE_ORDER);
 
 	return page ? page_address(page) : NULL;
@@ -188,7 +190,9 @@ static struct kmem_cache *thread_stack_cache;
 static unsigned long *alloc_thread_stack_node(struct task_struct *tsk,
 						  int node)
 {
-	return kmem_cache_alloc_node(thread_stack_cache, THREADINFO_GFP, node);
+	gfp_t gfp_mask = current->flags & PF_NOFREEZE ? FUSE_THREADINFO_GFP :
+				THREADINFO_GFP;
+	return kmem_cache_alloc_node(thread_stack_cache, gfp_mask, node);
 }
 
 static void free_thread_stack(unsigned long *stack)

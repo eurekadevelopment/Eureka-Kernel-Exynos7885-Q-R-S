@@ -785,6 +785,12 @@ config FAULT_AROUND_4KB
 	default n
 	help
 	  Reduce fault around bytes to 4KB
+	  
+config VMPRESSURE_LEVEL_CRI
+	int "Threshold to account memory pressure"
+	default 95
+	help
+	  This supports to adjust vmpressure_level_critical threshold value
 
 config PAGE_BOOST
 	bool "PAGE_BOOST feature"
