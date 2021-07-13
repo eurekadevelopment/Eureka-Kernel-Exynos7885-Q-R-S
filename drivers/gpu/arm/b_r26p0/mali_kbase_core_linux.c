@@ -4317,6 +4317,36 @@ static struct attribute *kbase_scheduling_attrs[] = {
 	NULL
 };
 
+static ssize_t total_gpu_mem_show(
+	struct device *dev,
+	struct device_attribute *attr,
+	char *const buf)
+{
+	struct kbase_device *kbdev;
+	kbdev = to_kbase_device(dev);
+	if (!kbdev)
+		return -ENODEV;
+
+	return sysfs_emit(buf, "%lu\n",
+		(unsigned long) kbdev->total_gpu_pages << PAGE_SHIFT);
+}
+static DEVICE_ATTR_RO(total_gpu_mem);
+
+static ssize_t dma_buf_gpu_mem_show(
+	struct device *dev,
+	struct device_attribute *attr,
+	char *const buf)
+{
+	struct kbase_device *kbdev;
+	kbdev = to_kbase_device(dev);
+	if (!kbdev)
+		return -ENODEV;
+
+	return sysfs_emit(buf, "%lu\n",
+		(unsigned long) kbdev->dma_buf_pages << PAGE_SHIFT);
+}
+static DEVICE_ATTR_RO(dma_buf_gpu_mem);
+
 static struct attribute *kbase_attrs[] = {
 #ifdef CONFIG_MALI_DEBUG
 	&dev_attr_debug_command.attr,
@@ -4338,6 +4368,8 @@ static struct attribute *kbase_attrs[] = {
 	&dev_attr_lp_mem_pool_max_size.attr,
 #endif
 	&dev_attr_js_ctx_scheduling_mode.attr,
+	&dev_attr_total_gpu_mem.attr,
+	&dev_attr_dma_buf_gpu_mem.attr,
 	NULL
 };
 
@@ -4373,6 +4405,9 @@ int kbase_sysfs_init(struct kbase_device *kbdev)
 		}
 	}
 
+	kbdev->proc_sysfs_node = kobject_create_and_add("kprcs",
+			&kbdev->dev->kobj);
+
 	return err;
 }
 
@@ -4380,6 +4415,8 @@ void kbase_sysfs_term(struct kbase_device *kbdev)
 {
 	sysfs_remove_group(&kbdev->dev->kobj, &kbase_scheduling_attr_group);
 	sysfs_remove_group(&kbdev->dev->kobj, &kbase_attr_group);
+	kobject_del(kbdev->proc_sysfs_node);
+	kobject_put(kbdev->proc_sysfs_node);
 	put_device(kbdev->dev);
 }
 

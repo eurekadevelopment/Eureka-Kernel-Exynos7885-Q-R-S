@@ -652,6 +652,8 @@ struct kbase_devfreq_queue_info {
  *                      Used to ensure that pages of allocation are accounted
  *                      only once for the process, even if the allocation gets
  *                      imported multiple times for the process.
+ * @kobj:               Links to the per-process sysfs node
+ *                      &kbase_device.proc_sysfs_node.
  */
 struct kbase_process {
 	pid_t tgid;
@@ -661,6 +663,8 @@ struct kbase_process {
 
 	struct rb_node kprcs_node;
 	struct rb_root dma_buf_root;
+
+    struct kobject kobj;
 };
 
 /**
@@ -926,6 +930,7 @@ struct kbase_process {
  * @gpu_mem_usage_lock:     This spinlock should be held while accounting
  *                          @total_gpu_pages for both native and dma-buf imported
  *                          allocations.
+ * @proc_sysfs_node:        Sysfs directory node to store per-process stats.
  */
 struct kbase_device {
 	u32 hw_quirks_sc;
@@ -1189,6 +1194,8 @@ struct kbase_device {
 		/* Pointer to the arbiter device */
 		struct kbase_arbiter_device arb;
 #endif
+
+        struct kobject *proc_sysfs_node;
 };
 
 /**
