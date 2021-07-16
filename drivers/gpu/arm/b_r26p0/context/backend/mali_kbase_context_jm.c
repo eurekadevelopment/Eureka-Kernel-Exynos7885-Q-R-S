@@ -153,11 +153,13 @@ static const struct kbase_context_init context_init[] = {
 	  "JS kctx initialization failed" },
 	{ kbase_jd_init, kbase_jd_exit, "JD initialization failed" },
 	{ kbase_context_submit_check, NULL, NULL },
+/*
 #ifdef CONFIG_DEBUG_FS
 	{ kbase_debug_job_fault_context_init,
 		kbase_debug_job_fault_context_term,
 		"Job fault context initialization failed" },
 #endif
+*/
 	{ NULL, kbase_context_flush_jobs, NULL },
 	{ kbase_context_add_to_dev_list, kbase_context_remove_from_dev_list,
 		"Adding kctx to device failed" },
