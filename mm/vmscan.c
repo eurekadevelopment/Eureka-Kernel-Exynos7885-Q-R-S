@@ -2994,7 +2994,7 @@ retry:
 	return 0;
 }
 
-static bool pfmemalloc_watermark_ok(pg_data_t *pgdat)
+static bool pfmemalloc_watermark_ok(pg_data_t *pgdat, bool using_kswapd)
 {
 	struct zone *zone;
 	unsigned long pfmemalloc_reserve = 0;
@@ -3017,6 +3017,10 @@ static bool pfmemalloc_watermark_ok(pg_data_t *pgdat)
 		return true;
 
 	wmark_ok = free_pages > pfmemalloc_reserve / 2;
+
+	/* The throttled direct reclaimer is now a kswapd waiter */
+	if (unlikely(!using_kswapd && !wmark_ok))
+		atomic_long_inc(&kswapd_waiters);
 
 	/* kswapd must be awake if processes are being throttled */
 	if (!wmark_ok && waitqueue_active(&pgdat->kswapd_wait)) {
@@ -3082,7 +3086,7 @@ static bool throttle_direct_reclaim(gfp_t gfp_mask, struct zonelist *zonelist,
 
 		/* Throttle based on the first usable node */
 		pgdat = zone->zone_pgdat;
-		if (pfmemalloc_watermark_ok(pgdat))
+		if (pfmemalloc_watermark_ok(pgdat, gfp_mask & __GFP_KSWAPD_RECLAIM))
 			goto out;
 		break;
 	}
@@ -3104,16 +3108,18 @@ static bool throttle_direct_reclaim(gfp_t gfp_mask, struct zonelist *zonelist,
 	 */
 	if (!(gfp_mask & __GFP_FS)) {
 		wait_event_interruptible_timeout(pgdat->pfmemalloc_wait,
-			pfmemalloc_watermark_ok(pgdat), HZ);
+			pfmemalloc_watermark_ok(pgdat, true), HZ);
 
 		goto check_pending;
 	}
 
 	/* Throttle until kswapd wakes the process */
 	wait_event_killable(zone->zone_pgdat->pfmemalloc_wait,
-		pfmemalloc_watermark_ok(pgdat));
+		pfmemalloc_watermark_ok(pgdat, true));
 
 check_pending:
+	if (unlikely(!(gfp_mask & __GFP_KSWAPD_RECLAIM)))
+		atomic_long_dec(&kswapd_waiters);
 	if (fatal_signal_pending(current))
 		return true;
 
@@ -3614,7 +3620,7 @@ static unsigned long balance_pgdat(pg_data_t *pgdat, int order,
 		 * able to safely make forward progress. Wake them
 		 */
 		if (waitqueue_active(&pgdat->pfmemalloc_wait) &&
-				pfmemalloc_watermark_ok(pgdat))
+				pfmemalloc_watermark_ok(pgdat, true))
 			wake_up_all(&pgdat->pfmemalloc_wait);
 
 		/*
