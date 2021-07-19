@@ -671,7 +671,7 @@ config LEDS_S2MU106_RGB
 
 config CUSTOM_FLASH_SYSFS_NODE
 	bool "Custom sysfs node for flashlight"
-	depends on LEDS_S2MU005_FLASH
+	depends on LEDS_S2MU005_FLASH || LEDS_S2MU106_FLASH
 	help
 	  If you say yes here, you will get support for a custom sysfs node
 	  located at sys/devices/virtual/camera/flash/brightness for the

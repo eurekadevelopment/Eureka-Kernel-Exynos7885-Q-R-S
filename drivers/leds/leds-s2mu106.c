@@ -433,7 +433,7 @@ int s2mu106_led_mode_ctrl(int state)
 			s2mu106_fled_operating_mode(fled, SYS_MODE);
 			break;
 		case S2MU106_FLED_MODE_TORCH:
-			/* chgange SYS MODE when turn on torch */
+			/* change SYS MODE when turn on torch */
 			if((s2mu106_fled_get_torch_curr(fled, 1)/10) != fled->preflash_current/10)
 				s2mu106_fled_set_torch_curr(fled, 1, fled->preflash_current);
 			s2mu106_fled_operating_mode(fled, SYS_MODE);
@@ -959,6 +959,10 @@ static ssize_t rear_flash_store(struct device *dev,
 	int flash_current = 0;
 	int torch_current = 0;
 
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	unsigned int torch_brightness_lvl = g_fled_data->torch_custom_current;
+#endif
+
 	pr_info("%s: rear_flash_store start\n", __func__);
 	if ((buf == NULL) || kstrtouint(buf, 10, &value)) {
 		return -1;
@@ -979,6 +983,12 @@ static ssize_t rear_flash_store(struct device *dev,
 		mode = S2MU106_FLED_MODE_OFF;
 	} else if (value == 1) {
 		mode = S2MU106_FLED_MODE_TORCH;
+
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		/* Interface used by AOSP ROMs & recoveries - Implement an analog flash control slider in your
+		rom to control the brightness of the torch. */
+		torch_current = torch_brightness_lvl;
+#endif
 	} else if (value == 100) {
 		/* Factory Torch*/
 		pr_info("%s: factory torch current [%d]\n", __func__, g_fled_data->factory_current);
@@ -1004,6 +1014,22 @@ static ssize_t rear_flash_store(struct device *dev,
 			torch_current = g_fled_data->flashlight_current[4];
 		else
 			torch_current = g_fled_data->torch_current;
+
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		// Interface used by ONEUI - 5 levels flash control - Untested
+		/* Uncomment this part to override ONEUI stock flash control behaviour
+		if (torch_current == g_fled_data->flashlight_current[0])
+			torch_current = torch_brightness_lvl - 168;
+		else if (torch_current == g_fled_data->flashlight_current[1])
+			torch_current = torch_brightness_lvl - 126;
+		else if (torch_current == g_fled_data->flashlight_current[2])
+			torch_current = torch_brightness_lvl - 84;
+		else if (torch_current == g_fled_data->flashlight_current[3])
+			torch_current = torch_brightness_lvl - 42;
+		else if (torch_current == g_fled_data->flashlight_current[4])
+			torch_current = torch_brightness_lvl;
+		*/
+#endif
 		g_fled_data->sysfs_input_data = 1;
 	} else if (value == 2) {
 		mode = S2MU106_FLED_MODE_FLASH;
@@ -1056,6 +1082,34 @@ static DEVICE_ATTR(rear_flash, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH,
 static DEVICE_ATTR(rear_torch_flash, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH,
 	rear_flash_show, rear_flash_store);
 
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+static ssize_t torch_brightness_lvl_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int data;
+	int ret = sscanf(buf, "%u", &data);
+
+	if (ret != 1)
+		return -EINVAL;
+
+	/* Limit brightness range from 0 to 10 */
+	if (data >= 0 && data <= 10)
+		/* Brightness range is converted into a linear current range */
+		/* 0	21	42	63	84	105	126	147	168	189	210 */
+		g_fled_data->torch_custom_current = (data * 21);
+
+	return size;
+}
+
+static ssize_t torch_brightness_lvl_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%u\n", g_fled_data->torch_custom_current);
+}
+
+static DEVICE_ATTR(torch_brightness_lvl, 0644, torch_brightness_lvl_show, torch_brightness_lvl_store);
+#endif
+
 int create_flash_sysfs(void)
 {
 	int err = -ENODEV;
@@ -1080,6 +1134,14 @@ int create_flash_sysfs(void)
 		pr_err("flash_sysfs: failed to create device file, %s\n",
 				dev_attr_rear_torch_flash.attr.name);
 	}
+
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	err = device_create_file(flash_dev, &dev_attr_torch_brightness_lvl);
+	if (unlikely(err < 0)) {
+		pr_err("flash_sysfs: failed to create device file, %s\n",
+				dev_attr_torch_brightness_lvl.attr.name);
+	}
+#endif
 
 	return 0;
 }
@@ -1144,6 +1206,9 @@ static int s2mu106_led_probe(struct platform_device *pdev)
 	g_fled_data->default_current	= fled_data->pdata->default_current;
 	g_fled_data->flash_current 		= fled_data->pdata->flash_current;
 	g_fled_data->torch_current 		= fled_data->pdata->torch_current;
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	g_fled_data->torch_custom_current = 210;	/* Set flashlight current to maximum safe value at boot*/
+#endif
 	g_fled_data->preflash_current 	= fled_data->pdata->preflash_current;
 	g_fled_data->movie_current 		= fled_data->pdata->movie_current;
 	g_fled_data->factory_current 	= fled_data->pdata->factory_current;
