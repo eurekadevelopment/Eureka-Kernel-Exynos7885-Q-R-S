@@ -64,6 +64,9 @@ struct s2mu005_led_data {
 	unsigned int preflash_brightness;
 	unsigned int movie_brightness;
 	unsigned int torch_brightness;
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	unsigned int torch_custom_brightness;
+#endif
 	unsigned int factory_brightness;
 #if defined(CONFIG_LEDS_SUPPORT_FRONT_FLASH)
 	unsigned int front_brightness;
@@ -778,6 +781,10 @@ static ssize_t rear_flash_store(struct device *dev,
 	int brightness = 0;
 	u32 torch_current;
 
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	unsigned int torch_brightness_lvl = led_data->torch_custom_brightness;
+#endif
+
 	if ((buf == NULL) || kstrtouint(buf, 10, &value)) {
 		return -1;
 	}
@@ -797,6 +804,13 @@ static ssize_t rear_flash_store(struct device *dev,
 	} else if (value == 1) {
 		/* Turn on Torch */
 		brightness = led_data->torch_brightness;
+
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		/* Interface used by AOSP ROMs & recoveries - Implement an analog flash control slider in your
+		rom to control the brightness of the torch. */
+		if (brightness == 2)
+			brightness = torch_brightness_lvl;
+#endif
 		assistive_light = true;
 	} else if (value == 100) {
 		/* Factory mode Turn on Torch */
@@ -822,6 +836,22 @@ static ssize_t rear_flash_store(struct device *dev,
 			torch_current = 50;
 
 		brightness= S2MU005_TORCH_BRIGHTNESS(torch_current);
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		// Interface used by ONEUI - 5 levels flash control
+		/* Uncoment this part to override ONEUI stock flash control behaviour
+		if (brightness == 1)
+			brightness = torch_brightness_lvl - 9;
+		else if (brightness == 2)
+			brightness = torch_brightness_lvl - 7;
+		else if (brightness == 3)
+			brightness = torch_brightness_lvl - 4;
+		else if (brightness == 4)
+			brightness = torch_brightness_lvl - 2;
+		else if (brightness == 5)
+			brightness = torch_brightness_lvl;
+		*/
+#endif
+
 		pr_info("torch current : %d mA\n", torch_current);
 		assistive_light = true;
 	} else if (2001 <= value && value <= 2016) {
@@ -829,6 +859,22 @@ static ssize_t rear_flash_store(struct device *dev,
 		torch_current = 25 * (value - 2000);
 
 		brightness= S2MU005_TORCH_BRIGHTNESS(torch_current);
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		// Interface used by ONEUI - 5 levels flash control
+		/* Uncoment this part to override ONEUI stock flash control behaviour
+		if (brightness == 1)
+			brightness = torch_brightness_lvl - 9;
+		else if (brightness == 2)
+			brightness = torch_brightness_lvl - 7;
+		else if (brightness == 3)
+			brightness = torch_brightness_lvl - 4;
+		else if (brightness == 4)
+			brightness = torch_brightness_lvl - 2;
+		else if (brightness == 5)
+			brightness = torch_brightness_lvl;
+		*/
+#endif
+
 		pr_info("torch current : %d mA\n", torch_current);
 		assistive_light = true;
 	} else {
@@ -866,6 +912,34 @@ err:
 
 static DEVICE_ATTR(rear_flash, 0644, rear_flash_show, rear_flash_store);
 static DEVICE_ATTR(rear_torch_flash, 0644, rear_flash_show, rear_flash_store);
+
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+static ssize_t torch_brightness_lvl_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct s2mu005_led_data *led_data = g_led_datas[S2MU005_TORCH_LED];
+	unsigned int data;
+	int ret = sscanf(buf, "%u", &data);
+
+	if (ret != 1)
+		return -EINVAL;
+
+	/* Limit brightness range from 0 to 10 */
+	if (data >=0 && data <= 10)
+		led_data->torch_custom_brightness = data;
+
+	return size;
+}
+
+static ssize_t torch_brightness_lvl_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct s2mu005_led_data *led_data = g_led_datas[S2MU005_TORCH_LED];
+	return snprintf(buf, PAGE_SIZE, "%u\n", led_data->torch_custom_brightness);
+}
+
+static DEVICE_ATTR(torch_brightness_lvl, 0644, torch_brightness_lvl_show, torch_brightness_lvl_store);
+#endif
 
 #if defined(CONFIG_LEDS_SUPPORT_FRONT_FLASH)
 static ssize_t front_flash_show(struct device *dev,
@@ -1114,6 +1188,14 @@ int create_flash_sysfs(void)
 				dev_attr_rear_torch_flash.attr.name);
 	}
 
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+	err = device_create_file(flash_dev, &dev_attr_torch_brightness_lvl);
+	if (unlikely(err < 0)) {
+		pr_err("flash_sysfs: failed to create device file, %s\n",
+				dev_attr_torch_brightness_lvl.attr.name);
+	}
+#endif
+
 #if defined(CONFIG_LEDS_SUPPORT_FRONT_FLASH)
 	err = device_create_file(flash_dev, &dev_attr_front_flash);
 	if (unlikely(err < 0)) {
@@ -1269,6 +1351,9 @@ static int s2mu005_led_probe(struct platform_device *pdev)
 		led_data->preflash_brightness = pdata->preflash_brightness;
 		led_data->movie_brightness = pdata->movie_brightness;
 		led_data->torch_brightness = pdata->torch_brightness;
+#if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
+		led_data->torch_custom_brightness = 10;	/* Set flashlight brightness to maximum at boot*/
+#endif
 		led_data->factory_brightness = pdata->factory_brightness;
 #if defined(CONFIG_LEDS_SUPPORT_FRONT_FLASH)
 		led_data->front_brightness = pdata->front_brightness;

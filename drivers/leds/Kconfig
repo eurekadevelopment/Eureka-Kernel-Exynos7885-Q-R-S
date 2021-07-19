@@ -669,6 +669,21 @@ config LEDS_S2MU106_RGB
 	  If you say yes here you will get support for
 	  for the LEDS_S2MU106_RGB led chip.
 
+config CUSTOM_FLASH_SYSFS_NODE
+	bool "Custom sysfs node for flashlight"
+	depends on LEDS_S2MU005_FLASH
+	help
+	  If you say yes here, you will get support for a custom sysfs node
+	  located at sys/devices/virtual/camera/flash/brightness for the
+	  supported LED. This sysfs node can be used to control flashlight
+	  brightness on AOSP ROMs or recoveries.
+
+	  By default, the brightness of flashlight is set to maximum, that is,
+	  it will fix low flashlight issue on AOSP ROMs, GSIs and recoveries.
+
+	  This sysfs node can also override the stock behaviour of ONEUI's 
+	  flashlight controller (only if uncommented in the driver code).
+
 comment "LED Triggers"
 source "drivers/leds/trigger/Kconfig"
 
