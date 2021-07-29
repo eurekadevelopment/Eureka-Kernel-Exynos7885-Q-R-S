@@ -364,6 +364,11 @@ CONFIG_ARCH_EXYNOS7=y
 # CONFIG_ZONE_MOVABLE is not set
 
 #
+# Custom DT nodes
+#
+CONFIG_EUREKA_CUSTOM_DT_NODES=y
+
+#
 # Exynos dtbo image build tool
 #
 CONFIG_MACH_EXYNOS7885_A40_OPEN=y
