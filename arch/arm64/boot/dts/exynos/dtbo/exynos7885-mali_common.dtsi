@@ -58,5 +58,9 @@
 		gpu_asv_cali_lock_val = <0>; /*Should check this value when MALI_ASV_CALIBRATION_SUPPORT is enabled*/
 		gpu_set_pmu_duration_reg = <0>; /* only for KC for now*/
 		gpu_set_pmu_duration_val = <0>; /* only for KC for now*/
+		eureka_gpu_max_clock = <1300000>;
+		eureka_gpu_highspeed_clock = <1001000>;
+		eureka_gpu_highspeed_load = <75>;
+		eureka_gpu_temp_throttling = <1200000 1100000 1001000 845000 676000 343000>;
 	};
 };

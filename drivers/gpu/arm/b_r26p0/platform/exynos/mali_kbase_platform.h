@@ -209,6 +209,8 @@ struct exynos_context {
 		int highspeed_load;
 		int highspeed_delay;
 		int delay_count;
+		int eureka_gpu_highspeed_clock;
+		int eureka_gpu_highspeed_load;
 	} interactive;
 #ifdef CONFIG_CPU_THERMAL_IPA
 	int norm_utilisation;
@@ -238,6 +240,16 @@ struct exynos_context {
 	int gpu_dvfs_config_clock;
 	int user_max_lock_input;
 	int user_min_lock_input;
+
+	/* eureka custom nodes*/
+	int eureka_gpu_max_clock;
+	int eureka_gpu_temp_throttling;
+	int eureka_gpu_temp_throttling_0;
+	int eureka_gpu_temp_throttling_1;
+	int eureka_gpu_temp_throttling_2;
+	int eureka_gpu_temp_throttling_3;
+	int eureka_gpu_temp_throttling_4;
+	int eureka_gpu_temp_throttling_5;
 
 	/* gpu boost lock */
 	int boost_gpu_min_lock;

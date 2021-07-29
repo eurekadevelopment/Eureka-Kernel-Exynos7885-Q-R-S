@@ -301,6 +301,11 @@
 
 			min-freq = <449000>;
 
+			eureka_min-freq = <208000>;
+			eureka_max-freq = <1794000>;
+			eureka_pm_qos-booting = <1690000>;
+			eureka_user-default-qos = <902000>;
+
 			/* PM QoS Class ID*/
 			pm_qos-min-class = <3>;
 			pm_qos-max-class = <4>;
@@ -343,6 +348,11 @@
 			dm-type = <DM_CPU_CL1>;
 
 			min-freq = <936000>;
+
+			eureka_min-freq = <208000>;
+			eureka_max-freq = <2288000>;
+			eureka_pm_qos-booting = <2080000>;
+			eureka_user-default-qos = <1144000>;
 
 			/* PM QoS Class ID*/
 			pm_qos-min-class = <5>;

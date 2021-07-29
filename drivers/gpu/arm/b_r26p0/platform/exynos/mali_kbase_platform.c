@@ -245,6 +245,10 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 
 #ifdef CONFIG_MALI_DVFS
 	gpu_update_config_data_int(np, "g3d_cmu_cal_id", &platform->g3d_cmu_cal_id);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	gpu_update_config_data_int(np, "eureka_gpu_highspeed_clock", &platform->interactive.eureka_gpu_highspeed_clock);
+	gpu_update_config_data_int(np, "eureka_gpu_highspeed_load", &platform->interactive.eureka_gpu_highspeed_load);
+#endif
 	gpu_update_config_data_string(np, "governor", &of_string);
 	if (!strncmp("interactive", of_string, strlen("interactive"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_INTERACTIVE;
@@ -252,6 +256,10 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->interactive.highspeed_clock = of_data_int_array[0] == 0 ? 500 : (u32) of_data_int_array[0];
 		platform->interactive.highspeed_load  = of_data_int_array[1] == 0 ? 100 : (u32) of_data_int_array[1];
 		platform->interactive.highspeed_delay = of_data_int_array[2] == 0 ? 0 : (u32) of_data_int_array[2];
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+		platform->interactive.highspeed_clock = platform->interactive.eureka_gpu_highspeed_clock;
+		platform->interactive.highspeed_load = platform->interactive.eureka_gpu_highspeed_load;
+#endif
 	} else if (!strncmp("static", of_string, strlen("static"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_STATIC;
 	} else if (!strncmp("booster", of_string, strlen("booster"))) {
@@ -271,8 +279,24 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 	}
 
 	gpu_update_config_data_int(np, "gpu_pmqos_cpu_cluster_num", &platform->gpu_pmqos_cpu_cluster_num);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	gpu_update_config_data_int(np, "eureka_gpu_max_clock", &platform->eureka_gpu_max_clock);
+	gpu_update_config_data_int_array(np, "eureka_gpu_temp_throttling", of_data_int_array, 6);
+	platform->eureka_gpu_temp_throttling_0 = of_data_int_array[0];
+	platform->eureka_gpu_temp_throttling_1 = of_data_int_array[1];
+	platform->eureka_gpu_temp_throttling_2 = of_data_int_array[2];
+	platform->eureka_gpu_temp_throttling_3 = of_data_int_array[3];
+	platform->eureka_gpu_temp_throttling_4 = of_data_int_array[4];
+	platform->eureka_gpu_temp_throttling_5 = of_data_int_array[5];
+#endif
 	gpu_update_config_data_int(np, "gpu_max_clock", &platform->gpu_max_clock);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	platform->gpu_max_clock = platform->eureka_gpu_max_clock;
+#endif
 	gpu_update_config_data_int(np, "gpu_max_clock_limit", &platform->gpu_max_clock_limit);
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+	platform->gpu_max_clock_limit = platform->eureka_gpu_max_clock;
+#endif
 	gpu_update_config_data_int(np, "gpu_min_clock", &platform->gpu_min_clock);
 	gpu_update_config_data_int(np, "gpu_min_clock_limit", &platform->gpu_min_clock_limit);
 	gpu_update_config_data_int(np, "gpu_dvfs_bl_config_clock", &platform->gpu_dvfs_config_clock);
@@ -281,9 +305,17 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 	gpu_update_config_data_int(np, "gpu_voltage_offset_margin", &platform->gpu_default_vol_margin);
 	gpu_update_config_data_bool(np, "gpu_tmu_control", &platform->tmu_status);
 	gpu_update_config_data_int(np, "gpu_temp_throttling_level_num", &of_data_int);
-	if (of_data_int == TMU_LOCK_CLK_END)
+	if (of_data_int == TMU_LOCK_CLK_END) {
 		gpu_update_config_data_int_array(np, "gpu_temp_throttling", platform->tmu_lock_clk, TMU_LOCK_CLK_END);
-	else
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
+		platform->tmu_lock_clk[0] = platform->eureka_gpu_temp_throttling_0;
+		platform->tmu_lock_clk[1] = platform->eureka_gpu_temp_throttling_1;
+		platform->tmu_lock_clk[2] = platform->eureka_gpu_temp_throttling_2;
+		platform->tmu_lock_clk[3] = platform->eureka_gpu_temp_throttling_3;
+		platform->tmu_lock_clk[4] = platform->eureka_gpu_temp_throttling_4;
+		platform->tmu_lock_clk[5] = platform->eureka_gpu_temp_throttling_5;
+#endif
+	} else
 		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "mismatch tmu lock table size: %d, %d\n",
 				of_data_int, TMU_LOCK_CLK_END);
 #ifdef CONFIG_CPU_THERMAL_IPA

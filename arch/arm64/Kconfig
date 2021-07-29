@@ -1223,6 +1223,13 @@ config KDP_TEST
 	help
 	  it enables kdp test.
 
+config EUREKA_CUSTOM_DT_NODES
+	bool "Enable Eureka custom DT nodes"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	  This option provides some custom DT nodes to be used with dtb.
+
 config BUILD_ARM64_APPENDED_DTB_IMAGE
 	bool "Build a concatenated Image.gz/dtb by default"
 	depends on OF
