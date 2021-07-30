@@ -1,8 +1,7 @@
-Kernel latest version: Eureka R7.0
-Developers: Eureka Team members
+Kernel latest version: Eureka R7.5
+Developer : Eureka Team
 Contact info:
- * Telegram: @Chatur2709 (Main Dev), @Gabriel260BR (Co-Dev), @noobboi0211 (new) and @roynatech (new)
- * XDA: Chatur27
+ * Telegram: @eureka_support_group
 
 ################## Author's useless notice
 I'm not responsible for anything which happens to your device although this kernel has been tested before
@@ -217,8 +216,7 @@ contact the maintainer of the GSI for any fix. Tested Superior GSI android 11 an
 85) Unified kernel sources for A10, A20, A20e, A30, A30s and A40
 
 
-##################  MAIN FEATURES OF R7.0 (last update by Chatur27 - Main Dev. The project will taken
-up by Gabriel, Chris and Soo-Hwan)
+##################  MAIN FEATURES OF R7.0 
 
 86) Switched unified kernel source to A40 R latest source
 
@@ -263,7 +261,33 @@ gsi and oneui based roms.
 
 106) Fix the issue where the 2 lower gpu frequencies had the same voltage when -100mv was applied to them.
 
-107) ..
 
+##################  MAIN FEATURES OF R7.5
+
+107) Upstream Linux Kernel Version from 4.4.270 to 4.4.277
+
+108) Enabled back 208 MHz frequency for big and little cores.
+
+109) DTB is now used to customize Eureka features such as CPU and GPU frequencies.
+
+110) DTBO is only used to disable dm-verity as from now. You can restore stock dtbo if you have slow charging issue. [Warning: Stock dtbo has dm-verity and you might get BSOD if you do not patch it]
+
+111) Addded a new flashlight control driver which will be used on AOSP/LOS based ROMs. It will also fix low flashlight issue on GSIs. This new driver does not interfere with camera (which was causing dark photos for some A20 users) Footej camera app is recommended for custom roms.
+
+112) Imported latest Samsung updates from A305F R kernel source.
+
+113) "Samsung A10 1.2A input charging current" feature still depends on Eureka dtbo. Will fix it on next update
+
+114) Further overclocked BIG cores from 2184 MHz to 2288 MHz and LITTLE cores from 1690 MHz to 1794 MHz.
+
+115) Fixed wrongly set GPU throttling frequencies.
+
+116) Updated WireGuard vpn driver to latest version - v1.0.20210606
+
+117) Enabled back Vnswap (Zram).
+
+118) Some other minor optimisations.
+
+119) ..
 
 

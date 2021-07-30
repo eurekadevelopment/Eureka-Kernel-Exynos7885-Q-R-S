@@ -1,18 +1,18 @@
 ************************************************
-  _____   _   _    _____    _____   _       _  
- |  ___| | | | | ||  _  || |  ___| | |  / // \\
- | |___  | | | | || (_) || | |___  | | /  ||_||
- |  ___| | | | | || ____|| |  ___| | |<   || ||
- | |___  | |_| | || \      | |___  | | \  || ||
- |_____| |_____| ||  \     |_____| |_|  \ || ||
+ ___________                     __            
+ \_   _____/__ _________   ____ |  | _______   
+  |    __)_|  |  \_  __ \_/ __ \|  |/ /\__  \  
+  |        \  |  /|  | \/\  ___/|    <  / __ \_
+ /_______  /____/ |__|    \___  >__|_ \(____  /
+         \/                   \/     \/     \/
                                                 
 ************************************************
- Source    : Based on A405F_EUR_RR source code  
- Version   : Eureka R7.0 
+ Source    : Based on A305F_EUR_RR source code 
+ Version   : Eureka R7.5
  Chipset   : Exynos 7885 with Mali G71 MP2     
  Android   : FOR ANDROID VERSION 10 (Q) & 11 (R)
- Developers: @Chatur27 && @Gabriel260BR on XDA  
- Contacts  : @chatur2709 & @gabriel260br on Tg  
+ Developer : Eureka Team  
+ Support   : @eureka_support_group on Telegram 
 ************************************************
           PERFORMANCE AND GAMING KERNEL         
 ************************************************
@@ -21,11 +21,11 @@
 ************************************************
                   MAIN FEATURES                 
 ************************************************
- Overclock Big to 2.18 GHz & Little to 1.69 GHz 
- Underclock Big to 312 MHz & Little to 343 MHz  
- Overclock GPU max freq from 676 MHz to 1300MHz 
+ Overclock Big to 2.29 GHz & Little to 1.79 GHz 
+ Underclock Big to 208 MHz & Little to 208 MHz  
+ Overclock GPU max freq to 1300MHz 
  Removed Security Stuffs, debugging codes, etc..
  Balance between performance and battery life   
- Upstream kernel version from 4.4.177 to 4.4.270
+ Upstream kernel version from 4.4.177 to 4.4.277
  Compiled kernel with Proton-Clang 13 toolchain 
 ************************************************
