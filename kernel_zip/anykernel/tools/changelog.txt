@@ -284,10 +284,8 @@ gsi and oneui based roms.
 
 116) Updated WireGuard vpn driver to latest version - v1.0.20210606
 
-117) Enabled back Vnswap (Zram).
+117) Some other minor optimisations.
 
-118) Some other minor optimisations.
-
-119) ..
+118) ..
 
 
