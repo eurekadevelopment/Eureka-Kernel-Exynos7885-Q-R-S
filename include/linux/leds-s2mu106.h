@@ -169,6 +169,7 @@ struct s2mu106_fled_data {
 	unsigned int torch_current;
 #if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
 	unsigned int torch_custom_current;
+	unsigned int torch_brightness_lvl_enable;
 #endif
 	unsigned int preflash_current;
 	unsigned int movie_current;
