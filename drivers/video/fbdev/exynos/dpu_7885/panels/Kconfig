@@ -36,6 +36,13 @@ config SUPPORT_POC_FLASH
 	tristate "Support display poc flash"
 	default n
 
+config CUSTOM_BACKLIGHT_SYSFS_NODE
+	bool "Custom sysfs node for backlight"
+	depends on EXYNOS_DECON_LCD_S6D7AT0B_A10
+	default n
+	help
+	  If you say yes here, you will get support for a custom backlight sysfs node.
+
 config EXYNOS_DECON_LCD_S6E3FA7_JACKPOT2
 	tristate "S6E3FA7_JACKPOT2 LCD driver"
 
