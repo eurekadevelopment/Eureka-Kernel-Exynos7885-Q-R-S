@@ -68,6 +68,10 @@ union elvss_info {
 struct lcd_info {
 	unsigned int			connected;
 	unsigned int			brightness;
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+	unsigned int 			custom_brightness;
+	unsigned int 			custom_brightness_enable;
+#endif
 	union elvss_info		current_elvss;
 	unsigned int			current_acl;
 	unsigned int			current_opr;
@@ -240,8 +244,15 @@ static int dsim_panel_set_wrctrld(struct lcd_info *lcd, u8 force)
 	hbm_level = LEVEL_IS_HBM(lcd->brightness);
 
 	bl_reg[0] = LDI_REG_BRIGHTNESS;
-	wrctrld.bl_reg1 = bl_reg[1] = get_bit(brightness_table[lcd->brightness], 8, 2);
-	wrctrld.bl_reg2 = bl_reg[2] = get_bit(brightness_table[lcd->brightness], 0, 8);
+
+	if (lcd->custom_brightness_enable == 0) {
+		wrctrld.bl_reg1 = bl_reg[1] = get_bit(brightness_table[lcd->brightness], 8, 2);
+		wrctrld.bl_reg2 = bl_reg[2] = get_bit(brightness_table[lcd->brightness], 0, 8);
+	} else if (lcd->custom_brightness_enable == 1) {
+		wrctrld.bl_reg1 = bl_reg[1] = get_bit(eureka_brightness_table[lcd->brightness], 8, 2);
+		wrctrld.bl_reg2 = bl_reg[2] = get_bit(eureka_brightness_table[lcd->brightness], 0, 8);
+	}
+
 	wrctrld.hbm = lcd->hbm_table[hbm_level][LDI_OFFSET_HBM];
 
 	if (force || lcd->current_wrctrld.value != wrctrld.value)
@@ -306,7 +317,34 @@ static int dsim_panel_set_brightness(struct lcd_info *lcd, int force)
 
 	mutex_lock(&lcd->lock);
 
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+	if (lcd->custom_brightness_enable == 0) {
+		// Hook aosp brightness slider to sysfs node for monitoring only
+		lcd->custom_brightness = lcd->bd->props.brightness;
+		lcd->brightness = lcd->custom_brightness;
+	}
+	else if (lcd->custom_brightness_enable == 1) {
+		// Hook aosp brightness slider to our sysfs node for remapping
+		lcd->custom_brightness = lcd->bd->props.brightness;
+
+		// Remap the backlight brightness to make it fit aosp range [0 to 255]
+		if (lcd->custom_brightness >= 0 && lcd->custom_brightness <= 255) {
+			int i = lcd->custom_brightness;
+			for ( i; i < (lcd->custom_brightness + 1); i++ ) {
+				int value = lcd->custom_brightness * 1.4;
+				if (value < 2) {
+					value = 1;
+				}
+				else if (value > 356) {
+                                        value = lcd->bd->props.max_brightness;
+				}
+				lcd->brightness = value;
+			}
+		}
+	}
+#else
 	lcd->brightness = lcd->bd->props.brightness;
+#endif
 
 	if (!force && lcd->state != PANEL_STATE_RESUMED) {
 		dev_info(&lcd->ld->dev, "%s: brightness: %d, panel_state: %d\n", __func__, lcd->brightness, lcd->state);
@@ -315,8 +353,13 @@ static int dsim_panel_set_brightness(struct lcd_info *lcd, int force)
 
 	low_level_set_brightness(lcd, force);
 
-	dev_info(&lcd->ld->dev, "brightness: %3d, %4d, %6x, lx: %d\n", lcd->brightness,
-		brightness_table[lcd->brightness], lcd->current_wrctrld.value, lcd->lux);
+	if (lcd->custom_brightness_enable == 0) {
+		dev_info(&lcd->ld->dev, "brightness: %3d, %4d, %6x, lx: %d\n", lcd->brightness,
+			brightness_table[lcd->brightness], lcd->current_wrctrld.value, lcd->lux);
+	} else if (lcd->custom_brightness_enable == 1) {
+		dev_info(&lcd->ld->dev, "brightness: %3d, %4d, %6x, lx: %d\n", lcd->brightness,
+			eureka_brightness_table[lcd->brightness], lcd->current_wrctrld.value, lcd->lux);
+	}
 
 exit:
 	mutex_unlock(&lcd->lock);
@@ -324,11 +367,66 @@ exit:
 	return ret;
 }
 
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+static ssize_t custom_brightness_lvl_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	struct lcd_info *lcd = dev_get_drvdata(dev);
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", lcd->custom_brightness);
+}
+
+static ssize_t custom_brightness_lvl_store(struct device *dev,
+	struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct lcd_info *lcd = dev_get_drvdata(dev);
+	unsigned int data;
+	int ret = sscanf(buf, "%u", &data);
+
+	if (ret != 1)
+		return -EINVAL;
+
+	lcd->custom_brightness = data;
+
+	return size;
+}
+
+static ssize_t custom_brightness_lvl_enable_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct lcd_info *lcd = dev_get_drvdata(dev);
+	unsigned int data;
+	int ret = sscanf(buf, "%u", &data);
+
+	if (ret != 1)
+		return -EINVAL;
+
+	if (data == 0 || data == 1)
+		lcd->custom_brightness_enable = data;
+
+	return size;
+}
+
+static ssize_t custom_brightness_lvl_enable_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+        struct lcd_info *lcd = dev_get_drvdata(dev);
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", lcd->custom_brightness_enable);
+}
+#endif
+
 static int panel_get_brightness(struct backlight_device *bd)
 {
 	struct lcd_info *lcd = bl_get_data(bd);
+	int value;
 
-	return brightness_table[lcd->brightness];
+	if (lcd->custom_brightness_enable == 0)
+		value = brightness_table[lcd->brightness];
+	else if (lcd->custom_brightness_enable == 1)
+		value = eureka_brightness_table[lcd->brightness];
+
+	return value;
 }
 
 static int panel_set_brightness(struct backlight_device *bd)
@@ -816,6 +914,10 @@ static int s6e8fc0_probe(struct lcd_info *lcd)
 
 	lcd->bd->props.max_brightness = EXTEND_BRIGHTNESS;
 	lcd->bd->props.brightness = UI_DEFAULT_BRIGHTNESS;
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+	lcd->custom_brightness = UI_DEFAULT_BRIGHTNESS;
+	lcd->custom_brightness_enable = 0;
+#endif
 
 	lcd->state = PANEL_STATE_RESUMED;
 
@@ -861,11 +963,15 @@ static ssize_t window_type_show(struct device *dev,
 static ssize_t brightness_table_show(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
+	struct lcd_info *lcd;
 	int i;
 	char *pos = buf;
 
 	for (i = 0; i <= EXTEND_BRIGHTNESS; i++)
-		pos += sprintf(pos, "%3d %4d\n", i, brightness_table[i]);
+		if (lcd->custom_brightness_enable == 0)
+			pos += sprintf(pos, "%3d %4d\n", i, brightness_table[i]);
+		else if (lcd->custom_brightness_enable == 1)
+			pos += sprintf(pos, "%3d %4d\n", i, eureka_brightness_table[i]);
 
 	return pos - buf;
 }
@@ -1149,6 +1255,10 @@ static DEVICE_ATTR(octa_id, 0444, octa_id_show, NULL);
 static DEVICE_ATTR(SVC_OCTA, 0444, cell_id_show, NULL);
 static DEVICE_ATTR(SVC_OCTA_CHIPID, 0444, octa_id_show, NULL);
 static DEVICE_ATTR(SVC_OCTA_DDI_CHIPID, 0444, manufacture_code_show, NULL);
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+static DEVICE_ATTR(custom_brightness_lvl_enable, 0644, custom_brightness_lvl_enable_show, custom_brightness_lvl_enable_store);
+static DEVICE_ATTR(custom_brightness_lvl, 0644, custom_brightness_lvl_show, custom_brightness_lvl_store);
+#endif
 
 static struct attribute *lcd_sysfs_attributes[] = {
 	&dev_attr_lcd_type.attr,
@@ -1165,6 +1275,10 @@ static struct attribute *lcd_sysfs_attributes[] = {
 #if defined(CONFIG_DISPLAY_USE_INFO)
 	&dev_attr_dpui.attr,
 	&dev_attr_dpui_dbg.attr,
+#endif
+#if defined(CONFIG_CUSTOM_BACKLIGHT_SYSFS_NODE)
+	&dev_attr_custom_brightness_lvl.attr,
+	&dev_attr_custom_brightness_lvl_enable.attr,
 #endif
 	NULL,
 };
@@ -1220,10 +1334,15 @@ static void lcd_init_sysfs(struct lcd_info *lcd)
 
 	lcd_init_svc(lcd);
 
-	init_debugfs_backlight(lcd->bd, brightness_table, NULL);
-
-	init_debugfs_param("brightness_table", &brightness_table[0], U32_MAX, 1, 10);
-	init_debugfs_param("brightness_table", &brightness_table[1], U32_MAX, ARRAY_SIZE(brightness_table) - 1, 10);
+	if (lcd->custom_brightness_enable == 0) {
+		init_debugfs_backlight(lcd->bd, brightness_table, NULL);
+		init_debugfs_param("brightness_table", &brightness_table[0], U32_MAX, 1, 10);
+		init_debugfs_param("brightness_table", &brightness_table[1], U32_MAX, ARRAY_SIZE(brightness_table) - 1, 10);
+	} else if (lcd->custom_brightness_enable == 1) {
+		init_debugfs_backlight(lcd->bd, eureka_brightness_table, NULL);
+		init_debugfs_param("brightness_table", &eureka_brightness_table[0], U32_MAX, 1, 10);
+		init_debugfs_param("brightness_table", &eureka_brightness_table[1], U32_MAX, ARRAY_SIZE(eureka_brightness_table) - 1, 10);
+	}
 
 	init_debugfs_param("elvss_table", &elvss_table[0], U8_MAX, 1, 10);
 	init_debugfs_param("elvss_table", &elvss_table[1], U8_MAX, ARRAY_SIZE(elvss_table) - 1, 10);
