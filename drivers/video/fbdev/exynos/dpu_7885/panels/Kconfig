@@ -38,7 +38,7 @@ config SUPPORT_POC_FLASH
 
 config CUSTOM_BACKLIGHT_SYSFS_NODE
 	bool "Custom sysfs node for backlight"
-	depends on EXYNOS_DECON_LCD_S6D7AT0B_A10
+	depends on EXYNOS_DECON_LCD_S6D7AT0B_A10 || EXYNOS_DECON_LCD_S6E8FC0_A20 || EXYNOS_DECON_LCD_HX83102D_A20E || EXYNOS_DECON_LCD_EA8076_A30 || EXYNOS_DECON_LCD_S6E8FC1_A30S || EXYNOS_DECON_LCD_S6E8FC0_A40
 	default n
 	help
 	  If you say yes here, you will get support for a custom backlight sysfs node.
