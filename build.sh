@@ -139,8 +139,10 @@ CLANG_CLEAN() {
 		{
 			rm -rf arch/$ARCH/boot/Image
 			rm -rf arch/$ARCH/boot/dtbo.img
+			rm -rf arch/$ARCH/boot/dtb.img
 			rm -rf kernel_zip/anykernel/Image
 			rm -rf kernel_zip/anykernel/dtbo.img
+			rm -rf kernel_zip/anykernel/dtb.img
 		}
 	fi
 
@@ -403,6 +405,7 @@ COMMON_STEPS() {
 	if [ ${CLANGC} == "OK" ]; then
 		{
 			cp -f out/arch/$ARCH/boot/Image arch/$ARCH/boot/Image
+			cp -f out/arch/$ARCH/boot/dtb.img arch/$ARCH/boot/dtb.img
 			cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
 		}
 	fi
