@@ -26,8 +26,8 @@ DTBO_DIR=./arch/arm64/boot/dts/exynos/dtbo
 PROJECT_NAME="Eureka Kernel"
 CORES=$(nproc --all)
 SELINUX_STATUS=""
-TYPE="oneui"
-REV=6.5
+REV=7.5
+RR=0
 PCUSER=chatur
 USER=Chatur
 ZIPNAME=Eureka_Rx.x_Axxx_xxxx_x_x.zip
@@ -50,40 +50,49 @@ BUILD_START=$(date +"%s")
 
 ####################### Devices List #########################
 
-SM_A105X="Samsung Galaxy A10"
-DEFCONFIG_A105=exynos7885-a10_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A105=A105
+SM_A105X() {
 
-SM_A205X="Samsung Galaxy A20"
-DEFCONFIG_A205=exynos7885-a20_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A205=A205
+	DEVICE_Axxx=A105
+	DEFCONFIG=exynos7885-a10_"$SELINUX_STATUS"defconfig
+}
 
-SM_A202X="Samsung Galaxy A20e"
-DEFCONFIG_A202=exynos7885-a20e_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A202=A202
+SM_A205X() {
+	DEVICE_Axxx=A205
+	DEFCONFIG=exynos7885-a20_"$SELINUX_STATUS"defconfig
+}
 
-SM_A305X="Samsung Galaxy A30"
-DEFCONFIG_A305=exynos7885-a30_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A305=A305
+SM_A202X() {
+	DEVICE_Axxx=A202
+	DEFCONFIG=exynos7885-a20e_"$SELINUX_STATUS"defconfig
+}
 
-SM_A307X="Samsung Galaxy A30s"
-DEFCONFIG_A307=exynos7885-a30s_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A307=A307
+SM_A305X() {
+	DEVICE_Axxx=A305
+	DEFCONFIG=exynos7885-a30_"$SELINUX_STATUS"defconfig
+}
 
-SM_A405X="Samsung Galaxy A40"
-DEFCONFIG_A405=exynos7885-a40_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A405=A405
+SM_A307X() {
+	DEVICE_Axxx=A307
+	DEFCONFIG=exynos7885-a30s_"$SELINUX_STATUS"defconfig
+}
 
-SM_A505X="Samsung Galaxy A50"
-DEFCONFIG_A505=exynos9610-a50_"$TYPE"_"$SELINUX_STATUS"defconfig
-DEVICE_A505=A505
+SM_A405X() {
+	DEVICE_Axxx=A405
+	DEFCONFIG=exynos7885-a40_"$SELINUX_STATUS"defconfig
+}
+
+SM_M205X() {
+	DEVICE_Axxx=M205
+	DEFCONFIG=exynos7885-m20_"$SELINUX_STATUS"defconfig
+}
 
 ################################################################
 
 ######################## Android OS list #######################
 
 androidp="Android 9 (Pie)"
-androidr="Android 10 (Q) 11 (R)"
+androidqr="Android 10 (Q) 11 (R)"
+androidr="Android 11 (oneui 3)"
 
 ################################################################
 
@@ -233,6 +242,25 @@ CLANG() {
 		CROSS_COMPILE_ARM32=$GCC_ARM32_FILE
 }
 
+PREBUILT_DTBO() {
+	# Copy prebuilt dtbo.img to anykernel directory
+	if [ "${DEVICE_Axxx}" == "A105" ]; then
+		cp -f kernel_zip/dtbo/a10/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "A205" ]; then
+		cp -f kernel_zip/dtbo/a20/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "A202" ]; then
+		cp -f kernel_zip/dtbo/a20e/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "A305" ]; then
+		cp -f kernel_zip/dtbo/a30/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "A307" ]; then
+		cp -f kernel_zip/dtbo/a30s/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "A405" ]; then
+		cp -f kernel_zip/dtbo/a40/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${DEVICE_Axxx}" == "M205" ]; then
+		cp -f kernel_zip/dtbo/m20/dtbo.img kernel_zip/anykernel/dtbo.img
+	fi
+}
+
 ZIPPIFY() {
 	# Make Eureka flashable zip
 
@@ -247,7 +275,8 @@ ZIPPIFY() {
 			# Copy Image and dtbo.img to anykernel directory
 			cp -f arch/$ARCH/boot/Image kernel_zip/anykernel/Image
 			cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
-			cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
+			PREBUILT_DTBO
+			#cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 
 			# Go to anykernel directory
 			cd kernel_zip/anykernel
@@ -269,12 +298,12 @@ PROCESSES() {
 	if [ "${cores}" == "" ]; then
 		echo " "
 		echo "Using all $CORES cores for compilation"
-		sleep 2
+		sleep 1
 	else
 		echo " "
 		echo "Using $cores cores for compilation "
 		CORES=$cores
-		sleep 2
+		sleep 1
 	fi
 }
 
@@ -289,7 +318,7 @@ ENTER_VERSION() {
 		echo " "
 		echo "     Version = $REV"
 	fi
-	sleep 2
+	sleep 1
 }
 
 USER() {
@@ -306,13 +335,18 @@ USER() {
 		echo " "
 		echo "     build_user = $user"
 	fi
-	sleep 2
+	sleep 1
 }
 
 RENAME() {
 	# Give proper name to kernel and zip name
-	VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS""Q/R
-	ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS""$ANDROID".zip"
+	if [ "$RR" == "1" ]; then
+		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"R"
+		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"R.zip"
+	else
+		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q/R"
+		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q_R.zip"
+	fi
 }
 
 SELINUX() {
@@ -435,7 +469,7 @@ OS_MENU() {
 	# Give the choice to choose Android Version
 	PS3='
 Please select your Android Version: '
-	menuos=("$androidp" "$androidr" "Exit")
+	menuos=("$androidp" "$androidqr" "$androidr" "Exit")
 	select menuos in "${menuos[@]}"; do
 		case $menuos in
 		"$androidp")
@@ -447,11 +481,21 @@ Please select your Android Version: '
 			echo " "
 			break
 			;;
-		"$androidr")
+		"$androidqr")
 			echo " "
 			echo "Android 10 (Q) / 11 (R) chosen as Android Major Version"
 			ANDROID=r
 			AND_VER=11
+			sleep 2
+			echo " "
+			break
+			;;
+		"$androidr")
+			echo " "
+			echo "Android 11 (OneUI 3) chosen as Android Major Version"
+			ANDROID=r
+			AND_VER=11
+			RR=1
 			sleep 2
 			echo " "
 			break
@@ -527,83 +571,76 @@ echo " Devices avalaible for compilation: "
 echo " "
 PS3='
  Please select your device: '
-menuoptions=("$SM_A105X" "$SM_A205X" "$SM_A202X" "$SM_A305X" "$SM_A307X" "$SM_A405X" "$SM_A505X" "Exit")
+menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A305X" "SM_A307X" "SM_A405X" "SM_M205X" "Exit")
 select menuoptions in "${menuoptions[@]}"; do
 	case $menuoptions in
-	"$SM_A105X")
+	"SM_A105X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A105
-		DEFCONFIG=exynos7885-a10_"$SELINUX_STATUS"defconfig
+		SM_A105X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A205X")
+	"SM_A205X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A205
-		DEFCONFIG=exynos7885-a20_"$SELINUX_STATUS"defconfig
+		SM_A205X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A202X")
+	"SM_A202X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A202
-		DEFCONFIG=exynos7885-a20e_"$SELINUX_STATUS"defconfig
+		SM_A202X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A305X")
+	"SM_A305X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A305
-		DEFCONFIG=exynos7885-a30_"$SELINUX_STATUS"defconfig
+		SM_A305X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A307X")
+	"SM_A307X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A307
-		DEFCONFIG=exynos7885-a30s_"$SELINUX_STATUS"defconfig
+		SM_A307X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A405X")
+	"SM_A405X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A405
-		DEFCONFIG=exynos7885-a40_"$SELINUX_STATUS"defconfig
+		SM_A405X
 		COMMON_STEPS
 		break
 		;;
-	"$SM_A505X")
+	"SM_M205X")
 		echo " "
 		echo "Android versions available: "
 		echo " "
 		OS_MENU
 		echo " "
-		DEVICE_Axxx=$DEVICE_A505
-		DEFCONFIG=exynos9610-a50_"$SELINUX_STATUS"defconfig
+		SM_M205X
 		COMMON_STEPS
 		break
 		;;
