@@ -22,7 +22,7 @@
  * Attached value: number in kHz
  * Default value: NA
  */
-#define GPU_FREQ_KHZ_MAX (5000)
+#define GPU_FREQ_KHZ_MAX (1300000)
 /**
  * Minimum frequency GPU will be clocked at. Given in kHz.
  * This must be specified as there is no default value.
@@ -30,7 +30,7 @@
  * Attached value: number in kHz
  * Default value: NA
  */
-#define GPU_FREQ_KHZ_MIN (5000)
+#define GPU_FREQ_KHZ_MIN (343000)
 
 /**
  * CPU_SPEED_FUNC - A pointer to a function that calculates the CPU clock
