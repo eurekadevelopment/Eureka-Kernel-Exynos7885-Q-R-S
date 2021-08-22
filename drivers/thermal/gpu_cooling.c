@@ -307,7 +307,7 @@ static int build_dyn_power_table(struct gpufreq_cooling_device *gpufreq_device,
 
 		freq = gpu_dvfs_get_clock(num_opps - i - 1);
 
-		if (freq > gpu_dvfs_get_max_freq())
+		if (freq > gpu_dvfs_get_max_freq() || freq == 0)
 			continue;
 
 		voltage_mv = gpu_dvfs_get_voltage(freq) / 1000;
