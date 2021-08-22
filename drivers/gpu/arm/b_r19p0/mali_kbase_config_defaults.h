@@ -211,7 +211,7 @@ enum {
  * is enabled the value will be read from there, otherwise this should be
  * overridden by defining GPU_FREQ_KHZ_MAX in the platform file.
  */
-#define DEFAULT_GPU_FREQ_KHZ_MAX (5000)
+#define DEFAULT_GPU_FREQ_KHZ_MAX (1300000)
 
 #endif /* _KBASE_CONFIG_DEFAULTS_H_ */
 
