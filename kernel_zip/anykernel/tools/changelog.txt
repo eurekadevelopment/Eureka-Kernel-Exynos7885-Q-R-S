@@ -1,5 +1,5 @@
 Kernel latest version: Eureka R7.5
-Developer : Eureka Team
+Developer: Eureka Team
 Contact info:
  * Telegram: @eureka_support_group
 
@@ -27,7 +27,7 @@ be fixed.
 
 7) Added GPU thermal and voltage control (Can be controlled in HkTweaks) 
 
-8) Added latest boeffla_wl_blocker V 1.1.0 and disabled some wakelocks.
+8) Added latest boeffla_wl_blocker v1.1.0 and disabled some wakelocks.
 
 9) Some optimisations for overall performance in kernel
 
@@ -49,11 +49,11 @@ be fixed.
 
 18) Optimised kernel for performance instead of size
 
-19) GPU max frequency overclocked from 676 MHz to 1300 MHz
+19) GPU max frequency overclocked from 676MHz to 1300MHz
 
 20) Underclocked CPU as follows:
-	BIG Cores: from 936 MHz to 520 MHz.
-	LIL Cores: from 839 MHz to 449 MHz.
+	BIG Cores: from 936MHz to 520MHz.
+	LIL Cores: from 839MHz to 449MHz.
 
 21) Mark some IRQS and Kthreads as performance critical
 
@@ -65,16 +65,16 @@ be fixed.
 
 25) Removed verity flag from dt.
 
-26) Allow undervolting of gpu by 100 mV
+26) Allow undervolting of gpu by 100mV
 
 27) Switch to a lower charging voltage more quickly. This results in a slight reduce in battery capacity
 (about 3% less usable capacity) but this helps to extend the cycle life of the battery.
 
 28) Fixed CPU throttling of both clusters. All cores will get throttled only if temperature is above 95'C
 
-29) Adjusted default gpu highspeed clock to 1001 MHz for a smoother ui experience.
+29) Adjusted default gpu highspeed clock to 1001MHz for a smoother ui experience.
 
-30) Enable deadline I/O scheduler (by developper Gabriel)
+30) Enable deadline I/O scheduler
 
 31) Upstream LZ4 compressor module and other related optimisations.
 
@@ -88,7 +88,7 @@ and so on released by linux developpers.
 
 35) Built with Linaro V6.5.0 toolchain. Reason: Better performance
 
-36) Other performance tweaks (developper Gabriel helped)
+36) Other performance tweaks
 
 
 ##################  MAIN FEATURES OF R5.0
@@ -99,7 +99,7 @@ and so on released by linux developpers.
 
 39) Fake gpu model to Mali-G72 (Doesn't work probably because gpu model is provided by Vendor partition)
 
-40) Tune CFQ I/O scheduler based on Pixel 4 (by developper Gabriel)
+40) Tune CFQ I/O scheduler based on Pixel 4
 
 41) Improve code for safetynet bypass in case Google checks for other stuffs in the future.
 
@@ -131,15 +131,15 @@ read ntfs filesystems because android os doesnt have necessary libraries to moun
 
 52) Further overclocked BIG cores from 2080 MHz to 2184 MHz.
 
-53) Undervolted the whole soc (exynos 7884B) including CPU and GPU.
+53) Undervolted the whole soc (exynos7885) including CPU and GPU.
 
 54) Tweaked kernel for stability and less battery drain at high frequencies.
 
-55) Enabled back 312 MHz and 343 MHz frequencies for big and little cores respectively.
+55) Enabled back 312MHz and 343MHz frequencies for big and little cores respectively.
 
 56) Fixed automatic scaling to overclocked frequencies. No need to force frequencies now!
 
-57) CPU throttling bypass increased till 2184 MHz for big cores.
+57) CPU throttling bypass increased till 2184MHz for big cores.
 
 58) Updated spectrum profiles inorder to use max frequencies.
 
@@ -159,7 +159,7 @@ flashing kernel as from now. So, no need to flash magisk after kernel!!
 
 65) Disable GFS for better ui responsiveness for all kernels now.
 
-66) Ficed issue of bootloop!! - No more stucking on bootlogo.
+66) Fixed issue of bootloop!! - No more stucking on bootlogo.
 
 67) Slight improvement in boot's speed.
 
@@ -230,7 +230,7 @@ contact the maintainer of the GSI for any fix. Tested Superior GSI android 11 an
 
 91) Fixed low torch/flashlight brightness on custom ROMs (dtbo based)
 
-92) Increased A10 input charging current upto 1.2 A (dtbo based)
+92) Increased A10 input charging current upto 1.2A (dtbo based)
 
 93) Updated TFA98xx audio codec driver from 4.2.0 to 6.7.8 (latest) - Used by A20, A20e, A30, A30s and A40
 
@@ -266,7 +266,7 @@ gsi and oneui based roms.
 
 107) Upstream Linux Kernel Version from 4.4.270 to 4.4.277
 
-108) Enabled back 208 MHz frequency for big and little cores.
+108) Enabled back 208MHz frequency for big and little cores.
 
 109) DTB is now used to customize Eureka features such as CPU and GPU frequencies.
 
@@ -278,7 +278,7 @@ gsi and oneui based roms.
 
 113) "Samsung A10 1.2A input charging current" feature still depends on Eureka dtbo. Will fix it on next update
 
-114) Further overclocked BIG cores from 2184 MHz to 2288 MHz and LITTLE cores from 1690 MHz to 1794 MHz.
+114) Further overclocked BIG cores from 2184MHz to 2288MHz and LITTLE cores from 1690MHz to 1794MHz.
 
 115) Fixed wrongly set GPU throttling frequencies.
 
