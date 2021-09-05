@@ -993,7 +993,7 @@ static int init_constraint_table_dt(struct exynos_cpufreq_domain *domain,
 					struct device_node *dn)
 {
 	struct exynos_dm_freq *table;
-	int size, index, c_index;
+	int size, index, c_index, bc_index, lc_index;
 
 	/*
 	 * A DVFS Manager table row consists of CPU and MIF frequency
@@ -1021,10 +1021,74 @@ static int init_constraint_table_dt(struct exynos_cpufreq_domain *domain,
 				dm->c.freq_table[index].constraint_freq
 					= table[c_index].constraint_freq;
 
+			// Big cores' specific frequencies
+			int bc_freq[14] = {2496000,2392000,2288000,2184000,2080000,1976000,1872000,1768000,1664000,1560000,936000,728000,520000,312000};
+
+		 	for (bc_index = 0; bc_index <= 6; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=1794000;
+			}
+			for (bc_index = 7; bc_index <= 8; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=1539000;
+			}
+			for (bc_index = 9; bc_index <= 9; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=1352000;
+			}
+			for (bc_index = 10; bc_index <= 10; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=676000;
+			}
+			for (bc_index = 11; bc_index <= 12; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=546000;
+			}
+			for (bc_index = 13; bc_index <= 13; bc_index++) {
+				if (freq == bc_freq[bc_index])
+					dm->c.freq_table[index].constraint_freq=420000;
+			}
+
+			// Little cores' specific frequencies
+			int lc_freq[15] = {2002000,1898000,1794000,1690000,1586000,1482000,1248000,1014000,902000,839000,757000,676000,546000,449000,343000};
+
+		 	for (lc_index = 0; lc_index <= 6; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=1014000;
+			}
+			for (lc_index = 7; lc_index <= 7; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=845000;
+			}
+			for (lc_index = 8; lc_index <= 9; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=676000;
+			}
+			for (lc_index = 10; lc_index <= 11; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=546000;
+			}
+			for (lc_index = 12; lc_index <= 13; lc_index++) {
+				if (freq == lc_freq[lc_index])
+					dm->c.freq_table[index].constraint_freq=420000;
+			}
+
+			// Common frequencies for big and little cores
+			int cc_freq[3] = {1352000,1144000,208000};
+
+			if (freq == cc_freq[0])
+				dm->c.freq_table[index].constraint_freq=1014000;
+			if (freq == cc_freq[1])
+				dm->c.freq_table[index].constraint_freq=845000;
+			if (freq == cc_freq[2])
+				dm->c.freq_table[index].constraint_freq=420000;
+
 			if (freq >= table[c_index].master_freq)
 				break;
 
 		}
+		pr_info("  Freq : %u kHz, MIF constraint_freq : %u kHz, Chatur_MIF_CFT\n",
+			freq, dm->c.freq_table[index].constraint_freq);
 	}
 
 	kfree(table);
