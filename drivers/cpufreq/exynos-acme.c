@@ -1163,15 +1163,15 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 	/*
 	 * If max-freq property exists in device tree, max frequency is
 	 * selected to the value defined in device tree (ignoring ECT limit)
-	 * In case of min-freq, min frequency is selected
-	 * to bigger one.
+	 * If min-freq property exists in device tree, min frequency is
+	 * selected to the value defined in device tree
 	 */
 #ifndef CONFIG_EXYNOS_HOTPLUG_GOVERNOR
 	if (!of_property_read_u32(dn, "max-freq", &val))
 		domain->max_freq = val;
 #endif
 	if (!of_property_read_u32(dn, "min-freq", &val))
-		domain->min_freq = max(domain->min_freq, val);
+		domain->min_freq = val;
 
 	domain->boot_freq = cal_dfs_get_boot_freq(domain->cal_id);
 	domain->resume_freq = cal_dfs_get_resume_freq(domain->cal_id);
