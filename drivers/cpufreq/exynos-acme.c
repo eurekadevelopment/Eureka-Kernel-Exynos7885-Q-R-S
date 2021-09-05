@@ -1175,6 +1175,17 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 
 	domain->boot_freq = cal_dfs_get_boot_freq(domain->cal_id);
 	domain->resume_freq = cal_dfs_get_resume_freq(domain->cal_id);
+	// Allow phone to boot with max frequency and increase resume_freq by 1 level
+	if (domain->id == 0)
+	{
+		domain->boot_freq = domain->max_freq;
+		domain->resume_freq = 1144000;
+	}
+	else if (domain->id == 1)
+	{
+		domain->boot_freq = domain->max_freq;
+		domain->resume_freq = 1560000;
+	}
 
 	/* Initialize freq boost */
 	if (domain->boost_supported) {
