@@ -95,7 +95,7 @@ static int exynos7885_devfreq_int_init_freq_table(struct exynos_devfreq_data *da
 	u32 flags = 0;
 	int i, ret = 0;
 
-	max_freq = (u32)cal_dfs_get_max_freq(data->dfs_id);
+	max_freq = 533000;
 	if (!max_freq) {
 		dev_err(data->dev, "failed get max frequency\n");
 		return -EINVAL;
@@ -115,7 +115,7 @@ static int exynos7885_devfreq_int_init_freq_table(struct exynos_devfreq_data *da
 			return PTR_ERR(target_opp);
 		}
 
-		data->max_freq = dev_pm_opp_get_freq(target_opp);
+		data->max_freq = 533000;
 		rcu_read_unlock();
 	}
 
