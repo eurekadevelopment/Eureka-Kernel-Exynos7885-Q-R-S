@@ -1093,14 +1093,16 @@ static int sec_chg_set_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		{
 			int input_current = val->intval;
-			s2mu005_set_input_current_limit(charger, input_current);
+			int eureka_input_limit = 1200;
+			s2mu005_set_input_current_limit(charger, eureka_input_limit);
 			charger->input_current = val->intval;
 		}
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 		pr_info("[DEBUG] %s: is_charging %d\n", __func__, charger->is_charging);
-		charger->charging_current = val->intval;
+		int eureka_charging_current = 1200;
+		charger->charging_current = eureka_charging_current;
 		/* set charging current */
 		s2mu005_set_fast_charging_current(charger->client, charger->charging_current);
 #if EN_TEST_READ
