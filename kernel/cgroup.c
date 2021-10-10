@@ -235,6 +235,7 @@ struct cgroup_namespace init_cgroup_ns = {
 /* Ditto for the can_fork callback. */
 static u16 have_canfork_callback __read_mostly;
 
+static struct file_system_type cgroup2_fs_type;
 static struct cftype cgroup_dfl_base_files[];
 static struct cftype cgroup_legacy_base_files[];
 
@@ -2081,10 +2082,11 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 			 int flags, const char *unused_dev_name,
 			 void *data)
 {
+	bool is_v2 = fs_type == &cgroup2_fs_type;
 	struct super_block *pinned_sb = NULL;
 	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
 	struct cgroup_subsys *ss;
-	struct cgroup_root *root;
+	struct cgroup_root *root = NULL;
 	struct cgroup_sb_opts opts;
 	struct dentry *dentry;
 	int ret;
@@ -2105,7 +2107,7 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 	 */
 	if (!use_task_css_set_links)
 		cgroup_enable_task_cg_lists();
-/*
+
 	if (is_v2) {
 		if (data) {
 			pr_err("cgroup2: unknown option \"%s\"\n", (char *)data);
@@ -2117,7 +2119,6 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 		cgroup_get(&root->cgrp);
 		goto out_mount;
 	}
-*/
 
 	cgroup_lock_and_drain_offline(&cgrp_dfl_root.cgrp);
 
@@ -2128,7 +2129,7 @@ static struct dentry *cgroup_mount(struct file_system_type *fs_type,
 
 	/* look for a matching existing root */
 	if (opts.flags & CGRP_ROOT_SANE_BEHAVIOR) {
-		cgrp_dfl_root_visible = true;
+		cgrp_dfl_visible = true;
 		root = &cgrp_dfl_root;
 		cgroup_get(&root->cgrp);
 		ret = 0;
@@ -2255,7 +2256,8 @@ out_free:
 	}
 out_mount:
 	dentry = kernfs_mount(fs_type, flags, root->kf_root,
-				CGROUP_SUPER_MAGIC, &new_sb);
+			      is_v2 ? CGROUP2_SUPER_MAGIC : CGROUP_SUPER_MAGIC,
+			      &new_sb);
 
 	/*
 	 * In non-init cgroup namespace, instead of root cgroup's
@@ -2323,14 +2325,12 @@ static struct file_system_type cgroup_fs_type = {
 	.fs_flags = FS_USERNS_MOUNT,
 };
 
-/*
 static struct file_system_type cgroup2_fs_type = {
 	.name = "cgroup2",
 	.mount = cgroup_mount,
 	.kill_sb = cgroup_kill_sb,
 	.fs_flags = FS_USERNS_MOUNT,
 };
-*/
 
 static int cgroup_path_ns_locked(struct cgroup *cgrp, char *buf, size_t buflen,
 				 struct cgroup_namespace *ns)
@@ -2900,6 +2900,7 @@ static int cgroup_procs_write_permission(struct task_struct *task,
 	 * need to check permissions on one of them.
 	 */
 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
+	    !uid_eq(cred->euid, GLOBAL_SYSTEM_UID) &&
 	    !uid_eq(cred->euid, tcred->uid) &&
 	    !uid_eq(cred->euid, tcred->suid) &&
 	    !ns_capable(tcred->user_ns, CAP_SYS_NICE)) {
@@ -3030,6 +3031,7 @@ int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
 	int retval = 0;
 
 	mutex_lock(&cgroup_mutex);
+	percpu_down_write(&cgroup_threadgroup_rwsem);
 	for_each_root(root) {
 		struct cgroup *from_cgrp;
 
@@ -3044,6 +3046,7 @@ int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
 		if (retval)
 			break;
 	}
+	percpu_up_write(&cgroup_threadgroup_rwsem);
 	mutex_unlock(&cgroup_mutex);
 
 	return retval;
@@ -4472,6 +4475,8 @@ int cgroup_transfer_tasks(struct cgroup *to, struct cgroup *from)
 
 	mutex_lock(&cgroup_mutex);
 
+	percpu_down_write(&cgroup_threadgroup_rwsem);
+
 	/* all tasks in @from are being moved, all csets are source */
 	spin_lock_irq(&css_set_lock);
 	list_for_each_entry(link, &from->cset_links, cset_link)
@@ -4506,6 +4511,7 @@ int cgroup_transfer_tasks(struct cgroup *to, struct cgroup *from)
 	} while (task && !ret);
 out_err:
 	cgroup_migrate_finish(&preloaded_csets);
+	percpu_up_write(&cgroup_threadgroup_rwsem);
 	mutex_unlock(&cgroup_mutex);
 	return ret;
 }
@@ -4760,9 +4766,6 @@ static int pidlist_array_load(struct cgroup *cgrp, enum cgroup_filetype type,
 	while ((tsk = css_task_iter_next(&it))) {
 		if (unlikely(n == length))
 			break;
-		/* avoid the use-after-free for task */
-		if (unlikely(tsk->state == TASK_DEAD))
-			continue;
 		/* get tgid or pid for procs or tasks file respectively */
 		if (type == CGROUP_FILE_PROCS)
 			pid = task_tgid_vnr(tsk);
@@ -5837,6 +5840,7 @@ int __init cgroup_init(void)
 
 	WARN_ON(sysfs_create_mount_point(fs_kobj, "cgroup"));
 	WARN_ON(register_filesystem(&cgroup_fs_type));
+	WARN_ON(register_filesystem(&cgroup2_fs_type));
 	WARN_ON(!proc_create("cgroups", 0, NULL, &proc_cgroupstats_operations));
 
 	return 0;
@@ -5852,7 +5856,7 @@ static int __init cgroup_wq_init(void)
 	 * We would prefer to do this in cgroup_init() above, but that
 	 * is called before init_workqueues(): so leave this until after.
 	 */
-	cgroup_destroy_wq = alloc_workqueue("cgroup_destroy", 0, 1);
+	cgroup_destroy_wq = create_workqueue("cgroup_destroy");
 	BUG_ON(!cgroup_destroy_wq);
 
 	/*
@@ -6128,8 +6132,11 @@ void cgroup_exit(struct task_struct *tsk)
 	int i;
 
 	/*
-	 * Unlink from @tsk from its css_set.  As migration path can't race
-	 * with us, we can check css_set and cg_list without synchronization.
+	 * Avoid potential race with the migrate path.
+	 */
+	spin_lock_irq(&css_set_lock);
+	/*
+	 * Unlink from @tsk from its css_set.
 	 */
 	cset = task_css_set(tsk);
 
@@ -6138,6 +6145,8 @@ void cgroup_exit(struct task_struct *tsk)
 	} else {
 		get_css_set(cset);
 	}
+
+	spin_unlock_irq(&css_set_lock);
 
 	/* see cgroup_post_fork() for details */
 	do_each_subsys_mask(ss, i, have_exit_callback) {
@@ -6203,7 +6212,9 @@ static void cgroup_release_agent(struct work_struct *work)
 	if (!pathbuf || !agentbuf)
 		goto out;
 
+	spin_lock_irq(&css_set_lock);
 	ret = cgroup_path_ns_locked(cgrp, pathbuf, PATH_MAX, &init_cgroup_ns);
+	spin_unlock_irq(&css_set_lock);
 	if (ret < 0 || ret >= PATH_MAX)
 		goto out;
 

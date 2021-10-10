@@ -8089,7 +8089,7 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
 	if (!overflow_handler && parent_event) {
 		overflow_handler = parent_event->overflow_handler;
 		context = parent_event->overflow_handler_context;
-#ifdef CONFIG_BPF_SYSCALL
+#if 0
 		if (overflow_handler == bpf_overflow_handler) {
 			struct bpf_prog *prog = bpf_prog_inc(parent_event->prog);
 
