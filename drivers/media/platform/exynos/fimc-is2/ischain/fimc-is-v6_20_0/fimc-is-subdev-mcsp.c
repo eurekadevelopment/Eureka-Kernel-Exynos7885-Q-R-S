@@ -231,6 +231,9 @@ static int fimc_is_ischain_mxp_start(struct fimc_is_device_ischain *device,
 	struct fimc_is_fmt *format;
 	struct param_otf_input *otf_input;
 	u32 crange;
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+	u32 flip = mcs_output->flip;
+#endif
 	enum camera_pixel_size pixel_size;
 
 	BUG_ON(!queue);
@@ -261,6 +264,18 @@ static int fimc_is_ischain_mxp_start(struct fimc_is_device_ischain *device,
 		format = fimc_is_find_format((u32)node->pixelformat, 0);
 		queue->framecfg.format = format;
 	}
+
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+	if ((index >= PARAM_MCS_OUTPUT0 && index < PARAM_MCS_OUTPUT5) &&
+		frame->shot_ext->mcsc_flip[index - PARAM_MCS_OUTPUT0] != mcs_output->flip) {
+		flip = frame->shot_ext->mcsc_flip[index - PARAM_MCS_OUTPUT0];
+		queue->framecfg.flip = flip << 1;
+		mdbg_pframe("flip is changed(%d->%d)\n",
+			device, subdev, frame,
+			mcs_output->flip,
+			flip);
+	}
+#endif
 
 	mcs_output->otf_format = OTF_OUTPUT_FORMAT_YUV422;
 	mcs_output->otf_bitwidth = OTF_OUTPUT_BIT_WIDTH_8BIT;
@@ -304,7 +319,11 @@ static int fimc_is_ischain_mxp_start(struct fimc_is_device_ischain *device,
 	}
 
 	mcs_output->yuv_range = crange;
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+	mcs_output->flip = flip;
+#else
 	mcs_output->flip = (u32)queue->framecfg.flip >> 1; /* Caution: change from bitwise to enum */
+#endif
 
 #ifdef ENABLE_HWFC
 	if (test_bit(FIMC_IS_ISCHAIN_REPROCESSING, &device->state))
@@ -392,6 +411,9 @@ static int fimc_is_ischain_mxp_tag(struct fimc_is_subdev *subdev,
 	u32 index, lindex, hindex, indexes;
 	u32 pixelformat = 0;
 	u32 *target_addr;
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+	bool change_flip = false;
+#endif
 	bool change_pixelformat = false;
 
 	device = (struct fimc_is_device_ischain *)device_data;
@@ -461,6 +483,12 @@ static int fimc_is_ischain_mxp_tag(struct fimc_is_subdev *subdev,
 			pixelformat = node->pixelformat;
 		}
 
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+		if ((index >= PARAM_MCS_OUTPUT0 && index < PARAM_MCS_OUTPUT5) &&
+			ldr_frame->shot_ext->mcsc_flip[index - PARAM_MCS_OUTPUT0] != mcs_output->flip)
+			change_flip = true;
+#endif
+
 		inparm.x = mcs_output->crop_offset_x;
 		inparm.y = mcs_output->crop_offset_y;
 		inparm.w = mcs_output->crop_width;
@@ -479,6 +507,9 @@ static int fimc_is_ischain_mxp_tag(struct fimc_is_subdev *subdev,
 
 		if (!COMPARE_CROP(incrop, &inparm) ||
 			!COMPARE_CROP(otcrop, &otparm) ||
+#if defined(SUPPORT_PERFRAME_MCSC_FLIP) && (ANDROID_VERSION >= 100000)
+			change_flip ||
+#endif
 			change_pixelformat ||
 			test_bit(FIMC_IS_ISCHAIN_MODE_CHANGED, &device->state) ||
 			!test_bit(FIMC_IS_SUBDEV_RUN, &subdev->state) ||

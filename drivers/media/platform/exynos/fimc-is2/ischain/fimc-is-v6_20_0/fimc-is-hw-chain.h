@@ -93,12 +93,15 @@ enum hwip_interrupt_map {
 /* Specific interrupt map belonged to each IP */
 
 /* MC-Scaler */
-#define MCSC_INTR_MASK		(0x00000034)
-#define USE_DMA_BUFFER_INDEX	(0) /* 0 ~ 7 */
-#define MCSC_PRECISION		(20)
-#define MCSC_POLY_RATIO_UP	(8)
-#define MCSC_POLY_RATIO_DOWN	(16)
-#define MCSC_POST_RATIO_DOWN	(16)
+#define MCSC_INTR_MASK			(0x00000034)
+#define USE_DMA_BUFFER_INDEX		(0) /* 0 ~ 7 */
+#define MCSC_PRECISION			(20)
+#define MCSC_POLY_RATIO_UP		(8)
+#define MCSC_POLY_QUALITY_RATIO_DOWN	(4)
+#define MCSC_POLY_RATIO_DOWN		(16)
+#define MCSC_POLY_MAX_RATIO_DOWN	(256)
+#define MCSC_POST_RATIO_DOWN		(16)
+#define MCSC_POST_MAX_WIDTH		(1344)
 /* #define MCSC_POST_WA */
 #define MCSC_POST_WA_SHIFT	(8)	/* 256 = 2^8 */
 
