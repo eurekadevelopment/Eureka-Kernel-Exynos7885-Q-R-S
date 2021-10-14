@@ -341,11 +341,11 @@ USER() {
 RENAME() {
 	# Give proper name to kernel and zip name
 	if [ "$RR" == "1" ]; then
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"R"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"R.zip"
+		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3/4"
+		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3.zip"
 	else
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q/R"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q_R.zip"
+		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q/R/S"
+		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q_R_S.zip"
 	fi
 }
 
