@@ -627,6 +627,7 @@ int mn_ch_size;
 int mn_slot_width;
 int mn_pcm_format;
 bool mb_mute;
+bool dac_mute;
 bool i2c_suspend;
 int mn_channels;
 int spk_l_control;

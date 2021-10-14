@@ -69,7 +69,7 @@ static int smartamp_params_ctrl(uint8_t *input, u8 dir, u8 count)
 	special_index = TAS_SA_IS_SPL_IDX(index);
 	pr_info("[TI-SmartPA:%s] index = %d", __func__, index);
 	if (special_index == 0) {
-		if ((index < 0 || index > MAX_DSP_PARAM_INDEX)) {
+		if (index > MAX_DSP_PARAM_INDEX) {
 			pr_err("[TI-SmartPA:%s] invalid index !\n", __func__);
 			kfree(ppacket);
 			return -1;

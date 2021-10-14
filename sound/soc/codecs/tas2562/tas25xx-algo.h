@@ -40,13 +40,14 @@
 #define TAS25XX_EFS_CALIB_DATA_R	"/efs/tas25xx/calib_re_r"
 #define TAS25XX_EFS_TEMP_DATA_R		"/efs/tas25xx/amb_temp_r"
 
+#define CALIB_RETRY_COUNT		5
 #define RDC_L					0
 #define TEMP_L					1
 #define RDC_R					2
 #define TEMP_R					3
 #define DEFAULT_AMBIENT_TEMP	25
-#define CALIB_TIME				3
-#define VALID_TIME				5
+#define CALIB_TIME				2
+#define VALIDATION_TIME			3
 #define STATUS_NONE				0x00
 #define STATUS_SUCCESS			0x01
 #define STATUS_FAIL				0xcc
@@ -74,12 +75,6 @@ struct tas25xx_algo
 	uint32_t port;
 	uint32_t calib_re[MAX_CHANNELS];
 	uint32_t amb_temp[MAX_CHANNELS];
-	uint32_t imped_min[MAX_CHANNELS];
-	uint32_t imped_max[MAX_CHANNELS];
-	uint32_t f0_min[MAX_CHANNELS];
-	uint32_t f0_max[MAX_CHANNELS];
-	uint32_t q_min[MAX_CHANNELS]; 
-	uint32_t q_max[MAX_CHANNELS];
 	bool calib_update[MAX_CHANNELS];
 };
 
