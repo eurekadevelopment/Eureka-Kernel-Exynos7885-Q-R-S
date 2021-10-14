@@ -1,4 +1,4 @@
-Kernel latest version: Eureka R7.5
+Kernel latest version: Eureka R8.0
 Developer: Eureka Team
 Contact info:
  * Telegram: @eureka_support_group
@@ -43,7 +43,7 @@ be fixed.
 
 15) Added battery control 
 
-16) Optimized cpufreq and interactive governor.
+16) Optimized cpufreq and interactive governors.
 
 17) Use -O3 optimization for inputs and crypto.
 
@@ -286,6 +286,32 @@ gsi and oneui based roms.
 
 117) Some other minor optimisations.
 
-118) ..
+
+##################  MAIN FEATURES OF R8.0
+
+118) Upstream Linux Kernel Version from 4.4.277 to 4.4.288
+
+119) Added ondemandplus CPU governor.
+
+120) Added BFQ and ZEN v2 I/O schedulers.
+
+121) Added a new backlight brightness controller. When enabled in EKM app, the brightness can go lower and brighter than stock. [Feature can be used when new EKM app is released]
+
+122) "Samsung A10 1.2A input charging current" feature has been hardcoded in kernel.
+
+123) Nuked CPU quiet and reverted back to Exynos Hotplug. It should fix issue of cores randomly turning off.
+It is useless for a BIG.little architecture with 6 power efficient cores out of 8 cores.
+
+124) Fixed GPU frequency being limited to 1100 MHz after being throttled (v2.0).
+
+125) Some optimisations for better FS performance for EXT4 filesystem.
+
+126) Fixed non-detection of some gamepad controllers (such as chinese ones).
+
+127) Patched kernel for android 12 (S).
+
+128) Some other minor optimisations.
+
+129) ..
 
 
