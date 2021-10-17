@@ -259,6 +259,9 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 #ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
 		platform->interactive.highspeed_clock = platform->interactive.eureka_gpu_highspeed_clock;
 		platform->interactive.highspeed_load = platform->interactive.eureka_gpu_highspeed_load;
+#else
+		platform->interactive.highspeed_clock = 1001000;
+		platform->interactive.highspeed_load = 75;
 #endif
 	} else if (!strncmp("static", of_string, strlen("static"))) {
 		platform->governor_type = G3D_DVFS_GOVERNOR_STATIC;
@@ -292,10 +295,14 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 	gpu_update_config_data_int(np, "gpu_max_clock", &platform->gpu_max_clock);
 #ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
 	platform->gpu_max_clock = platform->eureka_gpu_max_clock;
+#else
+	platform->gpu_max_clock = 1300000;
 #endif
 	gpu_update_config_data_int(np, "gpu_max_clock_limit", &platform->gpu_max_clock_limit);
 #ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
 	platform->gpu_max_clock_limit = platform->eureka_gpu_max_clock;
+#else
+	platform->gpu_max_clock_limit = 1300000;
 #endif
 	gpu_update_config_data_int(np, "gpu_min_clock", &platform->gpu_min_clock);
 	gpu_update_config_data_int(np, "gpu_min_clock_limit", &platform->gpu_min_clock_limit);
@@ -314,6 +321,13 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->tmu_lock_clk[3] = platform->eureka_gpu_temp_throttling_3;
 		platform->tmu_lock_clk[4] = platform->eureka_gpu_temp_throttling_4;
 		platform->tmu_lock_clk[5] = platform->eureka_gpu_temp_throttling_5;
+#else
+		platform->tmu_lock_clk[0] = 676000;
+		platform->tmu_lock_clk[1] = 545000;
+		platform->tmu_lock_clk[2] = 450000;
+		platform->tmu_lock_clk[3] = 343000;
+		platform->tmu_lock_clk[4] = 343000;
+		platform->tmu_lock_clk[5] = 343000;
 #endif
 	} else
 		GPU_LOG(DVFS_WARNING, DUMMY, 0u, 0u, "mismatch tmu lock table size: %d, %d\n",

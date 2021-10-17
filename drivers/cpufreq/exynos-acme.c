@@ -1184,9 +1184,12 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 		if (!of_property_read_u32(dn, "eureka_max-freq", &ekval))
 			domain->max_freq = ekval;
 #else
-		domain->max_freq = val;
+		if (domain->id == 0) {
+			domain->max_freq = 1690000;
+		} else if (domain->id == 1) {
+	                domain->max_freq = 2080000;
 #endif
-	}
+		}
 #endif
 	if (!of_property_read_u32(dn, "min-freq", &val)) {
 #ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
@@ -1200,6 +1203,7 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 	domain->boot_freq = cal_dfs_get_boot_freq(domain->cal_id);
 	domain->resume_freq = cal_dfs_get_resume_freq(domain->cal_id);
 	// Allow phone to boot with max frequency and increase resume_freq by 1 level
+#ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
 	if (domain->id == 0)
 	{
 		domain->boot_freq = domain->max_freq;
@@ -1210,6 +1214,18 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 		domain->boot_freq = domain->max_freq;
 		domain->resume_freq = 1560000;
 	}
+#else
+        if (domain->id == 0)
+        {
+                domain->boot_freq = 1690000;
+                domain->resume_freq = 1144000;
+        }
+        else if (domain->id == 1)
+        {
+                domain->boot_freq = 2080000;
+                domain->resume_freq = 1560000;
+        }
+#endif
 
 	/* Initialize freq boost */
 	if (domain->boost_supported) {
