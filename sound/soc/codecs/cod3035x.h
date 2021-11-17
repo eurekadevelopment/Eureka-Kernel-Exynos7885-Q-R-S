@@ -175,6 +175,7 @@ struct cod3035x_priv {
 	bool uhqa_rec_mode;
 	bool btn_delay_masking;
 	struct wake_lock codec_wake_lock;
+	int oneui_version;
 
 #ifdef CONFIG_SND_SOC_COD30XX_EXT_ANT
 	struct delayed_work jack_report_work;

@@ -722,6 +722,9 @@
 		clocks = <&clock GATE_SPEEDY_APM>;
 		clock-names = "gate_speedy";
 		status = "disabled";
+		audio_codec_cod3035x: cod3035x@03 {
+			eureka_kernel_variant = <2>;
+		};
 	};
 
 	/* UART_HEALTH */
