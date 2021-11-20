@@ -93,6 +93,7 @@ enum is_scenario_id {
 enum is_subscenario_id {
 	ISS_SUB_SCENARIO_STILL_PREVIEW = 0,			/* 0: still preview */
 	ISS_SUB_SCENARIO_VIDEO = 1,				/* 1: video */
+	ISS_SUB_SCENARIO_STILL_FULL_PREVIEW_WDR_AUTO = 2,	/* 2: Full resolution Preview (HDR Auto/Off) */
 
 	ISS_SUB_SCENARIO_VIDEO_HIGH_SPEED = 4,			/* 4: 120 fps recording (HDR OFF) */
 	ISS_SUB_SCENARIO_FHD_120FPS = ISS_SUB_SCENARIO_VIDEO_HIGH_SPEED,
@@ -160,6 +161,12 @@ enum is_subscenario_id {
 	ISS_SUB_SCENARIO_3HDR_VIDEO_WDR_AUTO = 62,
 	ISS_SUB_SCENARIO_3HDR_VIDEO_WDR_ON = 63,
 
+	ISS_SUB_SCENARIO_STILL_PREVIEW_3RD_PARTY_HIGH = 46,		/* 46: 3rd Party Preview/Video Height >= 940 */
+	ISS_SUB_SCENARIO_STILL_PREVIEW_3RD_PARTY_MID = 58,		/* 58: 3rd Party Preview/Video Height 940 ~ 720 */
+	ISS_SUB_SCENARIO_STILL_PREVIEW_3RD_PARTY_LOW = 59,		/* 59: 3rd Party Preview/Video Height < 720 */
+	ISS_SUB_SCENARIO_STILL_CAPTURE_3RD_PARTY_HIGH = 60,		/* 60: 3rd Party Capture Height >= 1800 */
+	ISS_SUB_SCENARIO_STILL_CAPTURE_3RD_PARTY_MID = 61,		/* 61: 3rd Party Capture Height 1800 ~ 1080 */
+	ISS_SUB_SCENARIO_STILL_CAPTURE_3RD_PARTY_LOW = 62,		/* 62: 3rd Party Capture Height < 1080 */
 
 	ISS_SUB_SCENARIO_FRONT_VT1 = 31,			/* 31: front camera VT1 */
 	ISS_SUB_SCENARIO_FRONT_VT2 = 32,			/* 32: front camera VT2 */
