@@ -60,6 +60,9 @@ struct s610_radio;
 /* global variable for radio structure */
 struct s610_radio *gradio;
 
+static struct class *s610_radio_class;
+struct device *s610_radio_dev;
+
 #define	FAC_VALUE	16000
 
 static int s610_radio_g_volatile_ctrl(struct v4l2_ctrl *ctrl);
@@ -2082,6 +2085,111 @@ static struct device_node *exynos_audio_parse_dt(struct s610_radio *radio)
 }
 #endif /* USE_AUDIO_PM */
 
+static ssize_t radio_freq_ctrl_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int data;
+	int ret = sscanf(buf, "%u", &data);
+
+	if (ret != 1)
+		return -EINVAL;
+
+	if (data != gradio->low->fm_state.freq && data >= region_configs[radio_region].bot_freq && data <= region_configs[radio_region].top_freq) {
+		gradio->custom_radio_freq_ctrl = data;
+		gradio->freq = gradio->custom_radio_freq_ctrl;
+		fm_set_frequency(gradio, gradio->custom_radio_freq_ctrl);
+	}
+
+	return size;
+}
+
+static ssize_t radio_freq_ctrl_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	if (gradio->custom_radio_freq_ctrl != gradio->freq)
+		gradio->custom_radio_freq_ctrl = gradio->freq;
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", gradio->custom_radio_freq_ctrl);
+}
+
+static DEVICE_ATTR(radio_freq_ctrl, 0644, radio_freq_ctrl_show, radio_freq_ctrl_store);
+
+static ssize_t radio_freq_seek_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int seek_direction;
+	int wrap_around = 1;
+	unsigned int spacing;
+	unsigned int limit_freq;
+
+	if (sscanf(buf, "%d %d", &seek_direction, &spacing) < 2)
+		return -EINVAL;
+
+	if (seek_direction)
+		limit_freq = region_configs[radio_region].top_freq;
+	else
+		limit_freq = region_configs[radio_region].bot_freq;
+
+	/* seek direction - 0: seek down, 1: seek up.
+	   wrap_around - Restart seek if no more channel is available in the current seek direction.
+	   spacing - 0 to 100: Frequency difference between 2 adjacent channels.
+	   limit_freq - Limit frequency based on region and seek direction.
+	*/
+	fm_rx_seek(gradio, seek_direction, wrap_around, spacing, gradio->custom_radio_freq_ctrl, limit_freq);
+
+	return size;
+}
+
+static ssize_t radio_freq_seek_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	if (gradio->custom_radio_freq_ctrl != gradio->freq)
+		gradio->custom_radio_freq_ctrl = gradio->freq;
+
+	return snprintf(buf, PAGE_SIZE, "%u\n", gradio->custom_radio_freq_ctrl);
+}
+
+static DEVICE_ATTR(radio_freq_seek, 0644, radio_freq_seek_show, radio_freq_seek_store);
+
+static struct attribute *s610_radio_attrs[] = {
+	&dev_attr_radio_freq_ctrl.attr,
+	&dev_attr_radio_freq_seek.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(s610_radio);
+
+int create_s610_radio_sysfs(void)
+{
+	int err = -EINVAL;
+
+	if (IS_ERR_OR_NULL(s610_radio_class)) {
+		s610_radio_class = class_create(THIS_MODULE, "s610_radio");
+		if (IS_ERR_OR_NULL(s610_radio_class)) {
+			pr_err("s610_sysfs: error, s610_radio class not exist");
+			return -EINVAL;
+		}
+		s610_radio_class->dev_groups = s610_radio_groups;
+	}
+
+	s610_radio_dev = device_create(s610_radio_class, NULL, 0, NULL, "s610_radio");
+	if (IS_ERR_OR_NULL(s610_radio_dev)) {
+		pr_err("s610_sysfs: failed to create device(s610_radio)\n");
+		return -EINVAL;
+	}
+	err = device_create_file(s610_radio_dev, &dev_attr_radio_freq_ctrl);
+	if (unlikely(err < 0)) {
+		pr_err("s610_sysfs: failed to create device file, %s\n",
+				dev_attr_radio_freq_ctrl.attr.name);
+	}
+	err = device_create_file(s610_radio_dev, &dev_attr_radio_freq_seek);
+	if (unlikely(err < 0)) {
+		pr_err("s610_sysfs: failed to create device file, %s\n",
+				dev_attr_radio_freq_seek.attr.name);
+	}
+
+	return 1;
+}
+
 static int s610_radio_probe(struct platform_device *pdev)
 {
 	int ret;
@@ -2220,6 +2328,9 @@ static int s610_radio_probe(struct platform_device *pdev)
 		goto alloc_err4;
 	}
 #endif /* USE_AUDIO_PM */
+
+	create_s610_radio_sysfs();
+	gradio->custom_radio_freq_ctrl = 87500;	// Radio set at 87.5 MHz by default
 
 	memcpy(&radio->videodev, &s610_viddev_template,
 			sizeof(struct video_device));
