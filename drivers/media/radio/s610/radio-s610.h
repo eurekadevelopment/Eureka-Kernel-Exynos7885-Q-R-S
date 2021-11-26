@@ -483,6 +483,8 @@ struct s610_radio {
 	bool rds_parser_enable;
 	int rds_gcnt;
 /* Test RDS log end */
+
+	int custom_radio_freq_ctrl;
 };
 
 extern bool fm_radio_on(struct s610_radio *radio);
