@@ -2182,7 +2182,7 @@ static void fm_search_check_signal1(struct s610_radio *radio, bool rssi_oor)
 						radio,
 						radio->low->fm_tuner_state.curr_search_down);
 					/* disable audio out */
-					fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
+					//fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
 
 					fm_set_freq(radio, radio->low->fm_state.freq, 1);
 
@@ -2221,7 +2221,7 @@ static void fm_search_check_signal1(struct s610_radio *radio, bool rssi_oor)
 					radio,
 					radio->low->fm_tuner_state.curr_search_down);
 				/* disable audio out */
-				fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
+				//fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
 
 				fm_set_freq(radio, radio->low->fm_state.freq, 1);
 
@@ -2366,7 +2366,7 @@ static void fm_start_tune(struct s610_radio *radio, fm_tuner_state new_state)
 				radio->low->fm_tuner_state.curr_search_down);
 
 		/* disable audio out */
-		fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
+		//fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
 
 		fm_set_freq(radio, radio->low->fm_state.freq, 1);
 
@@ -2391,7 +2391,7 @@ static void fm_start_tune(struct s610_radio *radio, fm_tuner_state new_state)
 		}
 
 		/* disable audio out */
-		fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
+		//fm_audio_control(radio, 0, 1, 0x100, 0x1A0);
 
 		fm_set_freq(radio, radio->low->fm_state.freq, 1);
 
