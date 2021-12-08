@@ -1016,6 +1016,11 @@ config SND_SOC_TPA6130A2
 	tristate "Texas Instruments TPA6130A2 headphone amplifier"
 	depends on I2C
 
+config EUREKA_SOUND_CONTROL
+	bool "Sound control for Exynos7885 SMA1301 and COD3035X codec drivers"
+	depends on SND_SOC_COD3035X && SND_SOC_SMA1301
+	default n
+
 #tas2562
 source "sound/soc/codecs/tas2562/Kconfig"
 

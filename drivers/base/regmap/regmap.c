@@ -33,6 +33,10 @@
  */
 #undef LOG_DEVICE
 
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+int eureka_sound_control_write_hook(unsigned int reg, unsigned int val);
+#endif
+
 static int _regmap_update_bits(struct regmap *map, unsigned int reg,
 			       unsigned int mask, unsigned int val,
 			       bool *change, bool force_write);
@@ -1481,6 +1485,10 @@ int _regmap_write(struct regmap *map, unsigned int reg,
 	if (!regmap_writeable(map, reg))
 		return -EIO;
 
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+	val = eureka_sound_control_write_hook(reg, val);
+#endif
+
 	if (!map->cache_bypass && !map->defer_caching) {
 		ret = regcache_write(map, reg, val);
 		if (ret != 0)
@@ -1500,6 +1508,37 @@ int _regmap_write(struct regmap *map, unsigned int reg,
 
 	return map->reg_write(context, reg, val);
 }
+
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+int _regmap_write_nohook(struct regmap *map, unsigned int reg,
+		  unsigned int val)
+{
+	int ret;
+	void *context = _regmap_map_get_context(map);
+
+	if (!regmap_writeable(map, reg))
+		return -EIO;
+
+	if (!map->cache_bypass && !map->defer_caching) {
+		ret = regcache_write(map, reg, val);
+		if (ret != 0)
+			return ret;
+		if (map->cache_only) {
+			map->cache_dirty = true;
+			return 0;
+		}
+	}
+
+#ifdef LOG_DEVICE
+	if (map->dev && strcmp(dev_name(map->dev), LOG_DEVICE) == 0)
+		dev_info(map->dev, "%x <= %x\n", reg, val);
+#endif
+
+	trace_regmap_reg_write(map, reg, val);
+
+	return map->reg_write(context, reg, val);
+}
+#endif
 
 /**
  * regmap_write(): Write a value to a single register

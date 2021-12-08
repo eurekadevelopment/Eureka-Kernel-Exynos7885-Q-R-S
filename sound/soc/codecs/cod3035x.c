@@ -37,6 +37,10 @@
 #include <sound/cod3035x.h>
 #include "cod3035x.h"
 
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+#include "eureka_sound_control.h"
+#endif
+
 #define COD3035X_SAMPLE_RATE_48KHZ	48000
 #define COD3035X_SAMPLE_RATE_192KHZ	192000
 
@@ -5233,6 +5237,10 @@ static int cod3035x_codec_probe(struct snd_soc_codec *codec)
 		dev_warn(codec->dev, "failed to get regulator vdd2\n");
 		return PTR_ERR(cod3035x->vdd2);
 	}
+
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+	eureka_sound_control_hook_probe(cod3035x->regmap);
+#endif
 
 #ifdef CONFIG_PM
 	pm_runtime_get_sync(codec->dev);
