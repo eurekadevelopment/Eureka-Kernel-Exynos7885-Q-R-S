@@ -805,13 +805,13 @@ static ssize_t rear_flash_store(struct device *dev,
 		assistive_light = false;
 	} else if (value == 1) {
 		/* Turn on Torch */
-		brightness = led_data->torch_brightness;
-
 #if defined(CONFIG_CUSTOM_FLASH_SYSFS_NODE)
 		/* Interface used by AOSP ROMs & recoveries - Implement an analog flash control
 		slider in your rom to control the brightness of the torch. */
-		if (brightness == 2)
-			brightness = torch_brightness_lvl;
+		brightness = torch_brightness_lvl;
+#else
+		brightness = led_data->torch_brightness;
+
 #endif
 		assistive_light = true;
 	} else if (value == 100) {
