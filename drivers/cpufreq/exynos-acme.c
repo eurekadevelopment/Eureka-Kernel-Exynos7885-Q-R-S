@@ -1188,8 +1188,9 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 			domain->max_freq = 1690000;
 		} else if (domain->id == 1) {
 	                domain->max_freq = 2080000;
-#endif
 		}
+#endif
+	}
 #endif
 	if (!of_property_read_u32(dn, "min-freq", &val)) {
 #ifdef CONFIG_EUREKA_CUSTOM_DT_NODES
