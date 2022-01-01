@@ -1,0 +1,163 @@
+/*
+ * SAMSUNG UNIVERSAL7885 board device tree source
+ *
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/ {
+	
+	pinctrl@11CB0000 {
+		prox_int: prox_int {
+			samsung,pins = "gpa0-4";
+			samsung,pin-function = <0xf>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+		grip_irq: grip-irq {
+			samsung,pins = "gpa2-7";
+			samsung,pin-function = <0xf>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+		grip_input: grip-input {
+			samsung,pins = "gpa2-7";
+			samsung,pin-function = <0>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+	};
+
+	pinctrl@139B0000 {
+		i2c5_bus: i2c5-bus {
+			samsung,pins = "gpp4-3", "gpp4-2";
+			samsung,pin-function = <2>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+		i2c6_bus: i2c6-bus {
+			samsung,pins = "gpp4-5", "gpp4-4";
+			samsung,pin-function = <2>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+		grip_i2c: grip-i2c {
+			samsung,pins = "gpp7-1", "gpp7-0";
+			samsung,pin-function = <2>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+		grip_gpio: grip-gpio {
+			samsung,pins = "gpp7-1", "gpp7-0";
+			samsung,pin-function = <0>;
+			samsung,pin-pud = <0>;
+			samsung,pin-drv = <0>;
+		};
+
+	};
+
+	i2c_5:i2c@13880000 {
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c5_bus>;
+
+		gp2a@39 {
+			compatible = "sharp,gp2ap110s";
+			reg = <0x39>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&prox_int>;
+			interrupt-parent = <&gpa0>;
+			interrupts = <4 0 0>;
+			gp2ap110s,led_reg_val_1 = <0x14>;
+			gp2ap110s,ps_high_th_1 = <370>;
+			gp2ap110s,ps_low_th_1 = <260>;
+			gp2ap110s,led_reg_val_2 = <0x24>; /* If proximity close detection test fails */
+			gp2ap110s,ps_high_th_2 = <200>;
+			gp2ap110s,ps_low_th_2 = <170>;
+			gp2ap110s,settings_thd_low = <130>;
+			gp2ap110s,settings_thd_high = <370>;
+			gp2ap110s,gpio_int = <&gpa0 4 0>;
+		};
+	};
+
+	i2c_6: i2c@13890000 {
+		status = "okay";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-max-bus-freq = <400000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c6_bus>;
+
+		lis2ds@1D {
+			compatible = "st,lis2ds";
+			reg = <0x1D>;
+			interrupt-parent = <&gpa0>;
+			interrupts = <1 0 0>;
+			st,orientation = <0 1 1 1 2 1 1 1 2>;
+			st,irq_gpio = <&gpa0 1 0>;
+		};
+
+		lsm6dsl@6b {
+			compatible = "st,lsm6dsl";
+			reg = <0x6b>;
+			interrupt-parent = <&gpa0>;
+			interrupts = <3 0 0>;
+			st,irq_gpio = <&gpa0 3 0>;
+			st,orientation = <1 0 1 2 1 1 1 1 2>;
+		};
+
+		yas539@2e {
+			compatible = "yas_magnetometer";
+			reg = <0x2e>;
+			yas,orientation = <6>;
+			yas,softiron = <9270 310 480 310 10280 90 480 90 10450>;
+			yas,softiron_sign = <2 2 2 2 2 0 2 0 2>;
+		};
+	};
+
+	i2c@20 {
+		compatible = "i2c-gpio";
+		gpios = <&gpp7 0 0
+				&gpp7 1 0>;
+		i2c-gpio,delay-us = <5>;
+		pinctrl-names = "default","on_i2c","off_i2c";
+		pinctrl-0 = <&grip_i2c>;
+		pinctrl-1 = <&grip_i2c>;
+		pinctrl-2 = <&grip_gpio>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "okay";
+		tc3xxk@20 {
+			compatible = "coreriver,tc3xx-grip";
+			pinctrl-names = "default","on_irq","off_irq";
+			pinctrl-0 = <&grip_irq>;
+			pinctrl-1 = <&grip_irq>;
+			pinctrl-2 = <&grip_input>;
+			reg = <0x20>;
+			interrupts = <7 0 0>;
+			interrupt-parent = <&gpa2>;
+			coreriver,scl-gpio = <&gpp7 1 0>;
+			coreriver,sda-gpio = <&gpp7 0 0>;
+			coreriver,irq-gpio = <&gpa2 7 0>;
+			coreriver,ldo_en = <&gpg1 6 0>;
+			coreriver,i2c-gpio = "true";
+			coreriver,boot-on-ldo = "true";
+			coreriver,fw_name = "coreriver/tc305k_m20_grip.fw";
+			coreriver,use_bitmap = <1>;
+		};
+	};
+};

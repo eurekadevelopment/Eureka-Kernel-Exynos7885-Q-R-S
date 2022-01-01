@@ -48,5 +48,8 @@ dtbo-$(CONFIG_MACH_EXYNOS7885_A40_OPEN) := \
 	exynos/dtbo/exynos7904-a40_eur_open_00.dtbo \
 	exynos/dtbo/exynos7904-a40_eur_open_01.dtbo
 
+dtbo-$(CONFIG_MACH_EXYNOS7885_M20_OPEN) := \
+	exynos/dtbo/exynos7904-m20lte_swa_open_04.dtbo
+
 always         := $(dtb-y) $(dtbo-y)
 clean-files    := *.dtb *.dtbo

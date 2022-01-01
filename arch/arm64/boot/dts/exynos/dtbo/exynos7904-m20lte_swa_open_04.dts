@@ -1,0 +1,42 @@
+/*
+ * SAMSUNG UNIVERSAL7885 board device tree source
+ *
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/dts-v1/;
+#include "exynos7904-m20lte_common.dtsi"
+#include "exynos7904-m20lte_swa_open_gpio_02.dtsi"
+#include "exynos7904-m20lte_fingerprint-sensor_00.dtsi"
+#include "battery_data_m20lte_swa_open_04.dtsi"
+#include "exynos7904-m20lte-sensor-r03.dtsi"
+
+/ {
+	model = "Samsung M20LTE SWA OPEN rev03 board based on EXYNOS7904";
+	model_info-chip = <7885>;
+	model_info-platform = "android";
+	model_info-subtype = "samsung";
+	model_info-hw_rev = <4>;
+	model_info-hw_rev_end = <255>;
+	compatible = "samsung, M20 SWA OPEN rev03", "samsung,Universal7904";
+
+	 /* USIM DETECTION FOR CP */
+	usim_det {
+		pinctrl-names = "default";
+		pinctrl-0 = <&sim0_det_gpio>;
+		mif,num_of_usim_det = <1>;
+		mif,usim-det0-gpio = <&gpa2 6 0>;
+	};
+
+	hsi2c_5: hsi2c@13930000 {
+		himax_ts: touchscreen@48 {
+			status = "okay";
+		};
+	};
+};
+
