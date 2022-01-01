@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sudo bash
 #
 # Custom build script for Eureka kernels by Chatur27 and Gabriel260 @Github - 2020
 #
@@ -26,20 +26,13 @@ DTBO_DIR=./arch/arm64/boot/dts/exynos/dtbo
 PROJECT_NAME="Eureka Kernel"
 CORES=$(nproc --all)
 SELINUX_STATUS=""
-REV=7.5
-RR=0
-PCUSER=chatur
-USER=Chatur
-ZIPNAME=Eureka_Rx.x_Axxx_xxxx_x_x.zip
-DEFAULT_NAME=Eureka_Rx.x_Axxx_P/Q/R
+ONEUI3=0
 GCC_ARM64_FILE=aarch64-linux-gnu-
 GCC_ARM32_FILE=arm-linux-gnueabi-
-CLANGC="nope"
 
 # Export commands
-export KBUILD_BUILD_USER=$USER
+export KBUILD_BUILD_USER=Eureka
 export KBUILD_BUILD_HOST=Eureka.org
-export VERSION=$DEFAULT_NAME
 export ARCH=arm64
 export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
 export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
@@ -48,100 +41,65 @@ export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
 DATE=$(date +"%m-%d-%y")
 BUILD_START=$(date +"%s")
 
+######################### Colours ############################
+
+ON_BLUE=`echo -e "\033[44m"`
+RED=`echo -e "\033[1;31m"`
+BLUE=`echo -e "\033[1;34m"`
+GREEN=`echo -e "\033[1;32m"`
+STD=`echo -e "\033[0m"`		# Clear colour
+
+
 ####################### Devices List #########################
 
 SM_A105X() {
 
-	DEVICE_Axxx=A105
+	CODENAME=A105
 	DEFCONFIG=exynos7885-a10_"$SELINUX_STATUS"defconfig
 }
 
 SM_A205X() {
-	DEVICE_Axxx=A205
+	CODENAME=A205
 	DEFCONFIG=exynos7885-a20_"$SELINUX_STATUS"defconfig
 }
 
 SM_A202X() {
-	DEVICE_Axxx=A202
+	CODENAME=A202
 	DEFCONFIG=exynos7885-a20e_"$SELINUX_STATUS"defconfig
 }
 
 SM_A305X() {
-	DEVICE_Axxx=A305
+	CODENAME=A305
 	DEFCONFIG=exynos7885-a30_"$SELINUX_STATUS"defconfig
 }
 
 SM_A307X() {
-	DEVICE_Axxx=A307
+	CODENAME=A307
 	DEFCONFIG=exynos7885-a30s_"$SELINUX_STATUS"defconfig
 }
 
 SM_A405X() {
-	DEVICE_Axxx=A405
+	CODENAME=A405
 	DEFCONFIG=exynos7885-a40_"$SELINUX_STATUS"defconfig
 }
 
 SM_M205X() {
-	DEVICE_Axxx=M205
+	CODENAME=M205
 	DEFCONFIG=exynos7885-m20_"$SELINUX_STATUS"defconfig
 }
 
-################################################################
 
 ######################## Android OS list #######################
 
-androidp="Android 9 (Pie)"
-androidqr="Android 10 (Q) 11 (R)"
-androidr="Android 11 (oneui 3)"
+android_qrs="Support for OneUI 2, AOSP 10 (Q), 11 (R) & 12 (S)"
+android_oneui3="Support for OneUI 3 only"
 
-################################################################
 
 ################### Executable functions #######################
-CLEAN_SOURCE() {
-	echo "*****************************************************"
-	echo " "
-	echo "              Cleaning kernel source"
-	echo " "
-	echo "*****************************************************"
-
-	if [ -e "arch/arm64/boot/dtbo.img" ]; then
-		{
-			rm $DTBO_DIR/*.dtbo
-		}
-	fi
-
-	make clean
-	CLEAN_SUCCESS=$?
-	if [ $CLEAN_SUCCESS != 0 ]; then
-		echo " Error: make clean failed"
-		exit
-	fi
-
-	make mrproper
-	MRPROPER_SUCCESS=$?
-	if [ $MRPROPER_SUCCESS != 0 ]; then
-		echo " Error: make mrproper failed"
-		exit
-	fi
-
-	if [ -e "kernel_zip/anykernel/Image" ]; then
-		{
-			rm $DTBO_DIR/*.dtbo
-			rm -rf kernel_zip/anykernel/Image
-			rm -rf kernel_zip/anykernel/dtbo.img
-		}
-	fi
-
-	ADDITIONAL_CLEANUP
-	sleep 1
-}
 
 CLANG_CLEAN() {
-	echo "*****************************************************"
+	echo " ${ON_BLUE}Cleaning kernel source ${STD}"
 	echo " "
-	echo "              Cleaning kernel source"
-	echo " "
-	echo "*****************************************************"
 
 	rm -rf out
 	if [ -e "kernel_zip/anykernel/Image" ]; then
@@ -154,83 +112,31 @@ CLANG_CLEAN() {
 			rm -rf kernel_zip/anykernel/dtb.img
 		}
 	fi
-
-	ADDITIONAL_CLEANUP
 }
 
-ADDITIONAL_CLEANUP() {
-	if [ -e "drivers/usb/gadget/.oneui_mtp" ]; then
-		rm -rf drivers/usb/gadget/.oneui_mtp
-	fi
-
-	if [ -e "drivers/usb/gadget/.gsi_mtp" ]; then
-		rm -rf drivers/usb/gadget/.gsi_mtp
-	fi
-
-	if [ -e "security/selinux/.permissive" ]; then
-		rm -rf security/selinux/.permissive
-	fi
-
-	if [ -e "security/selinux/.enforcing" ]; then
-		rm -rf security/selinux/.enforcing
-	fi
-}
-
-BUILD_KERNEL() {
-	echo "*****************************************************"
-	echo "      Building kernel for $DEVICE_Axxx android $ANDROID"
-	export ANDROID_MAJOR_VERSION=$ANDROID
-	export PLATFORM_VERSION=$AND_VER
-	export LOCALVERSION=-$VERSION
-	make $DEFCONFIG
-	make -j$CORES
-	sleep 1
-}
-
-AUTO_TOOLCHAIN() {
-	if [ -e "toolchain/linaro6.5" ]; then
+TOOLCHAIN() {
+	if [ -e "toolchain/bin/clang-13" ]; then
 		{
 			echo " "
-			echo "Using Linaro v6.5.0 toolchain"
+			echo " ${GREEN}Using Clang 13 as compiler ${STD}"
 			echo " "
 			GCC_ARM64_FILE=aarch64-linux-gnu-
 			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
-			export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
-		}
-	elif [ -e "toolchain/gcc4.9" ]; then
-		{
-			echo " "
-			echo "Using Gcc v4.9 toolchain"
-			echo " "
-			GCC_ARM64_FILE=aarch64-linux-android-
-			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CROSS_COMPILE=$(pwd)/toolchain/bin/$GCC_ARM64_FILE
-			export CROSS_COMPILE_ARM32=$(pwd)/toolchain/bin/$GCC_ARM32_FILE
-		}
-	elif [ -e "toolchain/pro_clang13" ]; then
-		{
-			echo " "
-			echo "Using Proton Clang 13 as main compiler"
-			echo " "
-			GCC_ARM64_FILE=aarch64-linux-gnu-
-			GCC_ARM32_FILE=arm-linux-gnueabi-
-			export CLANGC="OK"
 			echo " "
 		}
 	else
 		echo " "
-		echo "WARNING: Toolchain directory couldn't be found"
+		echo " ${RED}WARNING: Correct toolchain could not be found! Downloading latest toolchain. ${STD}"
 		echo " "
+                git clone --depth=1 https://github.com/kdrag0n/proton-clang.git toolchain/
 		sleep 2
-		exit
 	fi
 }
 
-CLANG() {
+CLANG_BUILD() {
 	export LOCALVERSION=-$VERSION
 	export PLATFORM_VERSION=$AND_VER
-	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG
+	make O=out ARCH=arm64 ANDROID_MAJOR_VERSION=$ANDROID $DEFCONFIG > /dev/null
 	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
 		make -j$CORES O=out \
 		ARCH=arm64 \
@@ -244,20 +150,22 @@ CLANG() {
 
 PREBUILT_DTBO() {
 	# Copy prebuilt dtbo.img to anykernel directory
-	if [ "${DEVICE_Axxx}" == "A105" ]; then
+	if [ "${CODENAME}" == "A105" ]; then
 		cp -f kernel_zip/dtbo/a10/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A205" ]; then
+	elif [ "${CODENAME}" == "A205" ]; then
 		cp -f kernel_zip/dtbo/a20/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A202" ]; then
+	elif [ "${CODENAME}" == "A202" ]; then
 		cp -f kernel_zip/dtbo/a20e/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A305" ]; then
+	elif [ "${CODENAME}" == "A305" ]; then
 		cp -f kernel_zip/dtbo/a30/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A307" ]; then
+	elif [ "${CODENAME}" == "A307" ]; then
 		cp -f kernel_zip/dtbo/a30s/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "A405" ]; then
+	elif [ "${CODENAME}" == "A405" ]; then
 		cp -f kernel_zip/dtbo/a40/dtbo.img kernel_zip/anykernel/dtbo.img
-	elif [ "${DEVICE_Axxx}" == "M205" ]; then
-		cp -f kernel_zip/dtbo/m20/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${CODENAME}" == "M205" ]; then
+		if [ -e "kernel_zip/dtbo/m20/dtbo.img" ]; then
+			cp -f kernel_zip/dtbo/m20/dtbo.img kernel_zip/anykernel/dtbo.img
+		fi
 	fi
 }
 
@@ -266,23 +174,55 @@ ZIPPIFY() {
 
 	if [ -e "arch/$ARCH/boot/Image" ]; then
 		{
-			echo -e "*****************************************************"
-			echo -e "                                                     "
-			echo -e "       Building Eureka anykernel flashable zip       "
-			echo -e "                                                     "
-			echo -e "*****************************************************"
+			echo -e " "
+			echo -e " ${ON_BLUE}Building Eureka anykernel flashable zip ${STD}"
+			echo -e " "
 
-			# Copy Image and dtbo.img to anykernel directory
+			# Copy Image, dtb.img and dtbo.img to anykernel directory
 			cp -f arch/$ARCH/boot/Image kernel_zip/anykernel/Image
-			cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
+			if [ -e "arch/$ARCH/boot/dtb.img" ]; then
+				if [ "${CODENAME}" == "M205" ]; then
+					# Don't copy dtb to anykernel directory because it has never been tested.
+					cp -f arch/$ARCH/boot/dtb.img kernel_zip/m20_dtb.img
+				else
+					cp -f arch/$ARCH/boot/dtb.img kernel_zip/anykernel/dtb.img
+				fi
+			fi
 			PREBUILT_DTBO
 			#cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 
 			# Go to anykernel directory
 			cd kernel_zip/anykernel
-			zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img dtbo.img version
+
+			if [ -e "dtb.img" ]; then
+				{
+					if [ -e "dtbo.img" ]; then
+						{
+							zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img dtbo.img version > /dev/null
+						}
+					else
+						{
+							mv anykernel.sh anykernel.sh.bak
+							sed '58,61d' anykernel.sh.bak > anykernel.sh
+							zip -r9 $ZIPNAME META-INF tools anykernel.sh Image dtb.img version > /dev/null
+							rm -f anykernel.sh
+							mv anykernel.sh.bak anykernel.sh
+							chown a+x anykernel.sh
+						}
+					fi
+				}
+			else
+				{
+					mv anykernel.sh anykernel.sh.bak
+					sed '53,61d' anykernel.sh.bak > anykernel.sh
+					zip -r9 $ZIPNAME META-INF tools anykernel.sh Image version > /dev/null
+					rm -f anykernel.sh
+					mv anykernel.sh.bak anykernel.sh
+				}
+			fi
+
 			chmod 0777 $ZIPNAME
-			# Change back into kernel source directory
+			# Go back into kernel source directory
 			cd ..
 			sleep 1
 			cd ..
@@ -293,95 +233,108 @@ ZIPPIFY() {
 
 PROCESSES() {
 	# Allow user to choose how many cores to be taken by compiler
-	echo "Your system has $CORES cores."
-	read -p "Please enter how many cores to be used by compiler (Leave blank to use all cores) : " cores
+	echo " ${ON_BLUE}Your system has $CORES cores. ${STD}"
+	echo " "
+	read -p " ${GREEN}Please enter how many cores to be used by compiler (Leave blank to use all cores) : " cores
 	if [ "${cores}" == "" ]; then
 		echo " "
-		echo "Using all $CORES cores for compilation"
+		echo " Using all $CORES cores for compilation. ${STD}"
 		sleep 1
 	else
 		echo " "
-		echo "Using $cores cores for compilation "
+		echo " Using $cores cores for compilation. ${STD}"
 		CORES=$cores
 		sleep 1
 	fi
 }
 
 ENTER_VERSION() {
-	# Enter kernel revision for this build.
-	read -p "Please type kernel version without R (E.g: 6.5) : " rev
+	# Enter kernel version for this build.
+	REV="$(grep -Po 'Eureka R\K[^*]+' kernel_zip/anykernel/version)"
+	echo " ${ON_BLUE}Current Kernel Version: $REV ${STD}"
+	echo " "
+	read -p " ${GREEN}Please type kernel version without 'R' (E.g: $REV) : " rev
 	if [ "${rev}" == "" ]; then
+		REV="$REV-$((RANDOM % 999))"
 		echo " "
-		echo "     Using '$REV' as version"
+		echo " Using '$REV' as test version ${STD}"
 	else
 		REV=$rev
 		echo " "
-		echo "     Version = $REV"
+		echo " Version = $REV ${STD}"
 	fi
 	sleep 1
 }
 
 USER() {
 	# Setup KBUILD_BUILD_USER
-	echo " Current build username is $USER"
+
+	username="$(who | sed 's/  .*//')"
+	USER=${username^}
+	echo " ${ON_BLUE}Current build_user is $USER ${STD}"
 	echo " "
-	read -p " Please type build_user (E.g: Chatur) : " user
+	read -p " ${GREEN}Please define build_user (E.g: $USER) : " user
 	if [ "${user}" == "" ]; then
+		export KBUILD_BUILD_USER=$USER
 		echo " "
-		echo "     Using '$USER' as Username"
+		echo " Using '$USER' as build_user ${STD}"
 	else
 		export KBUILD_BUILD_USER=$user
 		USER=$user
 		echo " "
-		echo "     build_user = $user"
+		echo " build_user = $USER ${STD}"
 	fi
 	sleep 1
 }
 
 RENAME() {
 	# Give proper name to kernel and zip name
-	if [ "$RR" == "1" ]; then
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3/4"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"OneUI3.zip"
+	if [ "$ONEUI3" == "1" ]; then
+		VERSION="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"OneUI3/4"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"OneUI3.zip"
 	else
-		VERSION="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q/R/S"
-		ZIPNAME="Eureka_R"$REV"_"$DEVICE_Axxx"_"$SELINUX_STATUS"Q_R_S.zip"
+		VERSION="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q/R/S"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q_R_S.zip"
 	fi
 }
 
 SELINUX() {
-	# setup selinux for differents firmwares
-	echo -e "***************************************************************"
-	echo "             Select which version you wish to build               "
-	echo -e "***************************************************************"
-	echo " Available versions:"
+	echo " ${ON_BLUE}Choose which SElinux state you wish to have ${STD}"
+	echo " ${BLUE}"
+	echo "  1) Build Eureka with ENFORCING SElinux"
 	echo " "
-	echo "  1. Build Eureka with ENFORCING SElinux"
+	echo "  2) Build Eureka with PERMISSIVE SElinux"
 	echo " "
-	echo "  2. Build Eureka with PERMISSIVE SElinux"
-	echo " "
-	echo "  3. Leave empty to exit this script"
-	echo " "
-	echo " "
-	read -n 1 -p "Select your choice: " -s choice
+	echo "  [Leave empty to exit this script]"
+	echo " ${STD}"
+	read -n 1 -p " ${GREEN}Select your choice: " -s choice
 	case ${choice} in
 	1)
 		{
 			export SELINUX_B=enforcing
 			export SELINUX_STATUS="$SELINUX_B"_
+			echo " "
+			echo " "
+			echo " ${GREEN}Enforcing chosen. Good choice :) ${STD}"
+			sleep 1
 		}
 		;;
 	2)
 		{
 			export SELINUX_B=permissive
 			export SELINUX_STATUS="$SELINUX_B"_
+			echo " "
+			echo " "
+			echo " ${GREEN}Permissive chosen. Use with caution! ${STD}"
+			sleep 1
 		}
 		;;
 	*)
 		{
-			echo
-			echo "Invalid choice entered. Exiting..."
-			sleep 2
+			echo " "
+			echo " "
+			echo " ${RED}Invalid choice entered. Exiting... ${STD}"
+			sleep 1
 			exit 1
 		}
 		;;
@@ -389,14 +342,10 @@ SELINUX() {
 	sleep 1
 }
 
-ONEUI_STATE() {
-	# Since wireguard checks for update during compilation, its group will change from $user to root.
-	# So change it back to default user group. Do this only for me. Gabriel does not need that i guess.
-	if [ ${USER} == "Chatur" ]; then
-		{
-			chown -R $PCUSER $(pwd)/net/wireguard
-		}
-	fi
+WIREGUARD_PERM() {
+	# Since wireguard checks for update during compilation, its group will change from $username to root.
+	# So change it back to default user group.
+	chown -R $username $(pwd)/net/wireguard
 }
 
 DISPLAY_ELAPSED_TIME() {
@@ -406,151 +355,118 @@ DISPLAY_ELAPSED_TIME() {
 
 	BUILD_SUCCESS=$?
 	if [ $BUILD_SUCCESS != 0 ]; then
-		echo " Error: Build failed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
+		echo " ${RED}Error: Build failed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset ${STD}"
 		exit
 	fi
 
-	echo -e "                     Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
+	echo -e " ${GREEN}Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset ${STD}"
 	sleep 1
 }
 
 COMMON_STEPS() {
-	echo "*****************************************************"
-	echo "                                                     "
-	echo "        Starting compilation of $DEVICE_Axxx kernel  "
-	echo "                                                     "
-	echo " Defconfig = $DEFCONFIG                              "
-	echo "                                                     "
-	echo "*****************************************************"
+	clear
+	echo " ${ON_BLUE}Starting compilation ${STD}"
+	echo " "
+	echo " ${GREEN}Defconfig loaded: $DEFCONFIG ${STD}"
 	RENAME
 	sleep 1
-	echo " "
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			CLANG
-		}
-	else
-		{
-			BUILD_KERNEL
-		}
-	fi
-	echo " "
+	echo " ${BLUE}"
+	CLANG_BUILD
+	echo " ${STD}"
 	sleep 1
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			cp -f out/arch/$ARCH/boot/Image arch/$ARCH/boot/Image
-			cp -f out/arch/$ARCH/boot/dtb.img arch/$ARCH/boot/dtb.img
-			cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
-		}
-	fi
+	cp -f out/arch/$ARCH/boot/Image arch/$ARCH/boot/Image
+	cp -f out/arch/$ARCH/boot/dtb.img arch/$ARCH/boot/dtb.img
+	cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
 	ZIPPIFY
 	sleep 1
-	if [ ${CLANGC} == "OK" ]; then
-		{
-			CLANG_CLEAN
-		}
-	else
-		{
-			CLEAN_SOURCE
-		}
-	fi
+	echo " "
+	CLANG_CLEAN
 	sleep 1
 	echo " "
+	WIREGUARD_PERM
 	DISPLAY_ELAPSED_TIME
+	echo " ${BLUE}"
+	echo " ___________                     __            "
+	echo " \_   _____/__ _________   ____ |  | _______   "
+	echo "  |    __)_|  |  \_  __ \_/ __ \|  |/ /\__  \  "
+	echo "  |        \  |  /|  | \/\  ___/|    <  / __ \_"
+	echo " /_______  /____/ |__|    \___  >__|_ \(____  /"
+	echo "         \/                   \/     \/     \/ "
 	echo " "
-	echo "                 *****************************************************"
-	echo "*****************                                                     *****************"
-	echo "                      $DEVICE_Axxx kernel for Android $AND_VER build finished          "
-	echo "*****************                                                     *****************"
-	echo "                 *****************************************************"
+	echo " $CODENAME kernel R"$REV" for $ANDROID_VAR ${STD}"
+	echo " "
 }
 
 OS_MENU() {
 	# Give the choice to choose Android Version
-	PS3='
-Please select your Android Version: '
-	menuos=("$androidp" "$androidqr" "$androidr" "Exit")
-	select menuos in "${menuos[@]}"; do
-		case $menuos in
-		"$androidp")
+	echo " ${ON_BLUE}Android Versions Available: ${STD}"
+	echo " ${GREEN}"
+	echo " 1) $android_qrs"
+	echo " "
+	echo " 2) $android_oneui3"
+	echo " "
+	read -n 1 -p " Please select your Android Version: ${STD}" -s menuos
+	case $menuos in
+	1)
+		{
 			echo " "
-			echo "Android 9 (Pie) chosen as Android Major Version"
-			ANDROID=p
-			AND_VER=9
-			sleep 2
+			ANDROID_VAR="Android 10 (Q) / 11 (R) / 12 (S)"
 			echo " "
-			break
-			;;
-		"$androidqr")
-			echo " "
-			echo "Android 10 (Q) / 11 (R) chosen as Android Major Version"
+			echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 			ANDROID=r
 			AND_VER=11
 			sleep 2
 			echo " "
-			break
-			;;
-		"$androidr")
+		}
+		;;
+	2)
+		{
 			echo " "
-			echo "Android 11 (OneUI 3) chosen as Android Major Version"
+			ANDROID_VAR="Android 11 (OneUI 3)"
+			echo " "
+			echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 			ANDROID=r
 			AND_VER=11
-			RR=1
+			ONEUI3=1
 			sleep 2
 			echo " "
-			break
-			;;
-		"Exit")
+		}
+		;;
+	*)
+		{
 			echo " "
-			echo "Exiting build script.."
+			echo " ${RED}Exiting build script... ${STD}"
 			sleep 2
 			echo " "
 			exit
-			;;
-		*)
-			echo Invalid option.
-			;;
-		esac
-	done
+		}
+		;;
+	esac
+	sleep 1
 }
 
-#################################################################
 
 ###################### Script starts here #######################
 
-AUTO_TOOLCHAIN
-if [ ${CLANGC} == "OK" ]; then
-	{
-		CLANG_CLEAN
-		sleep 2
-	}
-else
-	{
-		CLEAN_SOURCE
-	}
-fi
+clear
+TOOLCHAIN
+clear
+CLANG_CLEAN
+sleep 1
 clear
 PROCESSES
 clear
 ENTER_VERSION
 clear
 USER
-# Disable updating oneui build_files for the time being..
-#clear
-#UPDATE_BUILD_FILES
 clear
 SELINUX
 clear
-echo "******************************************************"
+echo "${BLUE}******************************************************"
+echo "*                                                    *"
 echo "*             $PROJECT_NAME Build Script             *"
 echo "*                  Developer: Chatur                 *"
-echo "*                Co-Developer: Gabriel               *"
-echo "*                                                    *"
-if [ ${CLANGC} == "OK" ]; then
-	echo "*      Compiling kernel using Proton Clang 13        *"
-else
-	echo "*        Compiling kernel using gay toochain         *"
-fi
+echo "*            Co-Developers: Gabriel, Royna           *"
 echo "*                                                    *"
 echo "******************************************************"
 echo " Some informations about parameters set:		"
@@ -558,26 +474,22 @@ echo -e "    > Architecture: $ARCH				"
 echo "    > Jobs: $CORES					"
 echo "    > Revision for this build: R$REV			"
 echo "    > SElinux Status: $SELINUX_B			"
-echo "    > Kernel Name Template: $VERSION			"
 echo "    > Build user: $KBUILD_BUILD_USER			"
 echo "    > Build machine: $KBUILD_BUILD_HOST		"
-echo "    > Build started on: $BUILD_START			"
-echo "    > ARM64 Toolchain exported				"
-echo "    > ARM32 Toolchain exported				"
+echo "    > ARM64 Toolchain path exported			"
+echo "    > ARM32 Toolchain path exported			"
 echo -e "*****************************************************"
 echo " "
 
-echo " Devices avalaible for compilation: "
-echo " "
+echo "${STD} ${ON_BLUE}Devices available: ${STD}"
 PS3='
  Please select your device: '
+echo " ${GREEN}"
 menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A305X" "SM_A307X" "SM_A405X" "SM_M205X" "Exit")
 select menuoptions in "${menuoptions[@]}"; do
 	case $menuoptions in
 	"SM_A105X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A105X
@@ -585,9 +497,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_A205X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A205X
@@ -595,9 +505,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_A202X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A202X
@@ -605,9 +513,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_A305X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A305X
@@ -615,9 +521,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_A307X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A307X
@@ -625,9 +529,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_A405X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_A405X
@@ -635,9 +537,7 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"SM_M205X")
-		echo " "
-		echo "Android versions available: "
-		echo " "
+		echo " ${STD}"
 		OS_MENU
 		echo " "
 		SM_M205X
@@ -645,12 +545,13 @@ select menuoptions in "${menuoptions[@]}"; do
 		break
 		;;
 	"Exit")
-		echo " Exiting build script.."
+		echo " ${RED}Exiting build script... ${STD}"
 		sleep 2
 		exit
 		;;
 	*)
-		echo Invalid option.
+		echo " "
+		echo " ${RED}Invalid option. Try again. ${STD}"
 		;;
 	esac
 done
