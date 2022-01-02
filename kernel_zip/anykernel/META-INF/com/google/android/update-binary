@@ -484,6 +484,12 @@ if [ -e /dev/block/platform/13500000.dwmmc0/by-name/boot ]; then
 		ui_print "- Your previous boot image is saved to /sdcard/backup-boot.img";
 		ui_print " ";
 	fi
+elif [ -e /dev/block/platform/13500000.dwmmc0/by-name/BOOT ]; then
+	dd if=/dev/block/platform/13500000.dwmmc0/by-name/BOOT of=/sdcard/backup-BOOT.img
+	if [ $? -eq 0 ]; then
+		ui_print "- Your previous boot image is saved to /sdcard/backup-BOOT.img";
+		ui_print " ";
+	fi
 fi
 
 #ui_print "Installing...";

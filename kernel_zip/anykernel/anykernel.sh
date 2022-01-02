@@ -20,8 +20,12 @@ supported.patchlevels=
 '; } # end properties
 
 # shell variables
-block=/dev/block/platform/13500000.dwmmc0/by-name/boot;
-dtboblock=/dev/block/platform/13500000.dwmmc0/by-name/dtbo;
+if [ -e /dev/block/platform/13500000.dwmmc0/by-name/BOOT ]; then
+	block=/dev/block/platform/13500000.dwmmc0/by-name/BOOT;
+elif [ -e /dev/block/platform/13500000.dwmmc0/by-name/boot ]; then
+	block=/dev/block/platform/13500000.dwmmc0/by-name/boot;
+fi
+
 is_slot_device=0;
 ramdisk_compression=auto;
 
