@@ -105,7 +105,11 @@ static int __init enforcing_setup(char *str)
 {
 	unsigned long enforcing;
 	if (!kstrtoul(str, 0, &enforcing))
+#ifdef CONFIG_SECURITY_SELINUX_START_PERMISSIVE
+		selinux_enforcing = 0;
+#else
 		selinux_enforcing = enforcing ? 1 : 0;
+#endif
 	return 1;
 }
 __setup("enforcing=", enforcing_setup);
@@ -118,7 +122,11 @@ static int __init selinux_enabled_setup(char *str)
 {
 	unsigned long enabled;
 	if (!kstrtoul(str, 0, &enabled))
+#ifdef CONFIG_SECURITY_SELINUX_START_PERMISSIVE
+		selinux_enforcing = 0;
+#else
 		selinux_enabled = enabled ? 1 : 0;
+#endif
 	return 1;
 }
 __setup("selinux=", selinux_enabled_setup);
@@ -6334,6 +6342,11 @@ static __init int selinux_init(void)
 
 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
 		panic("SELinux: Unable to register AVC netcache callback\n");
+
+#ifdef CONFIG_SECURITY_SELINUX_START_PERMISSIVE
+	selinux_enforcing = 0;
+#endif
+
 	if (selinux_enforcing)
 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
 	else
