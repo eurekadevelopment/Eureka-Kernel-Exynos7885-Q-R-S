@@ -170,8 +170,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 		goto out;
 
 // [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
-	// If always enforce option is set, selinux is always enforcing
+#ifdef CONFIG_ALWAYS_ENFORCE
+	// If build is user build and enforce option is set, selinux is always enforcing
 	new_value = 1;
 	length = task_has_security(current, SECURITY__SETENFORCE);
 	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
@@ -183,20 +183,6 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
 	selinux_enforcing = new_value;
 #endif
 	avc_ss_reset(0);
-	selnl_notify_setenforce(new_value);
-	selinux_status_update_setenforce(new_value);
-#elif defined(CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE)
-	// If always permissive option is set, selinux is always permissive
-	new_value = 0;
-	length = task_has_security(current, SECURITY__SETENFORCE);
-	audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
-                        "config_always_permissive - true; enforcing=%d old_enforcing=%d auid=%u ses=%u",
-                        new_value, selinux_enforcing,
-                        from_kuid(&init_user_ns, audit_get_loginuid(current)),
-                        audit_get_sessionid(current));
-#if !defined(CONFIG_RKP_KDP)
-	selinux_enforcing = new_value;
-#endif
 	selnl_notify_setenforce(new_value);
 	selinux_status_update_setenforce(new_value);
 #else
@@ -1884,7 +1870,7 @@ static int __init init_sel_fs(void)
 {
 	int err;
 // [ SEC_SELINUX_PORTING_COMMON
-#ifdef CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE
+#ifdef CONFIG_ALWAYS_ENFORCE
 	selinux_enabled = 1;
 #endif
 // ] SEC_SELINUX_PORTING_COMMON
