@@ -11,7 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TZISR_H_
+#ifndef _TZIRS_H_
 #define _TZIRS_H_
 
 #include "tzdev.h"
