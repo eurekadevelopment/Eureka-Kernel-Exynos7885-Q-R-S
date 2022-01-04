@@ -38,3 +38,9 @@ obj-$(CONFIG_EXYNOS_DECON_LCD_S6E8FC0_A30C)	+= s6e8fc0_a30c_lcd_ctrl.o
 obj-$(CONFIG_EXYNOS_DECON_LCD_S6E8FC1_A30S)	+= s6e8fc1_a30s_lcd_ctrl.o
 obj-$(CONFIG_EXYNOS_DECON_LCD_HX83102D_A10E_JPN)	+= hx83102d_a10e_lcd_ctrl.o
 obj-$(CONFIG_EXYNOS_DECON_LCD_HX83102P_GTA4S)	+= hx83102p_gta4s_lcd_ctrl.o
+
+CFLAGS_s6e8fc0_a20_lcd_ctrl.o := $(call cc-disable-warning, int-conversion)
+CFLAGS_ea8076_a30_lcd_ctrl.o := $(call cc-disable-warning, int-conversion)
+CFLAGS_s6e8fc1_a30s_lcd_ctrl.o := $(call cc-disable-warning, int-conversion)
+CFLAGS_s6e8fc0_a40_lcd_ctrl.o := $(call cc-disable-warning, int-conversion)
+CFLAGS_ea8076_m30_lcd_ctrl.o := $(call cc-disable-warning, int-conversion)
