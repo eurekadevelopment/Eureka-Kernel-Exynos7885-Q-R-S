@@ -2513,6 +2513,7 @@ static irqreturn_t bt532_touch_work(int irq, void *data)
 	u16 ic_status;
 	char location[7] = "";
 	int ret;
+	long diff;
 	if((pdata->support_lpm_mode) && (info->spay_enable || info->aod_enable || info->aot_enable)){
 		pm_wakeup_event(info->input_dev->dev.parent, 2000);
 
@@ -2651,7 +2652,6 @@ static irqreturn_t bt532_touch_work(int irq, void *data)
 				if (info->aot_enable) {
 					info->scrub_id = SPONGE_EVENT_TYPE_AOD_DOUBLETAB;	
 					input_info(true, &client->dev, "[DT2W] Tab detect\n");
-					long diff;
 					diff = current_time - before_time;
 					if(DELAY <= diff && diff <= DELAY_MAX){
 						input_info(true, &client->dev, "[DT2W] Double tap detect\n");
