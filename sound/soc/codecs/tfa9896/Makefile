@@ -34,3 +34,5 @@ snd-soc-tfa98xx-objs += tfa_init.o
 
 # built-in driver
 obj-y	+= snd-soc-tfa98xx.o
+
+CFLAGS_tfa_dsp.o += $(call cc-disable-warning, enum-conversion)
