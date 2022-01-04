@@ -113,6 +113,8 @@ obj-$(CONFIG_HAS_IOMEM) += memremap.o
 
 $(obj)/configs.o: $(obj)/config_data.h
 
+CFLAGS_cpuset.o += $(call cc-disable-warning, incompatible-pointer-types)
+
 # config_data.h contains the same information as ikconfig.h but gzipped.
 # Info from config_data can be extracted from /proc/config*
 targets += config_data.gz
