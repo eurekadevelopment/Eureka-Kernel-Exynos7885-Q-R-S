@@ -414,9 +414,9 @@ static void update_siblings_masks(unsigned int cpuid)
 	}
 }
 
-#ifdef CONFIG_SCHED_HMP
 unsigned int ap_fuse = 0;
 EXPORT_SYMBOL_GPL(ap_fuse);
+#ifdef CONFIG_SCHED_HMP
 static int __init setup_ap_fuse(char *str)
 {
         get_option(&str, &ap_fuse);
