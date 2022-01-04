@@ -352,7 +352,7 @@ int ist30xx_isp_erase_all(struct ist30xx_data *data)
     if (unlikely(ret))
         return ret;
 
-	ret = ist30xx_isp_allpage(data, false);
+    ret = ist30xx_isp_allpage(data, false);
     if (unlikely(ret))
         return ret;
 
@@ -364,7 +364,7 @@ int ist30xx_isp_erase(struct ist30xx_data *data, u32 addr, u32 size)
     int ret = 0;
     int i;
     int page_cnt;
-    
+
     tsp_info("%s\n", __func__);
 
     if (addr % ISP_PAGE_SIZE) {
@@ -392,7 +392,7 @@ int ist30xx_isp_erase(struct ist30xx_data *data, u32 addr, u32 size)
         if (unlikely(ret))
             return ret;
     }
-    
+
     return ret;
 }
 
@@ -453,9 +453,9 @@ int ist30xx_isp_program_page(struct ist30xx_data *data, u32 addr, int isp_mode)
 #ifdef FASTMODE
     ist30xx_delay(1);
 #else
-	ist30xx_delay(3);
-	
-	val = 0;
+    ist30xx_delay(3);
+
+    val = 0;
     while (!(val & ISP_STS_PGM)) {
         ret = ist30xx_read_reg(data->client, rISP_STATUS, &val);
         if (unlikely(ret))
@@ -469,28 +469,28 @@ int ist30xx_isp_program_page(struct ist30xx_data *data, u32 addr, int isp_mode)
 int ist30xx_isp_set_fastmode(struct ist30xx_data *data)
 {
     int ret = 0;
-	u32 val = 0xDEAD038D;
+    u32 val = 0xDEAD038D;
 
     ret = ist30xx_write_buf(data->client, rSYS_CHIPID, &val, 1);
     if (unlikely(ret))
         return ret;
 
     val = 0x00021432;
-	ret = ist30xx_write_buf(data->client, rSYS_LCLK_CON, &val, 1);
+    ret = ist30xx_write_buf(data->client, rSYS_LCLK_CON, &val, 1);
     if (unlikely(ret))
         return ret;
 
     val = 0x80130020;
-	ret = ist30xx_write_buf(data->client, rDMA1_CTL, &val, 1);
+    ret = ist30xx_write_buf(data->client, rDMA1_CTL, &val, 1);
     if (unlikely(ret))
         return ret;
 
-	val = 0;
+    val = 0;
     ret = ist30xx_write_buf(data->client, rDMA1_SRCADDR, &val, 1);
     if (unlikely(ret))
         return ret;
 
-	val = rISP_DIN & (~IST30XX_DIRECT_ACCESS);
+    val = rISP_DIN & (~IST30XX_DIRECT_ACCESS);
     ret = ist30xx_write_buf(data->client, rDMA1_DSTADDR, &val, 1);
     if (unlikely(ret))
         return ret;
@@ -1014,44 +1014,44 @@ start_calibration:
 
 #ifdef PAT_CONTROL
 	/* cal_count */
-	if(!data->initialized){	//probe
+	if (!data->initialized) {	//probe
 		if (data->dt_data->pat_function == PAT_CONTROL_CLEAR_NV) {
 			/* pat_function(1) */
 			data->cal_count = 0;
-		}else if (data->dt_data->pat_function == PAT_CONTROL_PAT_MAGIC) {
+		} else if (data->dt_data->pat_function == PAT_CONTROL_PAT_MAGIC) {
 			/* pat_function(2)) */
 			data->cal_count = PAT_MAGIC_NUMBER;
-		}else if (data->dt_data->pat_function == PAT_CONTROL_FORCE_UPDATE) {
+		} else if (data->dt_data->pat_function == PAT_CONTROL_FORCE_UPDATE) {
 			/* pat_function(5)) */
 			data->cal_count = PAT_MAGIC_NUMBER;
 		}
-	}else{
+	} else {
 		if (data->dt_data->pat_function == PAT_CONTROL_NONE) {
 			/* pat_function(0) */
-		}else if (data->dt_data->pat_function == PAT_CONTROL_CLEAR_NV) {
+		} else if (data->dt_data->pat_function == PAT_CONTROL_CLEAR_NV) {
 			/* pat_function(1) */
 			data->cal_count = 0;
-		}else if (data->dt_data->pat_function == PAT_CONTROL_PAT_MAGIC) {
+		} else if (data->dt_data->pat_function == PAT_CONTROL_PAT_MAGIC) {
 			/* pat_function(2) */
-			if((data->status.update_keystring == 1)){
-				if(data->cal_count == 0)
+			if (data->status.update_keystring == 1) {
+				if (data->cal_count == 0)
 					data->cal_count = PAT_MAGIC_NUMBER;
 				else
 					data->cal_count += 1;
 			}
-		}else if (data->dt_data->pat_function == PAT_CONTROL_FORCE_CMD) {
+		} else if (data->dt_data->pat_function == PAT_CONTROL_FORCE_CMD) {
 			/* pat_function(6)) */
-			if(data->cal_count >= PAT_MAGIC_NUMBER)
+			if (data->cal_count >= PAT_MAGIC_NUMBER)
 				data->cal_count = 0;
 
 			data->cal_count += 1;
-			if(data->cal_count > PAT_MAX_LCIA)
+			if (data->cal_count > PAT_MAX_LCIA)
 				data->cal_count = PAT_MAX_LCIA;
-		}else {
+		} else {
 			data->cal_count += 1;
 		}
 
-		if(data->cal_count > PAT_MAX_MAGIC)
+		if (data->cal_count > PAT_MAX_MAGIC)
 			data->cal_count = PAT_MAX_MAGIC;
 	}
 

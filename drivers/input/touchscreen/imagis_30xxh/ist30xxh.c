@@ -650,27 +650,27 @@ void recording_data(struct ist30xx_data *data, bool idle)
 		goto state_idle;
 	}
 
-    buf32[0] = 2;
+	buf32[0] = 2;
 
-    addr = IST30XX_DA_ADDR((data->cdc_addr + 0xD90));
-    ret = ist30xx_burst_read(data->client, addr, buf32 + 1, tsp->node.self_len,
-            true);
-    if (ret)
-        goto err_rec_fail;
+	addr = IST30XX_DA_ADDR((data->cdc_addr + 0xD90));
+	ret = ist30xx_burst_read(data->client, addr, buf32 + 1, tsp->node.self_len,
+		true);
+	if (ret)
+		goto err_rec_fail;
 
 	for (i = data->rec_start_ch.tx; i <= data->rec_stop_ch.tx; i++) {
 		addr = ((i * tsp->ch_num.rx + data->rec_start_ch.rx) * IST30XX_DATA_LEN)
 				+ IST30XX_DA_ADDR(data->cdc_addr);
 		len = data->rec_stop_ch.rx - data->rec_start_ch.rx + 1;
 		ret = ist30xx_burst_read(data->client, addr,
-                buf32 + IST30XX_MAX_SELF_NODE_NUM + 1 +
-                (i * tsp->ch_num.rx + data->rec_start_ch.rx), len, true);
+			buf32 + IST30XX_MAX_SELF_NODE_NUM + 1 +
+			(i * tsp->ch_num.rx + data->rec_start_ch.rx), len, true);
 		if (ret)
 			goto err_rec_fail;
 	}
 
-    ist30xx_recording_put_frame(data, buf32,
-            IST30XX_MAX_SELF_NODE_NUM + IST30XX_MAX_NODE_NUM + 1);
+	ist30xx_recording_put_frame(data, buf32,
+		IST30XX_MAX_SELF_NODE_NUM + IST30XX_MAX_NODE_NUM + 1);
 
 	err_rec_fail:
 	kfree(buf32);
@@ -862,18 +862,17 @@ static irqreturn_t ist30xx_irq_thread(int irq, void *ptr)
 		for (i = 0; i < finger_cnt; i++)
 			data->fingers[i].full_field = msg[i + offset];
 
-			if (data->jig_mode) {
-				ret = ist30xx_burst_read(data->client,
-				IST30XX_DA_ADDR(data->zvalue_addr), data->z_values,
-						finger_cnt, true);
-				if (unlikely(ret))
+		if (data->jig_mode) {
+			ret = ist30xx_burst_read(data->client,
+				IST30XX_DA_ADDR(data->zvalue_addr), data->z_values, finger_cnt, true);
+			if (unlikely(ret))
 				goto irq_err;
-			}
+		}
 
-			for (i = 0; i < finger_cnt; i++) {
-				tsp_verb("intr msg(%d): 0x%08x, %d\n",
-						i + offset, msg[i + offset], data->z_values[i]);
-			}
+		for (i = 0; i < finger_cnt; i++) {
+			tsp_verb("intr msg(%d): 0x%08x, %d\n",
+				i + offset, msg[i + offset], data->z_values[i]);
+		}
 	}
 
 	read_cnt = finger_cnt + 1;
