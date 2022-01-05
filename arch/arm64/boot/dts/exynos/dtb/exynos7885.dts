@@ -303,6 +303,44 @@
 		};
 	};
 	
+	schedutil_gov {
+		schedutil_domain0: domain@0 {
+			device_type = "schedutil-domain";
+			shared-cpus = "0-5";
+			enabled = <0>;          /* Disabled */
+			qos_min_class = <3>;
+		};
+
+		schedutil_domain1: domain@1 {
+			device_type = "schedutil-domain";
+			shared-cpus = "6-7";
+			enabled = <1>;          /* Enabled */
+			expired_time = <80>;    /* 80ms */
+			qos_min_class = <5>;
+		};
+	};
+
+	schedutil {
+		domain@0 {
+			device_type = "freqvar-tune";
+			shared-cpus = "0-5";
+
+			boost_table = < 100 598000 60 715000 30 832000 20 949000 10 1053000 0 >;
+			up_rate_limit_table = < 5000 >;
+			down_rate_limit_table = < 5000 >;
+			st_table = < 5 >;
+		};
+
+		domain@1 {
+			device_type = "freqvar-tune";
+			shared-cpus = "6-7";
+
+			boost_table = < 20 858000 15 962000 5 1261000 0 >;
+			up_rate_limit_table = < 5000 >;
+			down_rate_limit_table = < 5000 >;
+			st_table = < 5 >;
+		};
+	};
 
 	cpufreq {
 		domain@0 {
