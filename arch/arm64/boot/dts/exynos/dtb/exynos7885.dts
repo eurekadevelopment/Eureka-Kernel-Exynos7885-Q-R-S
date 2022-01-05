@@ -203,6 +203,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			#cooling-cells = <2>; /* min followed by max */
 			logical-id = <0>;
 		};
@@ -214,6 +215,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			logical-id = <1>;
 		};
 
@@ -224,6 +226,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			logical-id = <2>;
 		};
 
@@ -234,6 +237,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&BOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			logical-id = <3>;
 		};
 
@@ -244,6 +248,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			logical-id = <4>;
 		};
 
@@ -254,6 +259,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 			logical-id = <5>;
 		};
 
@@ -264,6 +270,7 @@
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&A73_ENERGY>;
 			#cooling-cells = <2>; /* min followed by max */
 			logical-id = <6>;
 		};
@@ -275,9 +282,105 @@
 			enable-method = "psci";
 			cpu-idle-states = <&NONBOOTCL_CPU_SLEEP>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&A73_ENERGY>;
 			logical-id = <7>;
 		};
+		
+		energy-data {
+			A53_ENERGY: a53-energy {
+				capacity-mips = <230>;
+				power-coefficient = <124>;
+				capacity-mips-s = <155>;
+				power-coefficient-s = <110>;
 
+				capacity-weight = <1>;
+				energy-weight = <1>;
+			};
+			A73_ENERGY: a73-energy {
+				capacity-mips = <480>;
+				power-coefficient = <465>;
+				capacity-mips-s = <330>;
+				power-coefficient-s = <383>;
+
+				capacity-weight = <2>;
+				energy-weight = <1>;
+			};
+		};
+
+		ems {
+			/* Ontime Migration */
+			ontime {
+				/* little cores */
+				coregroup0 {
+					lower-boundary = <0>;
+					upper-boundary = <68>;
+					lower-boundary-s = <0>;
+					upper-boundary-s = <40>;
+					coverage-ratio = <100>;
+				};
+				/* big cores */
+				coregroup1 {
+					lower-boundary = <17>;
+					upper-boundary = <100>;
+					lower-boundary-s = <10>;
+					upper-boundary-s = <100>;
+					coverage-ratio = <80>;
+				};
+			};
+
+			/* Load Balance Trigger */
+			#define DEFAULT_RATIO	80
+			lbt {
+				overutil-level0 {
+					cpus =	"0-5",
+						"6-7";
+					ratio =	<30>,
+						<40>;
+				};
+				overutil-level1 {
+					cpus =	"0-7";
+					ratio =	<DEFAULT_RATIO>;
+				};
+			};
+
+			/* FRT Migration */
+			frt {
+				/* little cores */
+				coregroup0 {
+					coverage-ratio = <30>;
+					active-ratio = <25>;
+				};
+				/* big cores */
+				coregroup1 {
+					coverage-ratio = <30>;
+					active-ratio = <5>;
+				};
+			};
+
+			part {
+				/* little cores */
+				coregroup0 {
+					active-ratio-limit = <43>;
+					active-ratio-boost = <42>;
+				};
+				/* big cores */
+				coregroup1 {
+					active-ratio-limit = <30>;
+					active-ratio-boost = <0>;
+				};
+			};
+
+			prefer-perf-service {
+				prefer-perf0 {
+					boost = <1>;
+					light-task-threshold = <10>;
+					light-task-threshold-s = <6>;
+					prefer-cpus = "6-7", "0-5";
+					light-prefer-cpus = "0-5";
+				};
+			};
+		};
+		
 		idle-states {
 			entry-method = "arm,psci";
 
