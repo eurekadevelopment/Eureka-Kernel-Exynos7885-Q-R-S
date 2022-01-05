@@ -1140,7 +1140,7 @@ static int abox_rdma_hw_params(struct snd_pcm_substream *substream,
 	struct abox_platform_data *data = dev_get_drvdata(dev);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	int id = data->id;
-	unsigned int lit, big, hmp;
+	unsigned int lit, big;
 	int result;
 	ABOX_IPC_MSG msg;
 	struct IPC_PCMTASK_MSG *pcmtask_msg = &msg.msg.pcmtask;
@@ -1206,10 +1206,8 @@ static int abox_rdma_hw_params(struct snd_pcm_substream *substream,
 
 	lit = data->pm_qos_lit[abox_get_rate_type(params_rate(params))];
 	big = data->pm_qos_big[abox_get_rate_type(params_rate(params))];
-	hmp = data->pm_qos_hmp[abox_get_rate_type(params_rate(params))];
 	abox_request_lit_freq_dai(dev, data->abox_data, rtd->cpu_dai, lit);
 	abox_request_big_freq_dai(dev, data->abox_data, rtd->cpu_dai, big);
-	abox_request_hmp_boost_dai(dev, data->abox_data, rtd->cpu_dai, hmp);
 
 	dev_info(dev, "%s:Total=%zu PrdSz=%u(%u) #Prds=%u rate=%u, width=%d, channels=%u\n",
 			snd_pcm_stream_str(substream), runtime->dma_bytes,
@@ -1270,7 +1268,6 @@ static int abox_rdma_hw_free(struct snd_pcm_substream *substream)
 #endif
 	abox_request_lit_freq_dai(dev, data->abox_data, rtd->cpu_dai, 0);
 	abox_request_big_freq_dai(dev, data->abox_data, rtd->cpu_dai, 0);
-	abox_request_hmp_boost_dai(dev, data->abox_data, rtd->cpu_dai, 0);
 
 	return snd_pcm_lib_free_pages(substream);
 }

@@ -3948,7 +3948,7 @@ int abox_request_big_freq(struct device *dev, struct abox_data *data,
 
 	return 0;
 }
-
+#ifdef CONFIG_SCHED_HMP
 static void abox_change_hmp_boost_work_func(struct work_struct *work)
 {
 	struct abox_data *data = container_of(work, struct abox_data,
@@ -4011,7 +4011,7 @@ int abox_request_hmp_boost(struct device *dev, struct abox_data *data,
 
 	return 0;
 }
-
+#endif
 void abox_request_dram_on(struct platform_device *pdev_abox, void *id, bool on)
 {
 	struct device *dev = &pdev_abox->dev;
@@ -5709,8 +5709,10 @@ static int samsung_abox_probe(struct platform_device *pdev)
 	INIT_WORK(&data->change_mif_freq_work, abox_change_mif_freq_work_func);
 	INIT_WORK(&data->change_lit_freq_work, abox_change_lit_freq_work_func);
 	INIT_WORK(&data->change_big_freq_work, abox_change_big_freq_work_func);
+#ifdef CONFIG_SCHED_HMP
 	INIT_WORK(&data->change_hmp_boost_work,
 			abox_change_hmp_boost_work_func);
+#endif
 	INIT_WORK(&data->register_component_work,
 			abox_register_component_work_func);
 	INIT_WORK(&data->boot_done_work, abox_boot_done_work_func);
