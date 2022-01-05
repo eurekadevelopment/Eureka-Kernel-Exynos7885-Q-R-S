@@ -374,16 +374,17 @@ config CPU_FREQ_GOV_SCHEDUTIL
 	  be called cpufreq_schedutil.
 
 	  If in doubt, say N.
-
-config FREQVAR_SCHEDTUNE
-	depends on CPU_FREQ_GOV_SCHEDUTIL
-	bool "CFS tasks boosting cpu frequency variant"
+	  
+config FREQVAR_TUNE
+	bool "CPU frequency variant tuner"
+	depends on SCHED_EMS && CPU_FREQ_GOV_SCHEDUTIL
+	default n
 	help
-	  This option provides the "schedtune" controller which improves the
-	  responsibility in the low frequency
+	  This option provides the controller which tunes system performance
+	  as frequency variant.
 
 	  Say N if unsure.
-
+	  
 comment "CPU frequency scaling drivers"
 
 config CPUFREQ_DT
