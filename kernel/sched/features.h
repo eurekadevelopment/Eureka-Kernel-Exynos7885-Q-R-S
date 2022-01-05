@@ -69,6 +69,13 @@ SCHED_FEAT(RT_RUNTIME_SHARE, true)
 SCHED_FEAT(LB_MIN, false)
 SCHED_FEAT(ATTACH_AGE_LOAD, true)
 
+
+/*
+ * UtilEstimation. Use estimated CPU utilization.
+ */
+SCHED_FEAT(UTIL_EST, true)
+SCHED_FEAT(UTIL_EST_FASTUP, true)
+
 /*
  * Energy aware scheduling. Use platform energy model to guide scheduling
  * decisions optimizing for energy efficiency.
@@ -77,4 +84,10 @@ SCHED_FEAT(ATTACH_AGE_LOAD, true)
 SCHED_FEAT(ENERGY_AWARE, true)
 #else
 SCHED_FEAT(ENERGY_AWARE, false)
+#endif
+
+#ifdef CONFIG_SCHED_EMS
+SCHED_FEAT(EXYNOS_MS, true)
+#else
+SCHED_FEAT(EXYNOS_MS, false)
 #endif

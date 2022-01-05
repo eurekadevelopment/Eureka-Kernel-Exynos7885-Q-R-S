@@ -12,7 +12,7 @@
  */
 #define SCHEDSTAT_VERSION 15
 
-#ifdef DEFAULT_USE_ENERGY_AWARE
+#ifdef CONFIG_SMP
 static inline void show_easstat(struct seq_file *seq, struct eas_stats *stats)
 {
 	/* eas-specific runqueue stats */
@@ -20,8 +20,8 @@ static inline void show_easstat(struct seq_file *seq, struct eas_stats *stats)
 	    stats->sis_attempts, stats->sis_idle, stats->sis_cache_affine,
 	    stats->sis_suff_cap, stats->sis_idle_cpu, stats->sis_count);
 
-	seq_printf(seq, "%llu %llu %llu %llu %llu %llu %llu ",
-	    stats->secb_attempts, stats->secb_sync, stats->secb_idle_bt,
+	seq_printf(seq, "%llu %llu %llu %llu %llu %llu ",
+	    stats->secb_attempts, stats->secb_idle_bt,
 	    stats->secb_insuff_cap, stats->secb_no_nrg_sav,
 	    stats->secb_nrg_sav, stats->secb_count);
 
@@ -32,8 +32,6 @@ static inline void show_easstat(struct seq_file *seq, struct eas_stats *stats)
 	seq_printf(seq, "%llu %llu\n",
 	    stats->cas_attempts, stats->cas_count);
 }
-#else
-static void show_easstat(struct seq_file *seq, struct eas_stats *stats) { }
 #endif
 
 static int show_schedstat(struct seq_file *seq, void *v)
@@ -64,9 +62,8 @@ static int show_schedstat(struct seq_file *seq, void *v)
 		seq_printf(seq, "\n");
 
 #ifdef CONFIG_SMP
-#ifdef DEFAULT_USE_ENERGY_AWARE
 		show_easstat(seq, &rq->eas_stats);
-#endif
+
 		/* domain-specific stats */
 		rcu_read_lock();
 		for_each_domain(cpu, sd) {

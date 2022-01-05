@@ -860,10 +860,6 @@ static void update_curr_dl(struct rq *rq)
 	if (!dl_task(curr) || !on_dl_rq(dl_se))
 		return;
 
-	/* Kick cpufreq (see the comment in linux/cpufreq.h). */
-	if (cpu_of(rq) == smp_processor_id())
-		cpufreq_trigger_update(rq_clock(rq));
-
 	/*
 	 * Consumed budget is computed considering the time as
 	 * observed by schedulable tasks (excluding time spent
@@ -876,10 +872,8 @@ static void update_curr_dl(struct rq *rq)
 	if (unlikely((s64)delta_exec <= 0))
 		return;
 
-#ifdef CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
 	/* kick cpufreq (see the comment in kernel/sched/sched.h). */
 	cpufreq_update_this_cpu(rq, SCHED_CPUFREQ_DL);
-#endif
 
 	schedstat_set(curr->se.statistics.exec_max,
 		      max(curr->se.statistics.exec_max, delta_exec));
@@ -1202,7 +1196,8 @@ static void yield_task_dl(struct rq *rq)
 static int find_later_rq(struct task_struct *task);
 
 static int
-select_task_rq_dl(struct task_struct *p, int cpu, int sd_flag, int flags)
+select_task_rq_dl(struct task_struct *p, int cpu, int sd_flag, int flags,
+		  int sibling_count_hint)
 {
 	struct task_struct *curr;
 	struct rq *rq;
@@ -1605,7 +1600,6 @@ static struct rq *find_lock_later_rq(struct task_struct *task, struct rq *rq)
 				     !cpumask_test_cpu(later_rq->cpu,
 				                       &task->cpus_allowed) ||
 				     task_running(rq, task) ||
-				     !dl_task(task) ||
 				     !task_on_rq_queued(task))) {
 				double_unlock_balance(rq, later_rq);
 				later_rq = NULL;
