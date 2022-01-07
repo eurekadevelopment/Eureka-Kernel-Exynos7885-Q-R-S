@@ -1,0 +1,76 @@
+/*
+ * SAMSUNG EXYNOS7904 board device tree source
+
+ *
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/plugin/;
+
+#include "exynos7904-a30chn_common.dtsi"
+#include "exynos7904-a30_chn_open_gpio_01.dtsi"
+#include "exynos7904-a30chn_fingerprint-sensor_00.dtsi"
+
+/ {
+	compatible = "samsung,A30 CHN OPEN 01", "samsung,EXYNOS7904";
+
+	dtbo-hw_rev = <1>;
+    dtbo-hw_rev_end = <255>;
+
+
+	fragment@model {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			model = "Samsung A30 CHN OPEN 01 board based on EXYNOS7904";
+
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */
+
+&i2c_6 {
+ 	        status = "okay";
+
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		samsung,i2c-sda-delay = <100>;
+ 		samsung,i2c-max-bus-freq = <400000>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&i2c6_bus>;
+
+ 		lsm6dsl@6b {
+ 			compatible = "st,lsm6dsl";
+ 			reg = <0x6b>;
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&acc_int>;
+ 			interrupt-parent = <&gpa0>;
+ 			interrupts = <3 0 0>;
+ 			st,irq_gpio = <&gpa0 3 0>;
+ 			st,orientation = <1 0 1 2 1 1 1 1 2>;
+ 		};
+ 		
+		ams_dax@39 {
+			compatible = "ams,tcs3701";
+			reg = <0x39>;
+			ams,light_position = <51 81 2 59 1 80>;
+		};
+
+		yas539@2e {
+			compatible = "yas_magnetometer";
+			reg = <0x2e>;
+			yas,orientation = <6>;
+			yas,softiron = <9682 235 23 277 10362 133 151 260 10427>;
+			yas,softiron_sign = <2 2 2 2 2 0 0 2 2>;
+		};
+		
+};
