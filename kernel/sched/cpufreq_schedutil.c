@@ -300,8 +300,8 @@ static void sugov_update_shared(struct update_util_data *hook, u64 time,
 		if (flags & SCHED_CPUFREQ_DL)
 			next_f = sg_policy->policy->cpuinfo.max_freq;
 		else
-			next_f = sugov_next_freq_shared(sg_cpu, util, max);
-
+			next_f = sugov_next_freq_shared(sg_policy, util, max);
+			
 		sugov_update_commit(sg_policy, time, next_f);
 	}
 
