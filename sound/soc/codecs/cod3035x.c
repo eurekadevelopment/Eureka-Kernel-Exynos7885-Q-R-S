@@ -1082,7 +1082,7 @@ static int cod3035x_capture_deinit(struct snd_soc_codec *codec)
 
 	mutex_lock(&cod3035x->adc_mute_lock);
 	snd_soc_write(codec, COD3035X_44_IF1_FORMAT4, 0xFF);
-	if (cod3035x->oneui_version == 2) {
+	if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
 		/* disable ADC digital mute after configuring ADC */
 		cod3035x_adc_digital_mute(codec, false);
 	}
@@ -1108,7 +1108,7 @@ static int cod3035x_dmic_capture_deinit(struct snd_soc_codec *codec)
 
 	mutex_lock(&cod3035x->adc_mute_lock);
 	snd_soc_write(codec, COD3035X_44_IF1_FORMAT4, 0xFF);
-	if (cod3035x->oneui_version == 2) {
+	if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
 		/* disable ADC digital mute after configuring ADC */
 		cod3035x_adc_digital_mute(codec, false);
 	}
@@ -3787,7 +3787,7 @@ static void cod3035x_jack_det_work(struct work_struct *work)
 			input_report_switch(cod3035x->input, SW_HEADPHONE_INSERT, 0);
 		}
 		input_sync(cod3035x->input);
-	} else if (cod3035x->oneui_version == 2) {
+	} else if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
                 if (jackdet->jack_det && jackdet->mic_det)
 			switch_set_state(&cod3035x->sdev, 1);	/* 4 Pole */
 		else if (jackdet->jack_det)
@@ -4315,7 +4315,7 @@ int cod3035x_jack_mic_register(struct snd_soc_codec *codec)
 			dev_err(dev, "Failed to allocate switch input device\n");
 			return -ENOMEM;
 		}
-	} else if (cod3035x->oneui_version == 2) {
+	} else if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
 		cod3035x->sdev.name = "h2w";
 
 		ret = switch_dev_register(&cod3035x->sdev);
@@ -4342,7 +4342,7 @@ int cod3035x_jack_mic_register(struct snd_soc_codec *codec)
 
 	cod3035x->input->id.bustype = BUS_I2C;
 
-	if (cod3035x->oneui_version == 2) {
+	if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
 		cod3035x->input->evbit[0] = BIT_MASK(EV_KEY);
 		for (i = 0; i < 4; i++)
 			set_bit(cod3035x->jack_buttons_zones[i].code, cod3035x->input->keybit);
@@ -5334,10 +5334,6 @@ static int cod3035x_codec_probe(struct snd_soc_codec *codec)
 		return PTR_ERR(cod3035x->vdd2);
 	}
 
-#ifdef CONFIG_EUREKA_SOUND_CONTROL
-	eureka_sound_control_hook_probe(cod3035x->regmap);
-#endif
-
 #ifdef CONFIG_PM
 	pm_runtime_get_sync(codec->dev);
 #else
@@ -5395,6 +5391,13 @@ static int cod3035x_codec_probe(struct snd_soc_codec *codec)
 
 	cod3035x_i2c_parse_dt(cod3035x);
 
+#ifdef CONFIG_EUREKA_SOUND_CONTROL
+	// Hook only if on AOSP
+	if (cod3035x->oneui_version == 0) {
+		eureka_sound_control_hook_probe(cod3035x->regmap);
+	}
+#endif
+
 #if defined(CONFIG_SND_SOC_COD30XX_EXT_ANT)
 	if (cod3035x->dtv_detect) {
 		INIT_DELAYED_WORK(&cod3035x->jack_report_work, cod3035x_jack_report_work);
@@ -5451,7 +5454,7 @@ static int cod3035x_codec_probe(struct snd_soc_codec *codec)
 		snd_soc_write(codec, COD3035X_E1_PRESET_AVC, 0x22);
 	}
 
-	if (cod3035x->oneui_version == 2) {
+	if ((cod3035x->oneui_version == 2) || (cod3035x->oneui_version == 0)) {
 		/* it should be modify to move machine driver */
 		cod3035x_jack_mic_register(codec);
 	}

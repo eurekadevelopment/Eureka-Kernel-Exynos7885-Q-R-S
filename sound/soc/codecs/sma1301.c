@@ -30,10 +30,6 @@
 
 #include "sma1301.h"
 
-#ifdef CONFIG_EUREKA_SOUND_CONTROL
-#include "eureka_sound_control.h"
-#endif
-
 #define CHECK_PERIOD_TIME 1 /* sec per HZ */
 
 #define PLL_MATCH(_input_clk_name, _output_clk_name, _input_clk,\
@@ -3031,10 +3027,6 @@ static int sma1301_i2c_probe(struct i2c_client *client,
 			"Failed to allocate register map: %d\n", ret);
 		return ret;
 	}
-
-#ifdef CONFIG_EUREKA_SOUND_CONTROL
-	eureka_sound_control_hook_probe(sma1301->regmap);
-#endif
 
 	if (np) {
 		if (!of_property_read_u32(np, "init-vol", &value)) {
