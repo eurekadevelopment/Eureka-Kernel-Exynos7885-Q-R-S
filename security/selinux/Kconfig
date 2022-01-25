@@ -65,12 +65,12 @@ config SECURITY_SELINUX_DEVELOP
 	  can interactively toggle the kernel between enforcing mode and
 	  permissive mode (if permitted by the policy) via /selinux/enforce.
 
-config SECURITY_SELINUX_START_PERMISSIVE
-	bool "NSA SELinux Start Permissive"
+config SELINUX_STATE_DT_NODE
+	bool "Read SELinux state initial value from DT"
 	depends on SECURITY_SELINUX_DEVELOP
 	default n
 	help
-	  This option will force start SELinux in permissive state. SELinux is
+	  This option will read the initial SELinux state from DTB. SELinux is
 	  toggleable after boot.
 
 config SECURITY_SELINUX_AVC_STATS

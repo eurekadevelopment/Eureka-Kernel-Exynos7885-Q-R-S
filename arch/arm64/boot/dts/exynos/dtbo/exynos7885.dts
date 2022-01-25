@@ -139,6 +139,11 @@
 		linux,initrd-end = <0x840FFFFF>;
 	};
 
+	selinux {
+		/* 0: enforcing boot, 1: permissive boot */
+		sel_boot_state = <0>;
+	};
+
 	cpus {
 		#address-cells = <2>;
 		#size-cells = <0>;
