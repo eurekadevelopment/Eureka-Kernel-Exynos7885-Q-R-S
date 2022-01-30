@@ -1,5 +1,17 @@
+menu "Eureka Extra Drivers"
+
 config EUREKA_SYSFS
 	bool
 	default y
 	help
 	 Say Y here to get /sys/class/eureka sysfs
+	 
+config EUREKA_VERSION
+	bool
+	default y
+	depends on EUREKA_SYSFS
+	help
+	 Say Y here to get kernel build infos, such as KBuild Host, KBuild User, Compilers,
+	 etc. It will be on /sys/class/eureka/version
+	 
+endmenu
