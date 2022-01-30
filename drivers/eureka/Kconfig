@@ -1,0 +1,5 @@
+config EUREKA_SYSFS
+	bool
+	default y
+	help
+	 Say Y here to get /sys/class/eureka sysfs

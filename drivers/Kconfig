@@ -44,6 +44,8 @@ source "drivers/firewire/Kconfig"
 
 source "drivers/macintosh/Kconfig"
 
+source "drivers/eureka/Kconfig"
+
 source "drivers/net/Kconfig"
 
 source "drivers/isdn/Kconfig"
