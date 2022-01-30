@@ -33,7 +33,7 @@ obj-y				+= amba/
 # Many drivers will want to use DMA so this has to be made available
 # really early.
 obj-$(CONFIG_DMADEVICES)	+= dma/
-
+obj-$(CONFIG_EUREKA)		+= eureka/
 # SOC specific infrastructure drivers.
 obj-y				+= soc/
 
