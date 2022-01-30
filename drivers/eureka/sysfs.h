@@ -11,6 +11,9 @@
 #ifndef EUREKA_SYSFS_H
 #define EUREKA_SYSFS_H
 
+#include <linux/device.h>
+#include <linux/types.h>
+
 #ifdef CONFIG_EUREKA_SYSFS
 extern struct device *eureka_device_create(void *drvdata, const char *fmt);
 extern struct device *eureka_device_find(const char *name);
