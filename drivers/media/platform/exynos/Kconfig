@@ -49,3 +49,9 @@ config MEDIA_EXYNOS
         default y
         help
           Compile mdev to use exynos media device driver.
+
+config ONEUI3_FIMC_IS2_CAMERA_HEADER
+        bool "OneUI3 camera hal dependency"
+        default n
+        help
+          Enable some codes in a header file for OneUI3 camera hal.
