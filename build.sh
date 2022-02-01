@@ -123,7 +123,16 @@ CLANG_CLEAN() {
 }
 
 TOOLCHAIN() {
-	if [ -e "toolchain/bin/clang-13" ]; then
+	if [ -e "toolchain/bin/clang-14" ]; then
+		{
+			echo " "
+			echo " ${GREEN}Using Clang 14 as compiler ${STD}"
+			echo " "
+			GCC_ARM64_FILE=aarch64-linux-gnu-
+			GCC_ARM32_FILE=arm-linux-gnueabi-
+			echo " "
+		}
+	elif [ -e "toolchain/bin/clang-13" ]; then
 		{
 			echo " "
 			echo " ${GREEN}Using Clang 13 as compiler ${STD}"
@@ -133,11 +142,15 @@ TOOLCHAIN() {
 			echo " "
 		}
 	else
-		echo " "
-		echo " ${RED}WARNING: Correct toolchain could not be found! Downloading latest toolchain. ${STD}"
-		echo " "
-                git clone --depth=1 https://github.com/kdrag0n/proton-clang.git toolchain/
-		sleep 2
+		{
+			echo " "
+			echo " ${RED}WARNING: Correct toolchain could not be found! Downloading latest Clang 14 toolchain. ${STD}"
+			echo " "
+			rm -rf toolchain
+        	        #git clone --depth=1 https://github.com/kdrag0n/proton-clang.git toolchain/
+			git clone --depth=1 https://github.com/vijaymalav564/vortex-clang.git toolchain/
+			sleep 1
+		}
 	fi
 }
 
@@ -166,6 +179,7 @@ CLANG_BUILD() {
 		make -j$CORES O=out \
 		ARCH=arm64 \
 		ANDROID_MAJOR_VERSION=$ANDROID \
+		LLVM_DIS=llvm-dis AR=llvm-ar NM=llvm-nm LD=ld.lld OBJDUMP=llvm-objdump STRIP=llvm-strip \
 		CC=clang \
 		LD_LIBRARY_PATH="$KERNEL_DIR/toolchain/lib:$LD_LIBRARY_PATH" \
 		CLANG_TRIPLE=aarch64-linux-gnu- \
