@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
-dtb-y += exynos/dtbo/exynos7885.dtb
+dtb-y += exynos/dtb/exynos7885.dtb
 
 dtbo-$(CONFIG_MACH_EXYNOS7885_A10_OPEN) := \
 	exynos/dtbo/exynos7884B-a10_eur_open_00.dtbo \
