@@ -120,6 +120,18 @@ CLANG_CLEAN() {
 			rm -rf kernel_zip/anykernel/dtb.img
 		}
 	fi
+	if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+		{
+			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		}
+	fi
+	if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+		{
+			rm drivers/media/platform/exynos/Kconfig
+			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		}
+	fi
 }
 
 TOOLCHAIN() {
@@ -213,16 +225,39 @@ PREBUILT_DTBO() {
 }
 
 DTB_GENERATOR() {
-	# TODO: Add code to generate all custom DTBs automatically.
 	# DTB is soc specific and not device specific. So, use only A10 defconfig for generating all DTBs.
 	if [ "${BUILD_NO}" == "1" ]; then
 		ANDROID=r
 		SM_A105X
-		cp arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts.bak
-		LINE="$((grep -n 'sel_boot_state' arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
-		sed -i $LINE's/.*/		sel_boot_state = <'$1'>;/' arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts
-		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
-		sed -i $LINE's/.*/			eureka_kernel_variant = <'$2'>;/' arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi.bak
+		LINE="$((grep -n 'sel_boot_state' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		sed -i $LINE's/.*/		sel_boot_state = <'$1'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		sed -i $LINE's/.*/			eureka_kernel_variant = <'$2'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	        if [ "${CUSTOM_DTB}" == "1" ]; then
+	            # Little cores
+	            LINE="$((grep -n 'eureka_min-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_min-freq = <'$3'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_max-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_max-freq = <'$4'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_pm_qos-booting' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | head -1)"
+	            sed -i $LINE's/.*/			eureka_pm_qos-booting = <'$5'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            # Big cores
+	            LINE="$((grep -n 'eureka_min-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_min-freq = <'$6'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_max-freq' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_max-freq = <'$7'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            LINE="$((grep -n 'eureka_pm_qos-booting' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":") | tail -1)"
+	            sed -i $LINE's/.*/			eureka_pm_qos-booting = <'$8'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+	            # GPU
+	            LINE="$((grep -n 'eureka_gpu_max_clock' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            sed -i $LINE's/.*/		eureka_gpu_max_clock = <'$9'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	            LINE="$((grep -n 'eureka_gpu_highspeed_clock' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            sed -i $LINE's/.*/		eureka_gpu_highspeed_clock = <'${10}'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	            #LINE="$((grep -n 'eureka_gpu_temp_throttling' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi) | (gawk '{print $1}' FS=":"))"
+	            #sed -i $LINE's/.*/		eureka_gpu_temp_throttling = <'${11}'>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+	        fi
 		DTB_BUILD
 		if [ ! -e "kernel_zip/aroma/dtb/aosp/enf/default" ]; then
 			mkdir kernel_zip/aroma/dtb/aosp/enf/default -p
@@ -245,26 +280,52 @@ DTB_GENERATOR() {
 
 		if [ "$1" == "0" ]; then
 			if [ "$2" == "0" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/default/
-			elif [ "$2" == "2" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/default/
-			elif [ "$2" == "3" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/default/
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/default/
+                fi
+            elif [ "$2" == "2" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/default/
+                fi
+            elif [ "$2" == "3" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/default/
+                fi
 			fi
 		elif [ "$1" == "1" ]; then
 			if [ "$2" == "0" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/default/
-			elif [ "$2" == "2" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/default/
-			elif [ "$2" == "3" ]; then
-				cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/default/
-			fi
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/default/
+                fi
+            elif [ "$2" == "2" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/default/
+                fi
+            elif [ "$2" == "3" ]; then
+                if [ "${CUSTOM_DTB}" == "1" ]; then
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/${12}/
+                else
+                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/default/
+                fi
+            fi
 		fi
 
 		chown -R $username:$username kernel_zip/aroma/dtb
 		chmod -R 0755 kernel_zip/aroma/dtb
-		rm arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts
-		mv arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtbo/exynos7885.dts
+		rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		rm arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
+		mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		mv arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi.bak arch/arm64/boot/dts/exynos/dtb/exynos7885-mali_common.dtsi
 		CLANG_CLEAN
 	else
 		clear
@@ -283,6 +344,78 @@ DTB_GENERATOR() {
 		fi
 		cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/dtb/
 	fi
+}
+
+CUSTOM_DTB() {
+        export BUILD_NO=1
+        export CUSTOM_DTB=1
+
+        # selinux | os | little_min | little_max | little_qos | big_min | big_max | big_qos | gpu_max | gpu_highspeed | gpu_throttle | dtb_folder
+        DTB_GENERATOR 0 0 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 0 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 0 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 0 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 0 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 0 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 0 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 0 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 0 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 0 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 0 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 0 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 0 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 0 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 0 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 0 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 0 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 0 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 0 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 0 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 0 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
+
+        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
+        DTB_GENERATOR 1 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
+        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
+        DTB_GENERATOR 1 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
+        DTB_GENERATOR 1 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
+        DTB_GENERATOR 1 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
+        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
+        DTB_GENERATOR 1 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
+        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
+        DTB_GENERATOR 1 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
 }
 
 ZIPPIFY() {
@@ -343,26 +476,27 @@ ZIPPIFY() {
 
 			chmod 0777 $ZIPNAME
 
-			# Prepare kernel zip & update files for AROMA too
-			cp -f tools/changelog.txt ../aroma/META-INF/com/google/android/aroma/
-			mv tools/espectrum.zip ./
-			mv anykernel.sh anykernel.sh.bak
-			sed '53,79d' anykernel.sh.bak > anykernel.sh
+			if [ "${BUILD_NO}" != "" ]; then
+				# Prepare kernel zip & update files for AROMA too
+				cp -f tools/changelog.txt ../aroma/META-INF/com/google/android/aroma/
+				mv tools/espectrum.zip ./
+				mv anykernel.sh anykernel.sh.bak
+				sed '53,79d' anykernel.sh.bak > anykernel.sh
 
-			if [ "$ONEUI3" == "1" ]; then
-				SPECIAL_ZIP_NAME=$CODENAME"_oneui3.zip"
-			else
-				SPECIAL_ZIP_NAME=$CODENAME"_qrs.zip"
+				if [ "$ONEUI3" == "1" ]; then
+					SPECIAL_ZIP_NAME=$CODENAME"_oneui3.zip"
+				else
+					SPECIAL_ZIP_NAME=$CODENAME"_qrs.zip"
+				fi
+				zip -r9 $SPECIAL_ZIP_NAME META-INF tools anykernel.sh Image > /dev/null
+				chmod 0777 $SPECIAL_ZIP_NAME
+				mv $SPECIAL_ZIP_NAME ../aroma/
+
+				mv espectrum.zip tools/
+				rm -f anykernel.sh
+				mv anykernel.sh.bak anykernel.sh
+				chmod a+x anykernel.sh
 			fi
-			zip -r9 $SPECIAL_ZIP_NAME META-INF tools anykernel.sh Image > /dev/null
-			chmod 0777 $SPECIAL_ZIP_NAME
-			mv $SPECIAL_ZIP_NAME ../aroma/
-
-			mv espectrum.zip tools/
-			rm -f anykernel.sh
-			mv anykernel.sh.bak anykernel.sh
-			chmod a+x anykernel.sh
-
 			# Go back into kernel source directory
 			cd ../..
 			sleep 1
@@ -372,6 +506,9 @@ ZIPPIFY() {
 
 AROMA() {
 	# Make Eureka AROMA Installer zip
+	echo -e " "
+	echo -e " ${ON_BLUE}Building Eureka AROMA flashable zip ${STD}"
+	echo -e " "
 	cd kernel_zip
 
 	# Copy dtbo from anykernel folder
@@ -463,10 +600,10 @@ RENAME() {
 	# Give proper name to kernel and zip name
 	if [ "$ONEUI3" == "1" ]; then
 		VERSION="Eureka_R"$REV"_"$CODENAME"_OneUI3/4"
-		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_OneUI3.zip"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"OneUI3.zip"
 	else
 		VERSION="Eureka_R"$REV"_"$CODENAME"_Q/R/S"
-		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_Q_R_S.zip"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q_R_S.zip"
 	fi
 	AROMAZIPNAME="Eureka_R"$REV"_"$CODENAME"_AROMA-"$SCHEDULER".zip"
 }
@@ -478,6 +615,51 @@ SELINUX() {
 	elif [ "${CODENAME}" == "M205" ]; then
 		export SELINUX_B=enforcing
 		export SELINUX_STATUS="$SELINUX_B"_
+	elif [ "${BUILD_NO}" == "" ]; then
+		# Setup selinux for individual build
+
+		cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		LINE="$((grep -n 'sel_boot_state' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+		echo " ${ON_BLUE}Choose which SElinux state you wish to have ${STD}"
+		echo " ${BLUE}"
+		echo "  1) Build Eureka with ENFORCING SElinux"
+		echo " "
+		echo "  2) Build Eureka with PERMISSIVE SElinux"
+		echo " ${STD}"
+		read -n 1 -p " ${GREEN}Select your choice: " -s choice
+		case ${choice} in
+		1)
+			{
+				export SELINUX_B=enforcing
+				export SELINUX_STATUS="$SELINUX_B"_
+				sed -i $LINE's/.*/		sel_boot_state = <0>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				echo " "
+				echo " "
+				echo " ${GREEN}Enforcing chosen. Good choice :) ${STD}"
+				sleep 1
+			}
+			;;
+		2)
+			{
+				export SELINUX_B=permissive
+				export SELINUX_STATUS="$SELINUX_B"_
+				sed -i $LINE's/.*/		sel_boot_state = <1>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				echo " "
+				echo " "
+				echo " ${GREEN}Permissive chosen. Use with caution! ${STD}"
+				sleep 1
+			}
+			;;
+		*)
+			{
+				echo " "
+				echo " "
+				echo " ${RED}Invalid choice entered. Exiting... ${STD}"
+				sleep 1
+				exit
+			}
+			;;
+		esac
 	else
 		echo " "
 		echo " ${RED}SELinux will be read from DTB. Please ensure that you edited DTB before starting build. ${STD}"
@@ -622,7 +804,7 @@ COMMON_STEPS() {
 	cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
 	ZIPPIFY
 	sleep 1
-	if [ "${BUILD_NO}" != "1" ]; then
+	if [ "${BUILD_NO}" == "2" ]; then
 		AROMA
 	fi
 	sleep 1
@@ -663,6 +845,13 @@ OS_MENU() {
 		ONEUI3=1
 		echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 	else
+		# Do not backup original file if a backup file already exists (SELinux() backups first).
+		if [ ! -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
+		fi
+		cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
+		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
+
 		echo " ${GREEN}"
 		echo " 1) $android_qrs"
 		echo " "
@@ -678,6 +867,7 @@ OS_MENU() {
 				echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 				ANDROID=r
 				AND_VER=11
+				sed -i $LINE's/.*/			eureka_kernel_variant = <2>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
 				sleep 2
 				echo " "
 			}
@@ -690,6 +880,8 @@ OS_MENU() {
 				echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 				ANDROID=r
 				AND_VER=11
+				sed -i $LINE's/.*/			eureka_kernel_variant = <3>;/' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+				sed -i '55s/.*/        default y/' drivers/media/platform/exynos/Kconfig
 				ONEUI3=1
 				sleep 2
 				echo " "
@@ -845,16 +1037,21 @@ if [ "$1" == "auto" ]; then
 	fi
 	BUILD_ALL
 elif [ "$1" == "dtb" ]; then
-	clear
-	echo " ${ON_BLUE}Exynos7885 (2019) DTB generator: ${STD}"
-	echo " "
-	read -p " ${GREEN}Have you already edited the dts file(s)? (y/n) : " dummy
-	if [ "${dummy}" == "y" ]; then
-		DTB_GENERATOR
-	else
-		exit
-	fi
+    clear
+    echo " ${ON_BLUE}Exynos7885 (2019) DTB generator: ${STD}"
+    echo " "
+    if [ "$2" == "auto" ]; then
+        CUSTOM_DTB
+    else
+        read -p " ${GREEN}Have you already edited the dts file(s)? (y/n) : " dummy
+        if [ "${dummy}" == "y" ]; then
+            DTB_GENERATOR
+        else
+            exit
+        fi
+    fi
 else
+	BUILD_NO=""
 	INDIVIDUAL
 
 fi
