@@ -34,7 +34,7 @@ ini_set("rom_name",    "Eureka Kernel");
 ini_set("rom_version", "R9.0");
 ini_set("rom_author",  "Chatur");
 ini_set("rom_device",  "Samsung Galaxy A-series");
-ini_set("rom_date",    "22 Jan 2022");
+ini_set("rom_date",    "07 Feb 2022");
 
 
 #
@@ -68,11 +68,11 @@ viewbox(
 " INFORMATION ABOUT THIS KERNEL:\n\n"+
 " NAME  \t\t\t: <b><#selectbg_g>Eureka Kernel</#></b>\n"+
 " VERSION \t\t: <b><#selectbg_g>R9.0</#></b>\n"+
-" BUILD DATE \t\t: <b><#selectbg_g>22/01/2022</#></b>\n"+
+" BUILD DATE \t\t: <b><#selectbg_g>07/02/2022</#></b>\n"+
 " DEVELOPER \t\t: <b><#selectbg_g>Chatur</#></b>\n"+
 " CO-DEVELOPERS \t: <b><#selectbg_g>Gabriel, Roynatech</#></b>\n"+
 " DEVICE \t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n\n\n"+
-"   PRESS START TO PROCEDE",
+"\tPRESS START TO PROCEDE",
 "@welcome"
 );
 
@@ -84,7 +84,7 @@ ini_set("text_next", " ");
 ini_set("icon_next", "@none");
 menubox(
   #-- Title
-    "MAIN MENU \t\t\t\t\t",
+    "MAIN MENU \t\t\t\t\t\t",
   
   #-- Sub Title
     "Eureka Kernel Aroma Installer",
@@ -132,21 +132,21 @@ if (prop("menu.prop","selected")=="1") then
 	    "Choose your variant according to your OS",
 	    "@kernel",
 	    "kernel.prop",
-	  
+
 	      #------------------------------+---------------[ Selectbox With Groups ]-------------+--------------------------------#
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                     2,  #-- Group 1. key = "selected.1"
-	        "AOSP Q/R/S",                  " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
-	        "OneUI 2",                     " Kernel for OneUI 2 ROMs only",                        0,  #-- selected.1 = 2
-	        "OneUI 3",                     " Kernel for OneUI 3 ROMs only",                        0,  #-- selected.1 = 3
+	        "AOSP (Eureka ROMs) Q/R/S",    " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
+	        "OneUI 2 (Q vendor)",          " Kernel for OneUI 2 ROM or GSI using Q vendor",        0,  #-- selected.1 = 2
+	        "OneUI 3 (R vendor)",          " Kernel for OneUI 3 ROM or GSI using R vendor",        0,  #-- selected.1 = 3
 
 	       "SElinux Type:",                "",                                                     2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
             "Permissive",                  " Can boot roms which do not boot with enforcing.",     0   #-- selected.2 = 2
 
 	);
-	
+
 	# Change the Install Now button text back to "Next"
 	#
 	ini_set("text_next", "Next");
@@ -169,8 +169,8 @@ if (prop("menu.prop","selected")=="2") then
 	    ini_set("icon_next", "@installbutton");
 	    #-- IF Installation type = "Custom" Show Customize Selection
 	    selectbox(
-	      "CUSTOMIZE MENU \t\t\t\t\t",
-	      "Only spectrum is optional.",
+	      "CUSTOMIZATION \t\t\t\t\t\t",
+	      "Only spectrum & dtbo are optional.",
 	      "@personalize",
 	      "customize.prop",
 
@@ -178,29 +178,29 @@ if (prop("menu.prop","selected")=="2") then
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                     2,  #-- Group 1. key = "selected.1"
-	        "AOSP Q/R/S",                  " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
-	        "OneUI 2",                     " Kernel for OneUI 2 ROMs only",                        0,  #-- selected.1 = 2
-	        "OneUI 3",                     " Kernel for OneUI 3 ROMs only",                        0,  #-- selected.1 = 3
+	        "AOSP (Eureka ROMs) Q/R/S",    " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
+	        "OneUI 2 (Q vendor)",          " Kernel for OneUI 2 ROM or GSI using Q vendor",        0,  #-- selected.1 = 2
+	        "OneUI 3 (R vendor)",          " Kernel for OneUI 3 ROM or GSI using R vendor",        0,  #-- selected.1 = 3
 
 	       "SElinux Type(depends on kernel):", "",                                                 2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
-            "Permissive",                  " Can boot roms which do not boot with enforcing.",     0,  #-- selected.2 = 2
+            "Permissive",                  " Can boot roms which do not boot with\n enforcing.",   0,  #-- selected.2 = 2
 
 	       "Spectrum Support?(depends on dtb)", "",                                                2,  #-- Group 3. key = "selected.3"
             "Yes",                         " Enable Spectrum with 4 predefined profiles.",         0,  #-- selected.3 = 1
             "No",                          " Spectrum will not be installed.",                     0,  #-- selected.3 = 2
 
-	       "Custom DTB(depends on kernel):",              "",                                                                            2,  #-- Group 4. key = "selected.4"
-	        "Default DTB - All frequencies enabled",      " BIG Cores: 208-2288 MHz\n Little Cores: 208-1794 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 1
-	        "Custom DTB 1",                               " BIG Cores: 520-2288 MHz\n Little Cores: 546-1794 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 2
-	        "Custom DTB 2 - For stability",               " BIG Cores: 208-2080 MHz\n Little Cores: 208-1690 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 3
-	        "Custom DTB 3 - Stock Exynos7884B",           " BIG Cores: 728-1560 MHz\n Little Cores: 839-1352 MHz\n GPU: 343-676 MHz",    0,  #-- selected.4 = 4
-	        "Custom DTB 4 - Stock Exynos7904",            " BIG Cores: 728-1768 MHz\n Little Cores: 839-1586 MHz\n GPU: 343-845 MHz",    0,  #-- selected.4 = 5
-	        "Custom DTB 5 - For stability",               " BIG Cores: 520-2080 MHz\n Little Cores: 546-1690 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 6
-	        "Custom DTB 6",                               " BIG Cores: 208-2080 MHz\n Little Cores: 208-1794 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 7
-	        "Custom DTB 7 - Battery saving Exynos7904",   " BIG Cores: 208-1768 MHz\n Little Cores: 208-1586 MHz\n GPU: 343-845 MHz",    0,  #-- selected.4 = 8
-	        "Custom DTB 8",                               " BIG Cores: 208-2288 MHz\n Little Cores: 208-1690 MHz\n GPU: 343-1300 MHz",   0,  #-- selected.4 = 9
-	        "Custom DTB 9 - Battery saving Exynos7884B",  " BIG Cores: 208-1560 MHz\n Little Cores: 208-1352 MHz\n GPU: 343-676 MHz",    0,  #-- selected.4 = 10
+	       "Custom DTB(depends on kernel):",              "",                                                                                     2,  #-- Group 4. key = "selected.4"
+	        "Default DTB - All frequencies enabled",      " BIG Cores: 208-2288 MHz\n Little Cores: 208-1794 MHz\n GPU: 343-1300 MHz",            0,  #-- selected.4 = 1
+	        "Custom DTB 1 - Less underclocked default DTB", " BIG Cores: 520-2288 MHz\n Little Cores: 546-1794 MHz\n GPU: 343-1300 MHz",          0,  #-- selected.4 = 2
+	        "Custom DTB 2 - Stability V1",                " BIG Cores: 208-2080 MHz\n Little Cores: 208-1690 MHz\n GPU: 343-1300 MHz",            0,  #-- selected.4 = 3
+	        "Custom DTB 3 - Stock Exynos7884B",           " BIG Cores: 728-1560 MHz\n Little Cores: 839-1352 MHz\n GPU: 343-676 MHz",             0,  #-- selected.4 = 4
+	        "Custom DTB 4 - Stock Exynos7904",            " BIG Cores: 728-1768 MHz\n Little Cores: 839-1586 MHz\n GPU: 343-845 MHz",             0,  #-- selected.4 = 5
+	        "Custom DTB 5 - Stability V2",                " BIG Cores: 520-2080 MHz\n Little Cores: 546-1690 MHz\n GPU: 343-1300 MHz",            0,  #-- selected.4 = 6
+	        "Custom DTB 6 - Default DTB with smaller BIG cores", " BIG Cores: 208-2080 MHz\n Little Cores: 208-1794 MHz\n GPU: 343-1300 MHz",     0,  #-- selected.4 = 7
+	        "Custom DTB 7 - Battery saving Exynos7904",   " BIG Cores: 208-1768 MHz\n Little Cores: 208-1586 MHz\n GPU: 343-845 MHz",             0,  #-- selected.4 = 8
+	        "Custom DTB 8 - Default DTB with smaller little cores", " BIG Cores: 208-2288 MHz\n Little Cores: 208-1690 MHz\n GPU: 343-1300 MHz",  0,  #-- selected.4 = 9
+	        "Custom DTB 9 - Battery saving Exynos7884B",  " BIG Cores: 208-1560 MHz\n Little Cores: 208-1352 MHz\n GPU: 343-676 MHz",             0,  #-- selected.4 = 10
 
 	       "Patch Dm-Verity(DTBO based)?", "",                                                     2,  #-- Group 5. key = "selected.5"
             "Yes",                         " Recommended if you are coming from stock rom!",       0,  #-- selected.5 = 1
@@ -280,7 +280,7 @@ endif;
 # CHANGELOG
 #
 if (prop("menu.prop","selected")=="4") then
- textdialog("Eureka Changelog", resread("changelog.txt"), "Close");
+ textdialog("Eureka R9.0 Changelog", resread("changelog.txt"), "Close");
   #-- Back to Menu
   back("1");
 endif;
@@ -343,15 +343,12 @@ endif;
 setvar("retstatus",
 install(
 "",
-"<b>"+ini_get("Kernel name")+"</b>INSTALLING...\n"+
-"PLEASE WAIT WHILE INSTALLATION FINISHES. <b>"+ini_get("Kernel_name")+
-"</b> THIS PROCESS WILL TAKE SOME TIME",	
-"@install",	
-"THE INSTALLATION HAS FINISHED. <b>"+ini_get("Kernel_name")+
-"</b> PRESS EXIT BUTTON "
+"<@center><b>INSTALLING. PLEASE WAIT...</b></@>",
+"@install",
+"<@center><b>INSTALLATION HAS FINISHED!</b></@>"
 )
 );
-textdialog("Warning", resread("finish.txt"), "OK");
+textdialog("See you again!", resread("finish.txt"), "OK");
 if
     confirm(
       "Reboot",

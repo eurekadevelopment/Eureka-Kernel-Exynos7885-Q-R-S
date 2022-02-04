@@ -2,7 +2,7 @@
 
 • Disabled CRC check on data blocks which improves performance and also enabled toggleable CRC check feature.
 
-• Added GPU thermal and voltage control
+• Added GPU thermal and voltage control.
 
 • Added latest boeffla_wl_blocker v1.1.0 and disabled some wakelocks.
 
@@ -82,7 +82,7 @@
 
 • Based on latest A305F oneui 3 kernel source.
 
-• Compiled kernel with Proton Clang 13 toolchain.
+• Compiled kernel with Vortex Clang 14 toolchain.
 
 • Enabled Clang LTO for better performance.
 
@@ -112,7 +112,7 @@
 
 • Implemented WireGuard vpn driver.
 
-• Upstream Linux Kernel Version from 4.4.177 to 4.4.288 (Eureka 8.0)
+• Upstream Linux Kernel Version from 4.4.177 to 4.4.302 (Eureka 9.0)
 
 • Added ondemandplus CPU governor.
 
@@ -120,7 +120,7 @@
 
 • Tune CFQ I/O scheduler based on Pixel 4.
 
-• Added a custom backlight brightness controller. When enabled in EKM app, the brightness can go lower than stock. [Feature can be used with EKM app.
+• Added a custom backlight brightness controller. When enabled in EKM app, the brightness can go lower than stock. [Feature can be used with EKM app only].
 
 • Fixed GPU frequency being limited to 1100 MHz after being throttled.
 
@@ -129,3 +129,17 @@
 • Fixed non-detection of some gamepad controllers (such as chinese ones).
 
 • Patched kernel for android 12 (S) - Backported BPF support.
+
+• Two kernel versions with different schedulers are available: EMS (Exynos Mobile Scheduler) which is a scheduler based on EAS (Energy Aware Scheduling), and HMP (Heterogeneous Multi-Processing) scheduler.
+
+• EMS kernel custom CPU governors: Blu-Schedutil, ElectroUtilX & PwrUtilX.
+
+• AROMA Installer is used to facilitate the installation of Eureka Kernel.
+
+• OneUI and AOSP kernels & custom DTBs are merged into 1 zip (kept size as small as possible).
+
+• Permissive selinux: SElinux can be switched to enforcing after boot.
+
+• EurekaSound (ESOUND) v1.0, a basic headphone audio controller (For AOSP only).
+
+• Eureka Display Control (EKCAL) which is based on Samsung mDNIE driver (Not available for A20e).

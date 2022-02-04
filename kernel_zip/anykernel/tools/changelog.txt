@@ -1,317 +1,44 @@
-Kernel latest version: Eureka R8.0
-Developer: Eureka Team
-Contact info:
- * Telegram: @eureka_support_group
+• Upstream Linux Kernel from 4.4.288 to 4.4.302 (latest and last upstream from Linux).
 
-################## Author's useless notice
-I'm not responsible for anything which happens to your device although this kernel has been tested before
-being released officially. Kernel update will be released mostly every month now except if a major bug has to
-be fixed.
+• Implemented EurekaSound (ESOUND) v1.0, a basic headphone audio controller (For AOSP only).
 
+• Implemented Eureka Display Control (EKCAL) which is based on Samsung mDNIE driver (Not available for A20e).
 
-##################  MAIN FEATURES OF R4.4.3
+• Modified DT2W driver for A20 and A40 so as to fix DT2W issue on AOSP ROMs.
 
-1) Disabled Samsung security features (E.g: defex, dm verity, rooting restrictions, knox ncm…)
+• Fixed all remaining warnings in kernel source.
 
-2) Disabled CRC check on data blocks which improves performance and also enabled toggleable CRC check feature.
+• For permissive selinux, SElinux can be switched to enforcing after boot.
 
-3) Removed dirty status from scripts for github.
+• Further improvements to SElinux code to fix some warnings in kernel log.
 
-4) Enabled all governors except Schedutils governor.
+• Fixed custom flashlight controller for A10.
 
-5) Overclocked CPU as follows:
-	BIG Cores: from 1560 MHz to 2080 MHz.
-	LIL Cores: from 1352 MHz to 1690 MHz.
+• Updated WireGuard VPN driver to latest version (1.0.20211208)
 
-6) Removed a bunch of debugging and logging codes
+• Merged 98 % audio and camera changes from R kernel source into Q/R/S kernels.
 
-7) Added GPU thermal and voltage control (Can be controlled in HkTweaks) 
+• AROMA Installer is now used to facilitate the installation of Eureka Kernel.
 
-8) Added latest boeffla_wl_blocker v1.1.0 and disabled some wakelocks.
+• OneUI and AOSP kernels & custom DTBs have been merged into 1 zip (kept size as small as possible).
 
-9) Some optimisations for overall performance in kernel
+• Switched to Vortex Clang which is based on the latest version of Clang 14 (20220201).
 
-10) Balance battery and performance by reducing CPU wake-ups
+• Two kernel versions with different schedulers are now available:
+    • Implemented EMS (Exynos Mobile Scheduler) which is a scheduler based on EAS (Energy Aware Scheduling).
+    • The normal kernel version has the stock HMP (Heterogeneous Multi-Processing) scheduler.
 
-11) Added NEON accelerated XOR implementation which improves performance by about 20%
+• Eureka kernel R9.0 heavily depends on DTB (not DTBO) for the following features:
+    • CPU and GPU overclock & underclock
+    • SELinux state (enforcing or permissive)
+    • Sound driver compatibility (AOSP, OneUI2 or OneUI3)
+    • Energy model and parameters for EMS kernels
 
-12) Use neon-vfpv4 and softfp
+• EMS kernel works best with schedutil based governors. The following governors were added:
+    • Blu Schedutil
+    • ElectroUtilX
+    • PwrUtilX
 
-13) Enabled support for NTFS filesystems.
+• Updated spectrum files.
 
-14) Use TCP Congestion algorithm instead of BIC (network speed improvement)
-
-15) Added battery control 
-
-16) Optimized cpufreq and interactive governors.
-
-17) Use -O3 optimization for inputs and crypto.
-
-18) Optimised kernel for performance instead of size
-
-19) GPU max frequency overclocked from 676MHz to 1300MHz
-
-20) Underclocked CPU as follows:
-	BIG Cores: from 936MHz to 520MHz.
-	LIL Cores: from 839MHz to 449MHz.
-
-21) Mark some IRQS and Kthreads as performance critical
-
-22) Patch SafetyNet to bypass detection
-
-23) Enable zram support and set default compressor as lz4.
-
-24) Reduced transition latency for cpu frequencies.
-
-25) Removed verity flag from dt.
-
-26) Allow undervolting of gpu by 100mV
-
-27) Switch to a lower charging voltage more quickly. This results in a slight reduce in battery capacity
-(about 3% less usable capacity) but this helps to extend the cycle life of the battery.
-
-28) Fixed CPU throttling of both clusters. All cores will get throttled only if temperature is above 95'C
-
-29) Adjusted default gpu highspeed clock to 1001MHz for a smoother ui experience.
-
-30) Enable deadline I/O scheduler
-
-31) Upstream LZ4 compressor module and other related optimisations.
-
-32) Implemented Dynamic FSync 2.0 (Disables Fsync when screen is on so as to improve performance)
-
-33) Reduced touchscreen touch latency (To solve a bug on I2C).
-
-34) Upstreamed kernel version from 4.4.177 to 4.4.238 which is the latest stable version.
-Upstreaming allows kernel to have latest security updates, bug fixes, various code improvements
-and so on released by linux developpers.
-
-35) Built with Linaro V6.5.0 toolchain. Reason: Better performance
-
-36) Other performance tweaks
-
-
-##################  MAIN FEATURES OF R5.0
-
-37) Attempt to fix drivedroid support
-
-38) Some tweaks for storage performance (better for swap)
-
-39) Fake gpu model to Mali-G72 (Doesn't work probably because gpu model is provided by Vendor partition)
-
-40) Tune CFQ I/O scheduler based on Pixel 4
-
-41) Improve code for safetynet bypass in case Google checks for other stuffs in the future.
-
-42) Add ntfs3 driver by paragon software and switch to it. (Still requires app like ntfs mounter by paragon to
-read ntfs filesystems because android os doesnt have necessary libraries to mount ntfs on its own)
-
-43) Upstreamed kernel version from 4.4.238 to 4.4.241 which is the latest stable version.
-
-44) Add a bunch of famous governors (bioshock, blu_active, smartmax, intelliactive, lionheart, and more)
-
-45 Tweak gpu dvfs files' permissions for better performance as suggested
-
-46) Added support for wireguard- A next generation vpn.
-
-47) Enabled schedutil govenor.
-
-48) Other minor performance tweaks
-
-49) FOR ONEUI VERSION ONLY (arm64 vendor for A10 causes bootloop, so gsi version wont have these 2 features:
-         * Use userspace lmkd instead of in-kernel lmk (better ram management)
-         * Disable GFS for better ui responsiveness
-
-50) Remove magisk v21 from kernel so that users can flash any magisk version they want)
-
-51) Update Spectrum profile parameters
-
-
-##################  MAIN FEATURES OF R6.1
-
-52) Further overclocked BIG cores from 2080 MHz to 2184 MHz.
-
-53) Undervolted the whole soc (exynos7885) including CPU and GPU.
-
-54) Tweaked kernel for stability and less battery drain at high frequencies.
-
-55) Enabled back 312MHz and 343MHz frequencies for big and little cores respectively.
-
-56) Fixed automatic scaling to overclocked frequencies. No need to force frequencies now!
-
-57) CPU throttling bypass increased till 2184MHz for big cores.
-
-58) Updated spectrum profiles inorder to use max frequencies.
-
-59) Automatic detection of root when flashing kernel. If you are already rooted, you won't lose root when
-flashing kernel as from now. So, no need to flash magisk after kernel!!
-
-60) Added powersuspend driver v1.8 - saves battery when screen is off.
-
-61) Removed/disabled some more useless debugging codes and Samsung securities.
-
-62) Added an improved version of KSM known as UKSM (Ultra Kernel Samepage Merging) - Decreases ram usage
-(Only for A10)
-
-63) Removed Userspace lmkd and switched back to stock LMK.
-
-64) Added Maple I/O scheduler
-
-65) Disable GFS for better ui responsiveness for all kernels now.
-
-66) Fixed issue of bootloop!! - No more stucking on bootlogo.
-
-67) Slight improvement in boot's speed.
-
-68) Update wireguard vpn driver to latest version - v1.0.20201221.
-
-69) Updated kernel source to latest for A10 - A105FDDU3BTF1
-
-70) Upstreamed kernel version from 4.4.241 to 4.4.248 which is the latest stable version.
-
-71) Built kernel with latest Proton Clang 12 and LTO for better performance.
-
-72) Optional spectrum support - Flash enable_spectrum_support.zip on your internal storage to enable spectrum.
-
-
-##################  MAIN FEATURES OF R6.1.2 (minor update release)
-
-73) Fixed bluetooth on arm64 roms for A10 only
-
-74) Upstreamed kernel version from 4.4.248 to 4.4.252 which is the latest stable version.
-
-
-##################  MAIN FEATURES OF R6.2.1 (minor update release)
-
-75) Upstreamed kernel version from 4.4.252 to 4.4.258 which is the latest stable version.
-
-76) Fixed random reboot on android 11 GSIs. If you still get reboots, then the issue is with the GSI. Please
-contact the maintainer of the GSI for any fix. Tested Superior GSI android 11 and got no reboot.
-
-77) Updated WireGuard to v1.0.20210219 (latest version)
-
-
-##################  MAIN FEATURES OF R6.4
-
-78) Updated A10 kernel to latest source (S4BTG1)
-
-79) Updated GPU driver from R19p0 (26/06/2019) to R26p0 (10/09/2020)
-
-80) Switched to Proton Clang 13 toolchain
-
-81) Upstreamed kernel version from 4.4.258 to 4.4.265 (latest)
-
-82) Added "Unstable battery detection" feature and enabled by default
-
-
-##################  MAIN FEATURES OF R6.4.1 (minor update release)
-
-83) Removed Unstable battery detection" feature because it was slowing down charging
-
-
-##################  MAIN FEATURES OF R6.5 (minor update release)
-
-84) Upstreamed kernel version from 4.4.265 to 4.4.267 (latest)
-
-85) Unified kernel sources for A10, A20, A20e, A30, A30s and A40
-
-
-##################  MAIN FEATURES OF R7.0 
-
-86) Switched unified kernel source to A40 R latest source
-
-87) Oneui 3.x kernel will be available for all supported devices
-
-88) Updated Wireguard driver to latest version
-
-89) Eureka Defender has not been activated because of some users denying that feature
-
-90) Fixed double tap to wake for some devices using custom ROMs
-
-91) Fixed low torch/flashlight brightness on custom ROMs (dtbo based)
-
-92) Increased A10 input charging current upto 1.2A (dtbo based)
-
-93) Updated TFA98xx audio codec driver from 4.2.0 to 6.7.8 (latest) - Used by A20, A20e, A30, A30s and A40
-
-94) Some tweaks to reduce jitter and UI lags
-
-95) Added a new fingerprint boost driver
-
-96) More battery tweaks to reduce idle battery drain
-
-97) Added support for exFAT filesystem - More details later
-
-98) Upstream Linux Kernel Version from 4.4.267 to 4.4.270
-
-99) Fixed almost all warnings in kernel source
-
-100) Improvements to MTP and ADB driver
-
-101) Special kernel edition for those who like the old gpu driver
-
-102) Nuked inefficient Exynos Hotplug driver. Replaced it by another hotplug driver.
-
-103) You can manually turn off cores to save power but at the cost of performance.
-
-104) Custom dtbos are/will be available for customizing the kernel to your needs.
-
-105) There will be only 2 kernels as from now, namely enforcing or permissive. Works on custom roms,
-gsi and oneui based roms.
-
-106) Fix the issue where the 2 lower gpu frequencies had the same voltage when -100mv was applied to them.
-
-
-##################  MAIN FEATURES OF R7.5
-
-107) Upstream Linux Kernel Version from 4.4.270 to 4.4.277
-
-108) Enabled back 208MHz frequency for big and little cores.
-
-109) DTB is now used to customize Eureka features such as CPU and GPU frequencies.
-
-110) DTBO is only used to disable dm-verity as from now. You can restore stock dtbo if you have slow charging issue. [Warning: Stock dtbo has dm-verity and you might get BSOD if you do not patch it]
-
-111) Addded a new flashlight control driver which will be used on AOSP/LOS based ROMs. It will also fix low flashlight issue on GSIs. This new driver does not interfere with camera (which was causing dark photos for some A20 users) Footej camera app is recommended for custom roms.
-
-112) Imported latest Samsung updates from A305F R kernel source.
-
-113) "Samsung A10 1.2A input charging current" feature still depends on Eureka dtbo. Will fix it on next update
-
-114) Further overclocked BIG cores from 2184MHz to 2288MHz and LITTLE cores from 1690MHz to 1794MHz.
-
-115) Fixed wrongly set GPU throttling frequencies.
-
-116) Updated WireGuard vpn driver to latest version - v1.0.20210606
-
-117) Some other minor optimisations.
-
-
-##################  MAIN FEATURES OF R8.0
-
-118) Upstream Linux Kernel Version from 4.4.277 to 4.4.288
-
-119) Added ondemandplus CPU governor.
-
-120) Added BFQ and ZEN v2 I/O schedulers.
-
-121) Added a new backlight brightness controller. When enabled in EKM app, the brightness can go lower and brighter than stock. [Feature can be used when new EKM app is released]
-
-122) "Samsung A10 1.2A input charging current" feature has been hardcoded in kernel.
-
-123) Nuked CPU quiet and reverted back to Exynos Hotplug. It should fix issue of cores randomly turning off.
-It is useless for a BIG.little architecture with 6 power efficient cores out of 8 cores.
-
-124) Fixed GPU frequency being limited to 1100 MHz after being throttled (v2.0).
-
-125) Some optimisations for better FS performance for EXT4 filesystem.
-
-126) Fixed non-detection of some gamepad controllers (such as chinese ones).
-
-127) Patched kernel for android 12 (S).
-
-128) Some other minor optimisations.
-
-129) ..
-
-
+• Other minor changes.
