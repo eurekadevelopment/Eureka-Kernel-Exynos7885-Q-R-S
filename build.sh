@@ -120,18 +120,6 @@ CLANG_CLEAN() {
 			rm -rf kernel_zip/anykernel/dtb.img
 		}
 	fi
-	if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
-		{
-			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
-			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
-		}
-	fi
-	if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
-		{
-			rm drivers/media/platform/exynos/Kconfig
-			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
-		}
-	fi
 }
 
 TOOLCHAIN() {
@@ -776,8 +764,14 @@ BUILD_ALL() {
 		rm -rf kernel_zip/aroma/dtb/oneui2/perm/default
 		rm -rf kernel_zip/aroma/dtb/oneui3/enf/default
 		rm -rf kernel_zip/aroma/dtb/oneui3/perm/default
-		rm -rf drivers/media/platform/exynos/Kconfig
-		mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		fi
+		if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			rm -rf drivers/media/platform/exynos/Kconfig
+			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		fi
 		TELEGRAM_UPLOAD
 		DISPLAY_ELAPSED_TIME
 
@@ -845,11 +839,13 @@ OS_MENU() {
 		ONEUI3=1
 		echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 	else
-		# Do not backup original file if a backup file already exists (SELinux() backups first).
+		# Do not backup original file if a backup file already exists.
 		if [ ! -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
 			cp arch/arm64/boot/dts/exynos/dtb/exynos7885.dts arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak
 		fi
-		cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
+		if [ ! -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
+		fi
 		LINE="$((grep -n 'eureka_kernel_variant' arch/arm64/boot/dts/exynos/dtb/exynos7885.dts) | (gawk '{print $1}' FS=":"))"
 
 		echo " ${GREEN}"
