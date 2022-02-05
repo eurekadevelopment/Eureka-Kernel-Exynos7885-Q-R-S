@@ -328,7 +328,7 @@ dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
 
 # mkdtimg - Tool to compile dtbos into dtbo image
 #----------------------------------------------------------------------------
-quiet_cmd_mkdtimg = DTBOIMG $@
+quiet_cmd_mkdtimg = IMG     $@
 cmd_mkdtimg = python2 $(srctree)/scripts/dtc/libfdt/mkdtboimg.py create $@ --page_size=2048 --custom0=0xff000000 $(filter-out FORCE,$^)
 
 # cat
