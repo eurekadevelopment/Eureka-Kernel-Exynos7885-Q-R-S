@@ -32,7 +32,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A30 KOR SINGLE 02 board based on EXYNOS7904-Built by Eureka Team-R6.x";
+			model = "Samsung A30 KOR SINGLE 02 board based on EXYNOS7904";
 
 			speedy@11CE0000 {
 				audio_codec_cod3035x: cod3035x@03 {

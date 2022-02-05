@@ -362,11 +362,37 @@
 				battery,siop_input_limit_current = <1000>;
 				battery,siop_charging_limit_current = <1000>;
 
+				battery,ttf_capacity = <3110>;
+				battery,cv_data = <
+							1013	932	1200
+							1006	938	1140
+							1004	943	1080
+							999 949	1020
+							997 955	960
+							966 960	900
+							915 966	840
+							864	971	780
+							823 975	720
+							774 980	660
+							744 984	600
+							726 985	540
+							668 987	480
+							636 988	420
+							586	990	360
+							560	992	300
+							568	993	240
+							518 995	180
+							507	997	120
+							472	998	60
+							462	1000	0
+							>;
+
+
 				battery,battery_full_capacity = <3300>;
 
 				/* cycle, chg_float_voltage, recharge_condition_vcell, full_condition_vcell, full_condition_soc */
 				battery,age_data = <0 4350 4250 4250 93	/*4.35*/
-						20 4330 4230 4230 92	/*4.33*/
+						300 4330 4230 4230 92	/*4.33*/
 						400 4310 4210 4210 91	/*4.31*/
 						700 4290 4190 4190 90	/*4.29*/
 						1000 4240 4140 4140 89	/*4.24*/
@@ -424,26 +450,26 @@
 		*  34	CABLE_MAX, 
 		*/
 			cable-info {
-				default_input_current = <1200>;
+				default_input_current = <1000>;
 				default_charging_current = <1200>;
 				full_check_current_1st = <325>;
 				full_check_current_2nd = <175>;
 
 				current_group_1 {
 					cable_number = <1 4 19 21 22 23 30>;
-					input_current = <1200>;
-					charging_current = <1200>;
+					input_current = <500>;
+					charging_current = <500>;
 				};
 
 				current_group_2 {
 					cable_number = <2 25 31>;
-					input_current = <1200>;
-					charging_current = <1200>;
+					input_current = <1000>;
+					charging_current = <1000>;
 				};
 
 				current_group_3 {
 					cable_number = <5 32>;
-					input_current = <1200>;
+					input_current = <900>;
 					charging_current = <1200>;
 				};
 
@@ -461,20 +487,20 @@
 
 				current_group_6 {
 					cable_number = <10 12 14 15 27>;
-					input_current = <1200>;
+					input_current = <900>;
 					charging_current = <1200>;
 				};
 
 				current_group_7 {
 					cable_number = <13>;
-					input_current = <1200>;
+					input_current = <700>;
 					charging_current = <1200>;
 				};
 
 				current_group_8 {
 					cable_number = <24>;
-					input_current = <1200>;
-					charging_current = <1200>;
+					input_current = <1000>;
+					charging_current = <450>;
 				};
 
 				current_group_9 {
@@ -485,13 +511,13 @@
 
 				current_group_10 {
 					cable_number = <11 16 28>;
-					input_current = <1200>;
+					input_current = <650>;
 					charging_current = <1200>;
 				};
 
 				current_group_11 {
 					cable_number = <29>;
-					input_current = <1200>;
+					input_current = <500>;
 					charging_current = <1200>;
 				};
 			};

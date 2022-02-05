@@ -1581,4 +1581,19 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		st,irq_gpio = <&gpa0 3 0x00>;
 	};
 };
+&devfreq_1 {
+	freq_info = <333000 107000 107000 107000 333000 333000>;
+};
+
+&reserved_memory {
+	video_frame {
+		 compatible = "exynos8890-ion,vframe";
+		 ion,secure;
+		 ion,reusable;
+		 size = <0x2800000>;
+		 id = <5>;
+		 compat-id = <26 29>;
+		 alignment = <0x0 0x00400000>;
+	};
+};
 

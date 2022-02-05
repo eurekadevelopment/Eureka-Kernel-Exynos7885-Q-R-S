@@ -443,7 +443,7 @@
 
 				/* cycle, chg_float_voltage, recharge_condition_vcell, full_condition_vcell, full_condition_soc */
 				battery,age_data = <0 4350 4280 4250 93	/*4.35*/
-						20 4330 4260 4230 92	/*4.33*/
+						200 4330 4260 4230 92	/*4.33*/
 						250 4310 4240 4210 91	/*4.31*/
 						300 4290 4220 4190 90	/*4.29*/
 						1000 4240 4170 4140 89	/*4.24*/
@@ -469,6 +469,30 @@
 				io-channel-names = "adc-temp", "adc-in-bat";
 				#io-channel-cells = <5>;
 				io-channel-ranges;
+				battery,ttf_hv_charge_current = <1908>;
+				battery,ttf_capacity = <2390>;
+				battery,cv_data = <
+							2018	811		1902
+							1951	821		1867
+							1817	837		1810
+							1714	840		1749
+							1567	851		1687
+							1451	860		1626
+							1336	870		1564
+							1230	883		1503
+							1120	896		1382
+							1022	903		1321
+							904		910		1229
+							814		925		1075
+							716		930		1013
+							613		949		744
+							511		951		725
+							455		963		537
+							428		972		475
+							396		983		403
+							359		993		271
+							314		1000	0
+							>;
 			};
 
 /* sec_battery_cable

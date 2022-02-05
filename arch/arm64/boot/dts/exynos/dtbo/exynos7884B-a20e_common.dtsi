@@ -1211,9 +1211,12 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		himax,display-coords	= <0 720 0 1560>;
 		himax,project_name = "A20e", "A202F";
 		himax,area-size = <80 88 60>; /* indicator: using notch: 80px navigator:48dp~88px edge:60px | dpi:294*/
-		himax,fw-path = "tsp_himax/hx83102d_a20e.fw";
-		report_type				= <1>;
+		himax,fw-path = "tsp_himax/hx83102d_a20e.fw"; /* path fw for CU IC */
+		himax,fw-path_al = "tsp_himax/hx83102d_a20e_al.fw"; /* path fw for AL IC */
+		report_type = <1>;
 		himax,factory_item_version = <3>;
+		support_dual_fw = <1>;
+
 	};
 };
 
@@ -1545,5 +1548,8 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		yas,softiron = <9528 355 164 426 10956 48 4 241 10541>;
 		yas,softiron_sign = <2 0 0 0 2 0 2 0 2>;
 	};
+};
+&devfreq_1 {
+	freq_info = <333000 107000 107000 107000 333000 333000>;
 };
 

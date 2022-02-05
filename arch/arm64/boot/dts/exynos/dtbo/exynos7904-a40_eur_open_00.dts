@@ -30,7 +30,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A40 EUR OPEN 00 board based on EXYNOS7904-Built by Eureka Team-R6.x";
+			model = "Samsung A40 EUR OPEN 00 board based on EXYNOS7904";
 			
 				sound {
 				samsung,routing =  "VOUTPUT", "ABOX UAIF0 Playback",

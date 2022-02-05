@@ -30,7 +30,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A40 EUR OPEN 01 board based on EXYNOS7904-Built by Eureka Team-R6.x";
+			model = "Samsung A40 EUR OPEN 01 board based on EXYNOS7904";
 
 		}; /* end of __overlay__ */
 	}; /* end of fragment */

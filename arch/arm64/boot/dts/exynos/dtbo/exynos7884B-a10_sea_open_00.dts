@@ -28,7 +28,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A10 SEA OPEN 00 board based on EXYNOS7884B-Built by Eureka Team-R6.x";
+			model = "Samsung A10 SEA OPEN 00 - Eureka Exynos7885 R9.0";
 
 		}; /* end of __overlay__ */
 	}; /* end of fragment */
