@@ -182,6 +182,7 @@ struct fimc_is_flash_data {
 	struct work_struct		flash_fire_work;
 	struct timer_list		flash_expire_timer;
 	struct work_struct		flash_expire_work;
+	struct work_struct		work_flash_muic_ctrl_and_fire;
 };
 
 struct fimc_is_flash {

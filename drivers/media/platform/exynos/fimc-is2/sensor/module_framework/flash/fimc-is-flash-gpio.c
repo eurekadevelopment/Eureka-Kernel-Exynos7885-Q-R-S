@@ -24,6 +24,11 @@
 #include "fimc-is-device-sensor-peri.h"
 #include "fimc-is-core.h"
 
+#if defined(CONFIG_LEDS_S2MU106_FLASH)
+#include <linux/leds-s2mu106.h>
+extern int s2mu106_led_mode_ctrl(int state);
+#endif
+
 static int flash_gpio_init(struct v4l2_subdev *subdev, u32 val)
 {
 	int ret = 0;
@@ -64,6 +69,27 @@ static int sensor_gpio_flash_control(struct v4l2_subdev *subdev, enum flash_mode
 		mode == CAM2_FLASH_MODE_SINGLE ? "FLASH" : "TORCH",
 		intensity);
 
+#ifdef CONFIG_LEDS_S2MU106_FLASH
+	if (mode == CAM2_FLASH_MODE_OFF) {
+		ret = s2mu106_led_mode_ctrl(S2MU106_FLED_MODE_OFF);
+		if (ret)
+			err("torch/flash off fail");
+	} else if (mode == CAM2_FLASH_MODE_SINGLE) {
+		ret = s2mu106_led_mode_ctrl(S2MU106_FLED_MODE_FLASH);
+		if (ret)
+			err("capture flash on fail");
+	} else if (mode == CAM2_FLASH_MODE_TORCH) {
+		ret = s2mu106_led_mode_ctrl(S2MU106_FLED_MODE_TORCH);
+		if (ret)
+			err("torch flash on fail");
+	} else {
+		err("Invalid flash mode");
+		ret = -EINVAL;
+		ret = control_flash_gpio(flash->flash_gpio, 0);
+		ret = control_flash_gpio(flash->torch_gpio, 0);
+		goto p_err;
+	}
+#else
 	if (mode == CAM2_FLASH_MODE_OFF) {
 		ret = control_flash_gpio(flash->flash_gpio, 0);
 		if (ret)
@@ -84,6 +110,7 @@ static int sensor_gpio_flash_control(struct v4l2_subdev *subdev, enum flash_mode
 		ret = -EINVAL;
 		goto p_err;
 	}
+#endif
 
 p_err:
 	return ret;
