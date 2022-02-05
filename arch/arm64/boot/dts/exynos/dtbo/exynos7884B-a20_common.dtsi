@@ -115,6 +115,10 @@
 					use-lassenA;
 					use-btn-adc-mode;
 					use-det-gdet-adc-mode = <1>;
+					water-threshold-max = <2801>;
+					water-threshold-min = <286>;
+					aux-cable-detect-adc = <255>;
+					fake-jack-adc = <253>;
 					jackin-dbnc-time = <0xC0>;
 					jackout-dbnc-time = <0x02>;
 					jack-imp-tuning = <9>;
