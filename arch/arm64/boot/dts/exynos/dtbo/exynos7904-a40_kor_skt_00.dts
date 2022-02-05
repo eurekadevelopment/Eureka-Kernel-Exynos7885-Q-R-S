@@ -31,7 +31,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A40 KOR SKT 00 board based on EXYNOS7904-Built by Eureka Team-R6.x";
+			model = "Samsung A40 KOR SKT 00 board based on EXYNOS7904";
 
 			i2c@20 {
 				a96t3x6@20 {

@@ -385,7 +385,7 @@
 
 				/* cycle, chg_float_voltage, recharge_condition_vcell, full_condition_vcell, full_condition_soc, step_charging_condition */
 				battery,age_data = <0 4350 4280 4250 93	4150 /*4.35*/
-						20 4330 4260 4230 92 4150	/*4.33*/
+						300 4330 4260 4230 92 4150	/*4.33*/
 						400 4310 4240 4210 91 4150	/*4.31*/
 						700 4290 4220 4190 90 4150	/*4.29*/
 						1000 4240 4170 4140 89 4150	/*4.24*/

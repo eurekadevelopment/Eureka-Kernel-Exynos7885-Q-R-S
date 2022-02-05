@@ -95,6 +95,7 @@
 		etspi-chipid = "ET715";
 		etspi-modelinfo = "A307";
 		etspi-position = "12.08,0.00,9.10,9.10,14.80,14.80,12.00,12.00,5.00";
+		etspi-rb = "500,-1,-1,00FF00";
 
 		controller-data {
 			samsung,spi-feedback-delay = <0>;
