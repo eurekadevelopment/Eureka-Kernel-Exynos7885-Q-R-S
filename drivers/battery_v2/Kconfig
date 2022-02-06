@@ -495,6 +495,12 @@ config CHARGER_S2MU205
 	 S2MU205 charger is an AFC compatible charging IC.
 	 S2MU205 charger is dependent on MFD_S2MU205
 	 so it needs to be defined.
+	 
+config PDIC_PD30
+	bool "support for PDIC_30"
+	default y
+	help
+	 Say Y to include support for PDIC 30
 
 config PM_S2MU106
 	tristate "S2MU106 power meter support"
