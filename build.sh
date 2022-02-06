@@ -429,8 +429,8 @@ ZIPPIFY() {
 			fi
 
 			# Comment & uncomment here to use DTBO.img from source
-			PREBUILT_DTBO
-			#cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
+			#PREBUILT_DTBO
+			cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 
 			# Go to anykernel directory
 			cd kernel_zip/anykernel
