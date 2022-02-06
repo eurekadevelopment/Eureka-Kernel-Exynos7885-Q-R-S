@@ -1547,7 +1547,3 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		yas,softiron_sign = <2 0 0 0 2 0 2 0 2>;
 	};
 };
-&devfreq_1 {
-	freq_info = <333000 107000 107000 107000 333000 333000>;
-};
-
