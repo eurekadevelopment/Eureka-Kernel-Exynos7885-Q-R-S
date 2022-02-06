@@ -1581,9 +1581,6 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		st,irq_gpio = <&gpa0 3 0x00>;
 	};
 };
-&devfreq_1 {
-	freq_info = <333000 107000 107000 107000 333000 333000>;
-};
 
 &reserved_memory {
 	video_frame {
