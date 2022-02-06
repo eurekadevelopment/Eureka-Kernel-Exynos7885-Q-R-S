@@ -136,10 +136,11 @@ if (prop("menu.prop","selected")=="1") then
 	      #------------------------------+---------------[ Selectbox With Groups ]-------------+--------------------------------#
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
-	       "Kernel Variants Available:",   "",                                                     2,  #-- Group 1. key = "selected.1"
-	        "AOSP (Eureka ROMs) Q/R/S",    " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
-	        "OneUI 2 (Q vendor)",          " Kernel for OneUI 2 ROM or GSI using Q vendor",        0,  #-- selected.1 = 2
-	        "OneUI 3 (R vendor)",          " Kernel for OneUI 3 ROM or GSI using R vendor",        0,  #-- selected.1 = 3
+	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
+	        "AOSP Q/R/S (Legacy)",         " For old Eureka ROMs which do NOT have February 2022 SPL.",       0,  #-- selected.1 = 1
+	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 2
+	        "OneUI 2 (Q vendor)",          " For OneUI 2 ROMs or GSIs using Q vendor",                        0,  #-- selected.1 = 3
+	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor",                        0,  #-- selected.1 = 4
 
 	       "SElinux Type:",                "",                                                     2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
@@ -177,10 +178,11 @@ if (prop("menu.prop","selected")=="2") then
 	      #------------------------------+---------------[ Selectbox With Groups ]-------------+--------------------------------#
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
-	       "Kernel Variants Available:",   "",                                                     2,  #-- Group 1. key = "selected.1"
-	        "AOSP (Eureka ROMs) Q/R/S",    " Kernel for AOSP (Q/R/S) ROMs",                        0,  #-- selected.1 = 1
-	        "OneUI 2 (Q vendor)",          " Kernel for OneUI 2 ROM or GSI using Q vendor",        0,  #-- selected.1 = 2
-	        "OneUI 3 (R vendor)",          " Kernel for OneUI 3 ROM or GSI using R vendor",        0,  #-- selected.1 = 3
+	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
+	        "AOSP Q/R/S (Legacy)",         " For old Eureka ROMs which do NOT have February 2022 SPL.",       0,  #-- selected.1 = 1
+	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 2
+	        "OneUI 2 (Q vendor)",          " For OneUI 2 ROMs or GSIs using Q vendor.",                       0,  #-- selected.1 = 3
+	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor.",                       0,  #-- selected.1 = 4
 
 	       "SElinux Type(depends on kernel):", "",                                                 2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
