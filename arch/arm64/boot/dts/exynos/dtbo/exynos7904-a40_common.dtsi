@@ -16,6 +16,7 @@
 #include "exynos7885-ecd.dtsi"
 #include "exynos7904-a40_motor.dtsi"
 #include "exynos7904-a40_camera.dtsi"
+#include <dt-bindings/clock/exynos7885.h>
 #include "exynos7904-a40_mst_00.dtsi"
 #include "exynos7904-mali.dtsi"
 / {
