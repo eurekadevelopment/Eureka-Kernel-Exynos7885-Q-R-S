@@ -468,8 +468,8 @@
 				#io-channel-cells = <5>;
 				io-channel-ranges;
 
-				battery,ttf_hv_charge_current = <2200>;
-				battery,ttf_capacity = <3310>;
+				battery,ttf_hv_charge_current = <2350>;
+				battery,ttf_capacity = <3527>;
 				battery,cv_data = <
 					2225	784	2514
 					2193	785	2493

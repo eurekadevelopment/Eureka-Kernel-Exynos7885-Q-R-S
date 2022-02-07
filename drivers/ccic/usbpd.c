@@ -139,6 +139,7 @@ void usbpd_policy_reset(struct usbpd_data *pd_data, unsigned flag)
 		dev_info(pd_data->dev, "%s ATTACHED\n", __func__);
 	} else if (flag == PLUG_DETACHED) {
 		pd_data->policy.plug_valid = 0;
+		pd_data->pd_nego = false;
 		dev_info(pd_data->dev, "%s DETACHED\n", __func__);
 		pd_data->counter.hard_reset_counter = 0;
 	}
@@ -644,6 +645,7 @@ int usbpd_init(struct device *dev, void *phy_driver_data)
 
 	init_completion(&pd_data->msg_arrived);
 	pd_data->is_prswap = false;
+	pd_data->pd_nego = false;
 
 	return 0;
 }

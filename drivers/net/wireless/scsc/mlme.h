@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright (c) 2012 - 2019 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2012 - 2021 Samsung Electronics Co., Ltd. All rights reserved
  *
  ****************************************************************************/
 
@@ -271,6 +271,8 @@ int slsi_mlme_set_host_state(struct slsi_dev *sdev, struct net_device *dev, u8 h
 int slsi_mlme_read_apf_request(struct slsi_dev *sdev, struct net_device *dev, u8 **host_dst, int *datalen);
 int slsi_mlme_install_apf_request(struct slsi_dev *sdev, struct net_device *dev,
 				  u8 *program, u32 program_len);
+int slsi_mlme_set_multicast_ip(struct slsi_dev *sdev, struct net_device *dev,  __be32 multicast_ip_list[], int count);
+
 #ifdef CONFIG_SCSC_WLAN_STA_ENHANCED_ARP_DETECT
 int slsi_mlme_arp_detect_request(struct slsi_dev *sdev, struct net_device *dev, u16 action, u8 *ipaddr);
 #endif

@@ -1366,7 +1366,7 @@ static int zswap_frontswap_store(unsigned type, pgoff_t offset,
 	len += sizeof(struct zswap_header);
 #endif
 	ret = zpool_malloc(entry->pool->zpool, len,
-			   __GFP_NORETRY | __GFP_NOWARN | __GFP_KSWAPD_RECLAIM,
+			   __GFP_NORETRY | __GFP_NOWARN | __GFP_KSWAPD_RECLAIM | __GFP_MOVABLE | __GFP_CMA,
 			   &handle);
 	if (ret == -ENOSPC) {
 		zswap_reject_compress_poor++;

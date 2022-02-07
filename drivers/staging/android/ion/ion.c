@@ -2629,6 +2629,9 @@ dma_addr_t ion_iovmm_map(struct dma_buf_attachment *attachment,
 			buffer->flags & ION_FLAG_PROTECTED) {
 		struct ion_buffer_info *info = buffer->priv_virt;
 
+		if (!info)
+			return -EINVAL;
+
 		if (info->prot_desc.dma_addr)
 			return info->prot_desc.dma_addr;
 		pr_err("%s: protected buffer but no secure iova\n", __func__);

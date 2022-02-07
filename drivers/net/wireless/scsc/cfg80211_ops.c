@@ -2877,14 +2877,14 @@ int     slsi_mgmt_tx_cancel_wait(struct wiphy      *wiphy,
 
 	SLSI_MUTEX_LOCK(ndev_vif->vif_mutex);
 
-	SLSI_NET_DBG2(dev, SLSI_CFG80211, "iface_num = %d, cookie = 0x%llx, vif_index = %d, vif_type = %d,"
+	SLSI_NET_INFO(dev, "iface_num = %d, cookie = 0x%llx, vif_index = %d, vif_type = %d,"
 		      "sdev->p2p_state = %d, ndev_vif->mgmt_tx_data.cookie = 0x%llx, sdev->p2p_group_exp_frame = %d,"
-		      "sdev->wlan_unsync_vif_state = %d\n", ndev_vif->ifnum, cookie,
-		      ndev_vif->vif_type, sdev->p2p_state, ndev_vif->mgmt_tx_data.cookie,
-		      sdev->p2p_group_exp_frame, sdev->wlan_unsync_vif_state);
+		      "sdev->wlan_unsync_vif_state = %d\n", (int)ndev_vif->ifnum, cookie,(int)ndev_vif->ifnum,
+		      (int)ndev_vif->vif_type, sdev->p2p_state, ndev_vif->mgmt_tx_data.cookie,
+		      (int)sdev->p2p_group_exp_frame, sdev->wlan_unsync_vif_state);
 
 	/* If device was in frame tx_rx state, clear mgmt tx data and change state */
-	if ((sdev->p2p_state == P2P_ACTION_FRAME_TX_RX) && (ndev_vif->mgmt_tx_data.cookie == cookie)) {
+	if (SLSI_IS_VIF_INDEX_P2P(ndev_vif) && (sdev->p2p_state == P2P_ACTION_FRAME_TX_RX) && (ndev_vif->mgmt_tx_data.cookie == cookie)) {
 		if (ndev_vif->mgmt_tx_data.exp_frame != SLSI_PA_INVALID)
 			(void)slsi_mlme_reset_dwell_time(sdev, dev);
 
@@ -2900,7 +2900,7 @@ int     slsi_mgmt_tx_cancel_wait(struct wiphy      *wiphy,
 	} else if ((SLSI_IS_P2P_GROUP_STATE(sdev)) && (sdev->p2p_group_exp_frame != SLSI_PA_INVALID)) {
 		/* acquire mutex lock if it is not group net dev */
 		slsi_clear_offchannel_data(sdev, (!SLSI_IS_VIF_INDEX_P2P_GROUP(sdev, ndev_vif)) ? true : false);
-	} else if ((sdev->wlan_unsync_vif_state == WLAN_UNSYNC_VIF_TX) && (ndev_vif->mgmt_tx_data.cookie == cookie)) {
+	} else if (SLSI_IS_VIF_INDEX_WLAN(ndev_vif) && (sdev->wlan_unsync_vif_state == WLAN_UNSYNC_VIF_TX) && (ndev_vif->mgmt_tx_data.cookie == cookie)) {
 		sdev->wlan_unsync_vif_state = WLAN_UNSYNC_VIF_ACTIVE;
 		cancel_delayed_work(&ndev_vif->unsync.hs2_del_vif_work);
 		queue_delayed_work(sdev->device_wq, &ndev_vif->unsync.hs2_del_vif_work, msecs_to_jiffies(SLSI_HS2_UNSYNC_VIF_EXTRA_MSEC));
@@ -2981,7 +2981,6 @@ static int slsi_wlan_mgmt_tx(struct slsi_dev *sdev, struct net_device *dev,
 		r = slsi_mlme_send_frame_mgmt(sdev, dev, buf, len, FAPI_DATAUNITDESCRIPTOR_IEEE802_11_FRAME, FAPI_MESSAGETYPE_IEEE80211_ACTION, host_tag, 0, wait * 1000, 0);
 		if (r)
 			goto exit_with_vif;
-
 		sdev->wlan_unsync_vif_state = WLAN_UNSYNC_VIF_TX;
 		queue_delayed_work(sdev->device_wq, &ndev_vif->unsync.hs2_del_vif_work, msecs_to_jiffies(wait));
 	} else {

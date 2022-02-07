@@ -574,6 +574,7 @@ void slsi_wlan_unsync_vif_deactivate(struct slsi_dev *sdev, struct net_device *d
 #ifdef CONFIG_SCSC_WLAN_BSS_SELECTION
 bool slsi_is_bssid_in_blacklist(struct slsi_dev *sdev, struct net_device *dev, u8 *bssid);
 #endif
+void slsi_hs2_unsync_vif_delete_work(struct work_struct *work);
 int slsi_is_wes_action_frame(const struct ieee80211_mgmt *mgmt);
 void slsi_scan_ind_timeout_handle(struct work_struct *work);
 void slsi_vif_cleanup(struct slsi_dev *sdev, struct net_device *dev, bool hw_available);

@@ -192,7 +192,7 @@ static int module_gc5035_power_setpin(struct device *dev,
 
 	SET_PIN(pdata, SENSOR_SCENARIO_NORMAL, GPIO_SCENARIO_ON, gpio_reset, "sen_rst low", PIN_OUTPUT, 0, 0);
 	if (gpio_is_valid(gpio_1p2_a2p8_en))
-		SET_PIN(pdata, SENSOR_SCENARIO_NORMAL, GPIO_SCENARIO_ON, gpio_1p2_a2p8_en, "camio_1p2_2p8_en", PIN_OUTPUT, 1, 50);
+		SET_PIN(pdata, SENSOR_SCENARIO_NORMAL, GPIO_SCENARIO_ON, gpio_1p2_a2p8_en, "camio_1p2_2p8_en", PIN_OUTPUT, 1, 2000);
 	else {
 		if(gpio_is_valid(gpio_cam_dvdd_en))
 			SET_PIN(pdata, SENSOR_SCENARIO_NORMAL, GPIO_SCENARIO_ON, gpio_cam_dvdd_en, "gpio_cam_dvdd_en", PIN_OUTPUT, 1, 50);

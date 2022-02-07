@@ -67,6 +67,7 @@ static int s2mu004_check_port_detect(struct s2mu004_usbpd_data *pdic_data);
 static int s2mu004_usbpd_reg_init(struct s2mu004_usbpd_data *_data);
 static void s2mu004_dfp(struct i2c_client *i2c);
 static void s2mu004_ufp(struct i2c_client *i2c);
+static void s2mu004_usbpd_check_msg(void *_data, u64 *val);
 #ifdef CONFIG_CCIC_VDM
 static int s2mu004_usbpd_check_vdm_msg(void *_data, u64 *val);
 #endif
@@ -634,13 +635,10 @@ static bool s2mu004_poll_status(void *_data)
 		mutex_unlock(&pdic_data->lpm_mutex);
 	}
 
-#ifdef CONFIG_CCIC_VDM
 	/* function that support dp control */
-	if (pdic_data->check_msg_pass) {
-		if (intr[4] & S2MU004_REG_INT_STATUS4_MSG_PASS)
+	if (intr[4] & S2MU004_REG_INT_STATUS4_MSG_PASS)
 		status_reg_val |= 1 << MSG_PASS;
-	}
-#endif
+
 /* #if defined(CONFIG_CCIC_FACTORY) */
 	if (intr[3] & S2MU004_REG_INT_STATUS3_UNS_CMD_DATA) {
 		if (pdic_data->detach_valid)
@@ -683,11 +681,7 @@ static bool s2mu004_poll_status(void *_data)
 	if (intr[2] & S2MU004_REG_INT_STATUS2_MSG_SRC_CAP) {
 		if (!policy->plug_valid)
 			pdic_data->status_reg |= 1 << PLUG_ATTACH;
-		status_reg_val |= 1 << MSG_SRC_CAP;
 	}
-
-	if (intr[2] & S2MU004_REG_INT_STATUS2_MSG_SNK_CAP)
-		status_reg_val |= 1 << MSG_SNK_CAP;
 
 	if (intr[2] & S2MU004_REG_INT_STATUS2_MSG_SOFTRESET)
 		status_reg_val |= 1 << MSG_SOFTRESET;
@@ -701,25 +695,6 @@ static bool s2mu004_poll_status(void *_data)
 	if (intr[1] & S2MU004_REG_INT_STATUS1_MSG_DR_SWAP)
 		status_reg_val |= 1 << MSG_DR_SWAP;
 
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_DISCOVER_ID)
-		status_reg_val |= 1 << VDM_DISCOVER_IDENTITY;
-
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_DISCOVER_SVID)
-		status_reg_val |= 1 << VDM_DISCOVER_SVID;
-
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_DISCOVER_MODE)
-		status_reg_val |= 1 << VDM_DISCOVER_MODE;
-
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_ENTER)
-		status_reg_val |= 1 << VDM_ENTER_MODE;
-
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_EXIT)
-		status_reg_val |= 1 << VDM_EXIT_MODE;
-
-	if (intr[0] & S2MU004_REG_INT_STATUS0_VDM_ATTENTION)
-		status_reg_val |= 1 << VDM_ATTENTION;
-/* disable function that support dp control */
-#ifdef CONFIG_CCIC_VDM
 	/* read message if data object message */
 	if (status_reg_val &
 			((1 << MSG_REQUEST) | (1 << MSG_SNK_CAP) | (1 << MSG_SRC_CAP)
@@ -727,18 +702,13 @@ static bool s2mu004_poll_status(void *_data)
 			| (1 << VDM_DISCOVER_MODE) | (1 << VDM_ENTER_MODE)
 			| (1 << VDM_EXIT_MODE) | (1 << VDM_ATTENTION) | (1 << MSG_PASS))) {
 		usbpd_protocol_rx(data);
+		s2mu004_usbpd_check_msg(data, &status_reg_val);
+#ifdef CONFIG_CCIC_VDM
 		if (status_reg_val & (1 << MSG_PASS))
 			s2mu004_usbpd_check_vdm_msg(data, &status_reg_val);
-	}
-#else
-	/* read message if data object message */
-	if (status_reg_val &
-			((1 << MSG_REQUEST) | (1 << MSG_SNK_CAP) | (1 << MSG_SRC_CAP)
-			| (1 << VDM_DISCOVER_IDENTITY) | (1 << VDM_DISCOVER_SVID)
-			| (1 << VDM_DISCOVER_MODE) | (1 << VDM_ENTER_MODE) | (1 << VDM_EXIT_MODE)
-			| (1 << VDM_ATTENTION)))
-		usbpd_protocol_rx(data);
 #endif
+	}
+
 	if ((intr[5] & S2MU004_REG_INT_STATUS5_SOP_PRIME) &&
 		(intr[5] & S2MU004_REG_INT_STATUS5_SOP) == 0)
 		usbpd_init_protocol(data);
@@ -941,6 +911,11 @@ static int s2mu004_vbus_on_check(void *_data)
 {
 	struct usbpd_data *data = (struct usbpd_data *) _data;
 	union power_supply_propval value;
+
+	if (data->pd_nego == false) {
+		pr_info("%s, skip by first attach\n", __func__);
+		return true;
+	}
 
 	if (!data->psy_muic) {
 		data->psy_muic = get_power_supply_by_name("muic-manager");
@@ -1209,6 +1184,89 @@ static void s2mu004_usbpd_set_rp_scr_sel(struct s2mu004_usbpd_data *pdic_data,
 }
 #endif
 
+void s2mu004_usbpd_check_msg(void *_data, u64 *val)
+{
+	struct usbpd_data *data = (struct usbpd_data *) _data;
+	int data_type = 0;
+	int msg_type = 0;
+	int vdm_type = 0;
+	int vdm_command = 0;
+	u64 shift = 0;
+
+	u64 one = 1;
+
+	dev_info(data->dev, "%s\n", __func__);
+
+	if (data->protocol_rx.msg_header.num_data_objs == 0)
+		data_type = USBPD_CTRL_MSG;
+	else if (data->protocol_rx.msg_header.extended == 0)
+		data_type = USBPD_DATA_MSG;
+	else if (data->protocol_rx.msg_header.extended == 1)
+		data_type = USBPD_EXTENDED_MSG;
+
+	msg_type = data->protocol_rx.msg_header.msg_type;
+
+	/* Data Message */
+	if (data_type == USBPD_DATA_MSG) {
+		switch (msg_type) {
+		case USBPD_Source_Capabilities:
+			*val |= one << MSG_SRC_CAP;
+			break;
+		case USBPD_Sink_Capabilities:
+			*val |= one << MSG_SNK_CAP;
+			break;
+		case USBPD_Vendor_Defined:
+			vdm_command = data->protocol_rx.data_obj[0].structured_vdm.command;
+			vdm_type = data->protocol_rx.data_obj[0].structured_vdm.vdm_type;
+
+			if (vdm_type == Unstructured_VDM) {
+				if (data->protocol_rx.data_obj[0].unstructured_vdm.vendor_id != SAMSUNG_VENDOR_ID) {
+					*val |= one << MSG_RESERVED;
+					break;
+				}
+				dev_info(data->dev, "%s : uvdm msg received!\n", __func__);
+				*val |= one << UVDM_MSG;
+				break;
+			}
+			switch (vdm_command) {
+			case DisplayPort_Status_Update:
+					*val |= one << VDM_DP_STATUS_UPDATE;
+					break;
+			case DisplayPort_Configure:
+					*val |= one << VDM_DP_CONFIGURE;
+					break;
+			case Attention:
+					*val |= one << VDM_ATTENTION;
+					break;
+			case Exit_Mode:
+					*val |= one << VDM_EXIT_MODE;
+					break;
+			case Enter_Mode:
+					*val |= one << VDM_ENTER_MODE;
+					break;
+			case Discover_Modes:
+					*val |= one << VDM_DISCOVER_MODE;
+					break;
+			case Discover_SVIDs:
+					*val |= one << VDM_DISCOVER_SVID;
+					break;
+			case Discover_Identity:
+					*val |= one << VDM_DISCOVER_IDENTITY;
+					break;
+			default:
+					break;
+			}
+			break;
+		case 0: /* Reserved */
+		case 8 ... 0xe:
+			shift = MSG_RESERVED;
+			*val |= one << shift;
+			break;
+		}
+	}
+
+	dev_info(data->dev, "%s: msg status(%llu)\n", __func__, *val);
+}
 #ifdef CONFIG_CCIC_VDM
 int s2mu004_usbpd_check_vdm_msg(void *_data, u64 *val)
 {
@@ -2315,11 +2373,12 @@ static void s2mu004_usbpd_notify_detach(struct s2mu004_usbpd_data *pdic_data)
 #if defined(CONFIG_DUAL_ROLE_USB_INTF)
 		if (!pdic_data->try_state_change)
 			s2mu004_rprd_mode_change(pdic_data, TYPE_C_ATTACH_DRP);
+	}
 #elif defined(CONFIG_TYPEC)
 		if (!pdic_data->typec_try_state_change)
 			s2mu004_rprd_mode_change(pdic_data, TYPE_C_ATTACH_DRP);
-#endif
 	}
+#endif
 #else
 	usbpd_manager_plug_detach(dev, 1);
 #endif

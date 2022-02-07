@@ -858,7 +858,7 @@ static void sec_bat_check_pdic_temp(struct sec_battery_info *battery, int *input
 static int sec_bat_check_pd_input_current(struct sec_battery_info *battery, int input_current)
 {
 	if (battery->current_event & SEC_BAT_CURRENT_EVENT_SELECT_PDO) {
-		input_current = battery->input_current;
+		input_current = SELECT_PDO_INPUT_CURRENT;
 		pr_info("%s: change input_current(%d), cable_type(%d)\n", __func__, input_current, battery->cable_type);
 	}
 
@@ -970,7 +970,6 @@ static int sec_bat_set_charging_current(struct sec_battery_info *battery)
 				if (battery->cable_type == SEC_BATTERY_CABLE_PDIC) {
 					if (!sec_bat_change_vbus_pd(battery, &input_current)) {
 						sec_bat_check_pdic_temp(battery, &input_current, &charging_current);
-						input_current = sec_bat_check_pd_input_current(battery, input_current);
 					}
 				}
 #endif
@@ -986,6 +985,10 @@ static int sec_bat_set_charging_current(struct sec_battery_info *battery)
 		if (battery->store_mode && is_hv_wire_type(battery->wire_status) && (battery->capacity >= 5)) {
 			input_current = battery->pdata->store_mode_afc_input_current;
 		}
+
+#if defined(CONFIG_CCIC_NOTIFIER)
+		input_current = sec_bat_check_pd_input_current(battery, input_current);
+#endif
 
 		sec_bat_get_charging_current_by_siop(battery, &input_current, &charging_current);
 
@@ -7123,6 +7126,13 @@ static int sec_bat_set_property(struct power_supply *psy,
 					sec_bat_set_current_event(battery, 0, SEC_BAT_CURRENT_EVENT_HV_DISABLE);
 			}
 			break;
+#if defined(CONFIG_CCIC_NOTIFIER)
+		case POWER_SUPPLY_EXT_PROP_SRCCAP:
+			if (val->intval)
+				battery->init_src_cap = true;
+			pr_info("%s: set init src cap %d", __func__, battery->init_src_cap);
+			break;
+#endif
 		default:
 			return -EINVAL;
 		}
@@ -7180,8 +7190,12 @@ static int sec_bat_get_property(struct power_supply *psy,
 			delayed_work_pending(&battery->slowcharging_work)) {
 			val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
 		} else if (battery->slow_charging) {
-			val->intval = POWER_SUPPLY_CHARGE_TYPE_SLOW;
-			pr_info("%s: slow-charging mode\n", __func__);
+			if(battery->wire_status != battery->cable_type && battery->wire_status == SEC_BATTERY_CABLE_NONE) {
+				val->intval = POWER_SUPPLY_CHARGE_TYPE_NONE;
+			} else {
+				val->intval = POWER_SUPPLY_CHARGE_TYPE_SLOW;
+				pr_info("%s: slow-charging mode\n", __func__);
+			}
 		} else {
 			psy_do_property(battery->pdata->charger_name, get,
 				POWER_SUPPLY_PROP_CHARGE_TYPE, value);
@@ -8085,7 +8099,7 @@ static int usb_typec_handle_notification(struct notifier_block *nb,
 		case MUIC_NOTIFY_CMD_ATTACH:
 		case MUIC_NOTIFY_CMD_LOGICALLY_ATTACH:
 			/* Skip notify from MUIC if PDIC is attached already */
-			if (is_pd_wire_type(battery->wire_status)) {
+			if (is_pd_wire_type(battery->wire_status) || battery->init_src_cap) {
 				mutex_unlock(&battery->typec_notylock);
 				return 0;
 			}
@@ -8112,6 +8126,7 @@ static int usb_typec_handle_notification(struct notifier_block *nb,
 		}
 		battery->pdic_attach = false;
 		battery->pdic_ps_rdy = false;
+		battery->init_src_cap = false;
 #if defined(CONFIG_AFC_CHARGER_MODE)
 		if (battery->muic_cable_type == ATTACHED_DEV_QC_CHARGER_9V_MUIC ||
 			battery->muic_cable_type == ATTACHED_DEV_QC_CHARGER_ERR_V_MUIC)
@@ -8135,6 +8150,7 @@ static int usb_typec_handle_notification(struct notifier_block *nb,
 		dev_info(battery->dev, "%s: pd_event(%d)\n", __func__,
 			(*(struct pdic_notifier_struct *)usb_typec_info.pd).event);
 #endif
+		battery->init_src_cap = false;
 		if ((*(struct pdic_notifier_struct *)usb_typec_info.pd).event == PDIC_NOTIFY_EVENT_DETACH) {
 			dev_info(battery->dev, "%s: skip pd operation - attach(%d)\n", __func__, usb_typec_info.attach);
 			battery->pdic_attach = false;

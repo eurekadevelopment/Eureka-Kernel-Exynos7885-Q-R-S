@@ -792,6 +792,18 @@ config VMPRESSURE_LEVEL_CRI
 	help
 	  This supports to adjust vmpressure_level_critical threshold value
 
+config VMPRESSURE_LEVEL_MED
+	int "Threshold to account memory pressure"
+	default 60
+	help
+	  This supports to adjust vmpressure_level_med threshold value
+	  
+config VMPRESSURE_LEVEL_CRI
+	int "Threshold to account memory pressure"
+	default 95
+	help
+	  This supports to adjust vmpressure_level_critical threshold value
+
 config PAGE_BOOST
 	bool "PAGE_BOOST feature"
 	depends on MMU
@@ -807,3 +819,28 @@ config PAGE_BOOST_RECORDING
 	  Record Everything for the chosen process.
 	  As Android executes an app one by one, only allow 1 recording
 	  at a time.
+
+config MEM_BOOST_THRESHOLD_MB
+	int "skip swap only if file cache is bigger than threshold"
+	default 300
+	help
+	  Memboost feature is designed to skip swap when memboost is on.
+	  However when file cache is low, this could cause cache thrashing.
+	  Set appropriate value to protect minimum level of file cache.
+
+	  
+config PROCESS_RECLAIM
+	bool "Enable process reclaim"
+	depends on PROC_FS
+	default y
+	help
+	 It allows to reclaim pages of the process by /proc/pid/reclaim.
+
+	 (echo file > /proc/PID/reclaim) reclaims file-backed pages only.
+	 (echo anon > /proc/PID/reclaim) reclaims anonymous pages only.
+	 (echo all > /proc/PID/reclaim) reclaims all pages.
+
+	 (echo addr size-byte > /proc/PID/reclaim) reclaims pages in
+	 (addr, addr + size-bytes) of the process.
+
+	 Any other value is ignored.

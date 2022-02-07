@@ -107,7 +107,7 @@ static int decon_set_doze(struct decon_device *decon)
 			 */
 			decon_reg_start(decon->id, &psr);
 			decon_reg_update_req_and_unmask(decon->id, &psr);
-			usleep_range(17000, 18000);
+			msleep(34);
 		}
 	}
 

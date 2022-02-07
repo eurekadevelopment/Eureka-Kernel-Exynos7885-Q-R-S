@@ -2578,10 +2578,9 @@ static void slsi_lls_radio_stat_fill(struct slsi_dev *sdev, struct net_device *d
 				radio_chan->width = SLSI_LLS_CHAN_WIDTH_20;
 				SLSI_MUTEX_LOCK(ndev_vif->vif_mutex);
 				if (ndev_vif->vif_type == FAPI_VIFTYPE_STATION &&
-				    ndev_vif->sta.vif_status == SLSI_VIF_STATUS_CONNECTED) {
-					if (ndev_vif->chan->hw_value == (chan_start + k))
-						radio_stat->channels[radio_stat->num_channels + k].on_time = radio_stat->on_time;
-				}
+				    ndev_vif->sta.vif_status == SLSI_VIF_STATUS_CONNECTED &&
+				    ndev_vif->chan && ndev_vif->chan->hw_value == (chan_start + k))
+					radio_stat->channels[radio_stat->num_channels + k].on_time = radio_stat->on_time;
 				SLSI_MUTEX_UNLOCK(ndev_vif->vif_mutex);
 			}
 			radio_stat->num_channels += chan_count;
@@ -2593,10 +2592,9 @@ static void slsi_lls_radio_stat_fill(struct slsi_dev *sdev, struct net_device *d
 				radio_chan->width = SLSI_LLS_CHAN_WIDTH_20;
 				SLSI_MUTEX_LOCK(ndev_vif->vif_mutex);
 				if (ndev_vif->vif_type == FAPI_VIFTYPE_STATION &&
-				    ndev_vif->sta.vif_status == SLSI_VIF_STATUS_CONNECTED) {
-					if (ndev_vif->chan->hw_value == (chan_start + (k*4)))
-						radio_stat->channels[radio_stat->num_channels + k].on_time = radio_stat->on_time;
-				}
+				    ndev_vif->sta.vif_status == SLSI_VIF_STATUS_CONNECTED &&
+				    ndev_vif->chan && ndev_vif->chan->hw_value == (chan_start + (k*4)))
+					radio_stat->channels[radio_stat->num_channels + k].on_time = radio_stat->on_time;
 				SLSI_MUTEX_UNLOCK(ndev_vif->vif_mutex);
 			}
 			radio_stat->num_channels += chan_count;

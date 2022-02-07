@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright (c) 2012 - 2020 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2012 - 2021 Samsung Electronics Co., Ltd. All rights reserved
  *
  *****************************************************************************/
 
@@ -48,6 +48,8 @@
 #define SLSI_MIB_REG_RULES_MAX (50)
 #define SLSI_MIB_MAX_CLIENT (10)
 #define SLSI_REG_PARAM_START_INDEX (1)
+
+#define SLSI_PSID_UNIFI_IGMP_OFFLOAD_ACTIVATED 2489
 
 static char *mib_file_t = "wlan_t.hcf";
 module_param(mib_file_t, charp, S_IRUGO | S_IWUSR);
@@ -1430,13 +1432,14 @@ static int slsi_mib_initial_get(struct slsi_dev *sdev)
 #endif
 							       { SLSI_PSID_UNIFI_SOFT_AP40_MHZ_ON24G, {0, 0} },
 							       { SLSI_PSID_UNIFI_EXTENDED_CAPABILITIES, {0, 0} },
+							       { SLSI_PSID_UNIFI_IGMP_OFFLOAD_ACTIVATED, {0, 0} },
 							      };/*Check the mibrsp.dataLength when a new mib is added*/
 
 	r = slsi_mib_encode_get_list(&mibreq, sizeof(get_values) / sizeof(struct slsi_mib_get_entry), get_values);
 	if (r != SLSI_MIB_STATUS_SUCCESS)
 		return -ENOMEM;
 
-	mibrsp.dataLength = 204;
+	mibrsp.dataLength = 214;
 	mibrsp.data = kmalloc(mibrsp.dataLength, GFP_KERNEL);
 	if (!mibrsp.data) {
 		kfree(mibreq.data);
@@ -1597,7 +1600,6 @@ static int slsi_mib_initial_get(struct slsi_dev *sdev)
 			SLSI_WARN(sdev, "Error reading 5Ghz Allowed Channels\n");
 		}
 #endif
-
 #ifdef CONFIG_SCSC_WLAN_AP_INFO_FILE
 		if (values[++mib_index].type != SLSI_MIB_TYPE_NONE) /* Dual band concurrency */
 			sdev->dualband_concurrency = values[mib_index].u.boolValue;
@@ -1644,7 +1646,13 @@ static int slsi_mib_initial_get(struct slsi_dev *sdev)
 					sdev->fw_ext_cap_ie_len);
 		} else
 			SLSI_DBG2(sdev, SLSI_MLME, "Failed to read Extended capabilities\n");
-
+		/* IGMP Offloading Support*/
+        	if (values[++mib_index].type != SLSI_MIB_TYPE_NONE) {
+                	sdev->igmp_offload_activated = values[mib_index].u.boolValue;
+	                SLSI_INFO(sdev, "IGMP offloading is enabled:%d\n", sdev->igmp_offload_activated);
+        	} else {
+                	SLSI_INFO(sdev, "IGMP offloading is disabled!\n");
+	        }
 		kfree(values);
 	}
 	kfree(mibrsp.data);
@@ -6022,7 +6030,7 @@ void slsi_clear_offchannel_data(struct slsi_dev *sdev, bool acquire_lock)
 	sdev->p2p_group_exp_frame = SLSI_PA_INVALID;
 }
 
-static void slsi_hs2_unsync_vif_delete_work(struct work_struct *work)
+void slsi_hs2_unsync_vif_delete_work(struct work_struct *work)
 {
 	struct netdev_vif *ndev_vif = container_of((struct delayed_work *)work, struct netdev_vif, unsync.hs2_del_vif_work);
 
@@ -6068,7 +6076,6 @@ int slsi_wlan_unsync_vif_activate(struct slsi_dev *sdev, struct net_device *dev,
 		goto exit_with_error;
 	}
 	sdev->wlan_unsync_vif_state = WLAN_UNSYNC_VIF_ACTIVE;
-	INIT_DELAYED_WORK(&ndev_vif->unsync.hs2_del_vif_work, slsi_hs2_unsync_vif_delete_work);
 	action_frame_bmap = SLSI_ACTION_FRAME_PUBLIC | SLSI_ACTION_FRAME_RADIO_MEASUREMENT;
 
 	r = slsi_mlme_register_action_frame(sdev, dev, action_frame_bmap, action_frame_bmap);

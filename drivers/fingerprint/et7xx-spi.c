@@ -1126,10 +1126,11 @@ static int etspi_parse_dt(struct device *dev, struct etspi_data *data)
 	}
 	pr_info("%s: position: %s\n", __func__, data->sensor_position);
 
-	if (of_property_read_u32(np, "etspi-orient", &data->orient))
-		data->orient = 0;
-	pr_info("%s: orient: %d\n", __func__, data->orient);
-
+	if (of_property_read_string_index(np, "etspi-rb", 0,
+			(const char **)&data->rb)) {
+		data->rb = "525,-1,-1";
+	}
+	pr_info("rb: %s\n", data->rb);
 
 	data->p = pinctrl_get_select_default(dev);
 	if (!IS_ERR(data->p)) {
@@ -1271,12 +1272,19 @@ static ssize_t etspi_position_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%s\n", g_data->sensor_position);
 }
 
+static ssize_t et7xx_rb_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%s\n", g_data->rb);
+}
+
 static DEVICE_ATTR(bfs_values, 0444, etspi_bfs_values_show, NULL);
 static DEVICE_ATTR(type_check, 0444, etspi_type_check_show, NULL);
 static DEVICE_ATTR(vendor, 0444, etspi_vendor_show, NULL);
 static DEVICE_ATTR(name, 0444, etspi_name_show, NULL);
 static DEVICE_ATTR(adm, 0444, etspi_adm_show, NULL);
 static DEVICE_ATTR(position, 0444, etspi_position_show, NULL);
+static DEVICE_ATTR(rb, 0444, et7xx_rb_show, NULL);
 
 static struct device_attribute *fp_attrs[] = {
 	&dev_attr_bfs_values,
@@ -1285,6 +1293,7 @@ static struct device_attribute *fp_attrs[] = {
 	&dev_attr_name,
 	&dev_attr_adm,
 	&dev_attr_position,
+	&dev_attr_rb,
 	NULL,
 };
 
