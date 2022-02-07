@@ -1090,7 +1090,7 @@ policy_state usbpd_policy_snk_evaluate_capability(struct policy_data *policy)
 	psy = power_supply_get_by_name("battery");
 	if (psy) {
 		val.intval = 1;
-		psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_SRCCAP, val);
+		psy_do_property("battery", set, (enum power_supply_property) POWER_SUPPLY_EXT_PROP_SRCCAP, val);
 	} else {
 		pr_err("%s: Fail to get psy battery\n", __func__);
 	}
