@@ -1547,3 +1547,15 @@ usi_mode = "hsi2c0" or "hsi2c1" or "spi" or "uart"
 		yas,softiron_sign = <2 0 0 0 2 0 2 0 2>;
 	};
 };
+
+&reserved_memory {
+	video_frame {
+		 compatible = "exynos8890-ion,vframe";
+		 ion,secure;
+		 ion,reusable;
+		 size = <0x2800000>;
+		 id = <5>;
+		 compat-id = <26 29>;
+		 alignment = <0x0 0x00400000>;
+	};
+};
