@@ -7,9 +7,8 @@
 
 #include <fdt.h>
 #include <libfdt.h>
-
 #include "libfdt_internal.h"
-
+#include <linux/kernel.h>
 /*
  * Minimal sanity check for a read-only tree. fdt_ro_probe_() checks
  * that the given buffer contains what appears to be a flattened
