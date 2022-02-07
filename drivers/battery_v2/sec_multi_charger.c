@@ -337,7 +337,7 @@ static bool sec_multi_chg_check_abnormal_case(struct sec_multi_charger_info *cha
 
 	/* check abnormal case */
 	psy_do_property(charger->pdata->sub_charger_name, get,
-		POWER_SUPPLY_EXT_PROP_CHECK_MULTI_CHARGE, value);
+		(enum power_supply_ext_property) POWER_SUPPLY_EXT_PROP_CHECK_MULTI_CHARGE, value);
 
 	check_val = (value.intval != POWER_SUPPLY_STATUS_CHARGING && charger->sub_is_charging);
 	pr_info("%s: check abnormal case(check_val:%d, status:%d, sub_is_charging:%d)\n",
@@ -417,7 +417,7 @@ static int sec_multi_chg_get_property(struct power_supply *psy,
 {
 	struct sec_multi_charger_info *charger =
 		power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property) psp;
 	union power_supply_propval value;
 
 	value.intval = val->intval;
@@ -515,7 +515,7 @@ static int sec_multi_chg_set_property(struct power_supply *psy,
 {
 	struct sec_multi_charger_info *charger =
 		power_supply_get_drvdata(psy);
-	enum power_supply_ext_property ext_psp = psp;
+	enum power_supply_ext_property ext_psp = (enum power_supply_ext_property) psp;
 	union power_supply_propval value;
 
 	value.intval = val->intval;
