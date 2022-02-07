@@ -337,7 +337,7 @@ static bool sec_multi_chg_check_abnormal_case(struct sec_multi_charger_info *cha
 
 	/* check abnormal case */
 	psy_do_property(charger->pdata->sub_charger_name, get,
-		(enum power_supply_ext_property) POWER_SUPPLY_EXT_PROP_CHECK_MULTI_CHARGE, value);
+		(enum power_supply_property) POWER_SUPPLY_EXT_PROP_CHECK_MULTI_CHARGE, value);
 
 	check_val = (value.intval != POWER_SUPPLY_STATUS_CHARGING && charger->sub_is_charging);
 	pr_info("%s: check abnormal case(check_val:%d, status:%d, sub_is_charging:%d)\n",
