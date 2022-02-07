@@ -24,6 +24,12 @@
 
 • Switched to Vortex Clang which is based on the latest version of Clang 14 (20220201).
 
+• Updated to latest A305F kernel source (A305FDDU6CUI3).
+
+• Updated all DTBOs to match latest changes from R source.
+
+• Fixed issue of glitched video renderings on social media apps (E.g: Instagram).
+
 • Two kernel versions with different schedulers are now available:
     • Implemented EMS (Exynos Mobile Scheduler) which is a scheduler based on EAS (Energy Aware Scheduling).
     • The normal kernel version has the stock HMP (Heterogeneous Multi-Processing) scheduler.
