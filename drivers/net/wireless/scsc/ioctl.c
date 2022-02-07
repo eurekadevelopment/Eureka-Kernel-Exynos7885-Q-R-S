@@ -14,6 +14,7 @@
 #include <net/netlink.h>
 #include <linux/netdevice.h>
 #include <linux/ieee80211.h>
+#include <linux/igmp.h>
 #include "mib.h"
 #include <scsc/scsc_mx.h>
 #include <scsc/scsc_log_collector.h>
@@ -209,7 +210,39 @@ static void slsi_machexstring_to_macarray(char *mac_str, u8 *mac_arr)
 	mac_arr[5] = slsi_parse_hex(mac_str[15]) << 4 | slsi_parse_hex(mac_str[16]);
 }
 
-static ssize_t slsi_set_suspend_mode(struct net_device *dev, char *command, int cmd_len)
+void slsi_update_multicast_addr(struct slsi_dev *sdev, struct net_device *dev)
+{
+	struct netdev_vif *ndev_vif = netdev_priv(dev);
+	struct in_device *in_dev = NULL;
+	struct ip_mc_list *im = NULL;
+	static __be32 multicast_ip_list[65] = {0};
+	int size = 0, i = 0, ip_found = 0;
+
+	WARN_ON(!SLSI_MUTEX_IS_LOCKED(ndev_vif->vif_mutex));
+	WARN_ON(ndev_vif->vif_type != FAPI_VIFTYPE_STATION);
+	in_dev = __in_dev_get_rtnl(dev);
+	if (!in_dev)
+		return;
+
+	for (im = rtnl_dereference(in_dev->mc_list); im != NULL; im = rtnl_dereference(im->next_rcu)) {
+		ip_found = 0;
+		for (i = 0; i < size; i++) {
+			if (!memcmp(&im->multiaddr, &multicast_ip_list[i], sizeof(__be32))) {
+				ip_found = 1;
+				break;
+			}
+		}
+		if (!ip_found) {
+			memcpy(&multicast_ip_list[size], &im->multiaddr, sizeof(__be32));
+			size++;
+		}
+		if (size >= 65)
+			break;
+	}
+	slsi_mlme_set_multicast_ip(sdev, dev, multicast_ip_list, size);
+}
+
+static int slsi_set_suspend_mode(struct net_device *dev, char *command, int cmd_len)
 {
 	struct netdev_vif *netdev_vif = netdev_priv(dev);
 	struct slsi_dev   *sdev = netdev_vif->sdev;
@@ -233,7 +266,6 @@ static ssize_t slsi_set_suspend_mode(struct net_device *dev, char *command, int 
 	SLSI_MUTEX_LOCK(sdev->device_config_mutex);
 	previous_suspend_mode = sdev->device_config.user_suspend_mode;
 	SLSI_MUTEX_UNLOCK(sdev->device_config_mutex);
-
 	if (user_suspend_mode != previous_suspend_mode) {
 		SLSI_MUTEX_LOCK(sdev->netdev_add_remove_mutex);
 		for (vif = 1; vif <= CONFIG_SCSC_WLAN_MAX_INTERFACES; vif++) {
@@ -248,10 +280,13 @@ static ssize_t slsi_set_suspend_mode(struct net_device *dev, char *command, int 
 			if (ndev_vif->activated &&
 			    ndev_vif->vif_type == FAPI_VIFTYPE_STATION &&
 			    ndev_vif->sta.vif_status == SLSI_VIF_STATUS_CONNECTED) {
-				if (user_suspend_mode)
+				if (user_suspend_mode) {
 					ret = slsi_update_packet_filters(sdev, dev);
-				else
+					if (sdev->igmp_offload_activated)
+						slsi_update_multicast_addr(sdev, dev);
+				} else {
 					ret = slsi_clear_packet_filters(sdev, dev);
+				}
 				if (ret != 0)
 					SLSI_NET_ERR(dev, "Error in updating /clearing the packet filters,ret=%d", ret);
 			}

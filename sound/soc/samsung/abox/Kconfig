@@ -36,3 +36,11 @@ config SND_SOC_FM
 	  Say Y or N if you want to add support for getting FM status to
 	  the Samsung SoC ABOX interface . You will also need to
 	  select the audio interfaces to support below.
+
+config SND_ABOX_DEBUG_FREE_MEMORY
+	tristate "Release Abox Debug reserved memory with Debug level Low"
+	depends on SND_SOC_SAMSUNG_ABOX
+	help
+	  Say Y or M if you want to add support for releasing Abox Debug reserved memory 
+	  with Debug level Low to the Samsung SoC ABOX interface. 
+	  You will also need to select the audio interfaces to support below.

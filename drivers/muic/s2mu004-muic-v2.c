@@ -3115,7 +3115,7 @@ static int s2mu004_muic_probe(struct platform_device *pdev)
 		s2mu004_muic_attach_isr(-1, muic_data);
 		cancel_delayed_work(&muic_data->rescan_validity_checker);
 		schedule_delayed_work(&muic_data->rescan_validity_checker,
-			msecs_to_jiffies(1200));
+			msecs_to_jiffies(1700));
 #endif
 	}
 	return 0;

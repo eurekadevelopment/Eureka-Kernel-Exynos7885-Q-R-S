@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Copyright (c) 2012 - 2017 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2012 - 2021 Samsung Electronics Co., Ltd. All rights reserved
  *
  ****************************************************************************/
 
@@ -1269,6 +1269,7 @@ struct slsi_dev {
 	u32                        fw_ext_cap_ie_len;
 	bool                       mac_changed;
 	int                        wlan_service_on;
+	bool                       igmp_offload_activated;
 };
 
 /* Compact representation of channels a ESS has been seen on

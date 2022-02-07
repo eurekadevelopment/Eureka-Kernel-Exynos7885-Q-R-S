@@ -44,6 +44,9 @@
 #include <linux/notifier.h>
 #include <linux/ratelimit.h>
 
+#if defined(CONFIG_LMK_SKIP_KILL)
+#include <linux/delay.h>
+#endif
 
 #define CREATE_TRACE_POINTS
 #include "trace/lowmemorykiller.h"
@@ -237,6 +240,16 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 			task_unlock(p);
 			continue;
 		}
+
+#if defined(CONFIG_LMK_SKIP_KILL)
+		if (oom_score_adj == 200 &&
+		    (!strncmp(p->group_leader->comm, ".android.chrome", 15) ||
+			 !strncmp(p->group_leader->comm, "id.app.sbrowser", 15))) {
+			task_unlock(p);
+			continue;
+		}
+#endif
+
 		tasksize = get_mm_rss(p->mm);
 #if defined(CONFIG_ZSWAP)
 		zswap_stored_pages_temp = atomic_read(&zswap_stored_pages);
@@ -329,6 +342,12 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 
 	if (!rem)
 		rem = SHRINK_STOP;
+#if defined(CONFIG_LMK_SKIP_KILL)
+	else {
+		/* give the system time to free up the memory */
+		msleep_interruptible(20);
+	}
+#endif
 
 	return rem;
 }

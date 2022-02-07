@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * Copyright (c) 2012 - 2018 Samsung Electronics Co., Ltd. All rights reserved
+ * Copyright (c) 2012 - 2021 Samsung Electronics Co., Ltd. All rights reserved
  *
  ****************************************************************************/
 
@@ -1892,17 +1892,16 @@ int slsi_mlme_start(struct slsi_dev *sdev, struct net_device *dev, u8 *bssid, st
 	if (append_vht_ies) {
 		vht_ies_len = SLSI_VHT_CAPABILITIES_IE_LEN + SLSI_VHT_OPERATION_IE_LEN;
 
-	    recv_vht_capab_ie = cfg80211_find_ie(WLAN_EID_VHT_CAPABILITY, settings->beacon.tail,
+		recv_vht_capab_ie = cfg80211_find_ie(WLAN_EID_VHT_CAPABILITY, settings->beacon.tail,
 					     settings->beacon.tail_len);
-	    if (recv_vht_capab_ie)
-		    vht_ies_len -= (recv_vht_capab_ie[1] + 2);
+		if (recv_vht_capab_ie)
+			vht_ies_len -= (recv_vht_capab_ie[1] + 2);
 
-	    recv_vht_operation_ie = cfg80211_find_ie(WLAN_EID_VHT_OPERATION, settings->beacon.tail,
+		recv_vht_operation_ie = cfg80211_find_ie(WLAN_EID_VHT_OPERATION, settings->beacon.tail,
 						 settings->beacon.tail_len);
-	    if (recv_vht_operation_ie)
-		    vht_ies_len -= (recv_vht_operation_ie[1] + 2);
+		if (recv_vht_operation_ie)
+			vht_ies_len -= (recv_vht_operation_ie[1] + 2);
 	}
-
 	if (ndev_vif->chandef->width == NL80211_CHAN_WIDTH_80) {
 		/* Ext Capab are not advertised by driver and so the IE would not be sent by hostapd.
 		 * Frame the IE in driver and set the required bit(s).
@@ -4389,3 +4388,51 @@ exit:
 	return r;
 }
 #endif
+
+int slsi_mlme_set_multicast_ip(struct slsi_dev *sdev, struct net_device *dev, __be32 multicast_ip_list[], int count)
+{
+	struct sk_buff    *req;
+	struct netdev_vif *ndev_vif = netdev_priv(dev);
+	struct sk_buff    *cfm;
+	int               r = 0;
+	u32               ipaddr;
+	u8                multicast_add[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+	u8 length = count * 4 + 5;
+	size_t         alloc_data_size = 0;
+	u8             fapi_ie_generic[] = { 0xdd, length, 0x00, 0x16, 0x32, 0x03, 0x01 };
+	int i = 0;
+	u16 version_info = 0x0100;
+
+	if (slsi_is_test_mode_enabled()) {
+		SLSI_NET_INFO(dev, "Skip sending signal, WlanLite FW does not support MLME_SET_IP_ADDRESS.request\n");
+		return -EOPNOTSUPP;
+	}
+
+	WARN_ON(!SLSI_MUTEX_IS_LOCKED(ndev_vif->vif_mutex));
+
+	alloc_data_size = length + 2;
+	req = fapi_alloc(mlme_set_ip_address_req, MLME_SET_IP_ADDRESS_REQ, ndev_vif->ifnum, alloc_data_size);
+	if (!req)
+		return -ENOMEM;
+
+	fapi_set_u16(req, u.mlme_set_ip_address_req.ip_version, version_info);
+	fapi_set_memcpy(req, u.mlme_set_ip_address_req.multicast_address, multicast_add);
+
+	fapi_append_data(req, fapi_ie_generic, sizeof(fapi_ie_generic));
+	for (i = 0; i < count; i++) {
+		ipaddr = htonl(be32_to_cpu(multicast_ip_list[i]));
+		fapi_append_data(req, (const u8 *)(&ipaddr), sizeof(ipaddr));
+	}
+
+	SLSI_DBG2(sdev, SLSI_MLME, "slsi_mlme_set_ip_address(vif: %d)\n", ndev_vif->ifnum);
+	cfm = slsi_mlme_req_cfm(sdev, dev, req, MLME_SET_IP_ADDRESS_CFM);
+	if (!cfm)
+		return -EIO;
+
+	if (fapi_get_u16(cfm, u.mlme_set_ip_address_cfm.result_code) != FAPI_RESULTCODE_SUCCESS) {
+		SLSI_NET_ERR(dev, "mlme_set_ip_address_cfm(result:0x%04x) ERROR\n", fapi_get_u16(cfm, u.mlme_set_ip_address_cfm.result_code));
+		r = -EINVAL;
+	}
+	kfree_skb(cfm);
+	return r;
+}

@@ -1217,7 +1217,7 @@ config RKP_TEST
 
 config KDP_TEST
 	bool "Enable kdp test"
-	depends on RKP_KDP && !SAMSUNG_PRODUCT_SHIP
+	depends on RKP_KDP && RKP_TEST && !SAMSUNG_PRODUCT_SHIP
 	default n
 	help
 	  it enables kdp test.

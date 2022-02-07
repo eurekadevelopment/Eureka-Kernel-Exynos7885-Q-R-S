@@ -69,6 +69,7 @@ enum power_supply_ext_property {
 #endif
 	POWER_SUPPLY_EXT_PROP_HV_DISABLE,
 	POWER_SUPPLY_EXT_PROP_WD_QBATTOFF,
+	POWER_SUPPLY_EXT_PROP_SRCCAP,
 };
 
 enum sec_battery_usb_conf {

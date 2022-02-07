@@ -89,6 +89,13 @@ config SAMSUNG_FREECESS
 	default n
 	help
 	  thraw frozen process when recv sig.
+	  
+config LMK_SKIP_KILL
+	bool "skip kill chrome & sbrowser from lmk driver"
+	default n
+	help
+		this config is skip kill chrome and sbrowser at adj 200 in lmk driver. Also, this config is only enable on T515 model.
+		please don't enable this config on other models.
 
 config SAMSUNG_LMKD_DEBUG
 	bool "record lmkd kill history"

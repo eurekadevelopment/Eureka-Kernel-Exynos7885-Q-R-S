@@ -127,6 +127,18 @@ out:
 	return vaddr;
 }
 
+#ifdef CONFIG_SND_ABOX_DEBUG_FREE_MEMORY
+unsigned int debug_level;
+static int __init get_debug_level(char *arg)
+{
+	get_option(&arg, &debug_level);
+	pr_info("%s = %4X Abox debug \n", __func__, debug_level);
+
+	return 0;
+}
+early_param("androidboot.debug_level", get_debug_level);
+#endif
+
 static int __init abox_rmem_setup(struct reserved_mem *rmem)
 {
 	pr_info("%s: base=%pa, size=%pa\n", __func__, &rmem->base, &rmem->size);
@@ -428,21 +440,42 @@ static int samsung_abox_debug_probe(struct platform_device *pdev)
 	struct abox_data *data = dev_get_drvdata(abox_dev);
 	int i, ret;
 
+#ifdef CONFIG_SND_ABOX_DEBUG_FREE_MEMORY
+	struct page *page;
+	unsigned long addr = abox_rmem->base;
+	unsigned size = abox_rmem->size;
+#endif
+
 	dev_dbg(dev, "%s\n", __func__);
 
 	if (abox_rmem) {
-		if (sizeof(*p_abox_dbg_dump) <= abox_rmem->size) {
-			p_abox_dbg_dump = abox_rmem_vmap(abox_rmem);
-			data->dump_base = p_abox_dbg_dump;
-		} else if (sizeof(*p_abox_dbg_dump_min) <= abox_rmem->size) {
-			p_abox_dbg_dump_min = abox_rmem_vmap(abox_rmem);
-			data->dump_base =  p_abox_dbg_dump_min;
-		}
+#ifdef CONFIG_SND_ABOX_DEBUG_FREE_MEMORY
+		if(debug_level == 0x4F4C) {
+			free_memsize_reserved(addr, size);
 
-		data->dump_base_phys = abox_rmem->base;
-		iommu_map(data->iommu_domain, IOVA_DUMP_BUFFER, abox_rmem->base,
-				abox_rmem->size, 0);
-		memset(data->dump_base, 0x0, abox_rmem->size);
+			for (i = 0; i < (size >> PAGE_SHIFT); i++) {
+				page = phys_to_page(addr);
+				addr += PAGE_SIZE;
+				free_reserved_page(page);
+			}
+			pr_info("%s Abox debug reserved memory freed \n", __func__);
+		}else {
+#endif
+			if (sizeof(*p_abox_dbg_dump) <= abox_rmem->size) {
+				p_abox_dbg_dump = abox_rmem_vmap(abox_rmem);
+				data->dump_base = p_abox_dbg_dump;
+			} else if (sizeof(*p_abox_dbg_dump_min) <= abox_rmem->size) {
+				p_abox_dbg_dump_min = abox_rmem_vmap(abox_rmem);
+				data->dump_base =  p_abox_dbg_dump_min;
+			}
+
+				data->dump_base_phys = abox_rmem->base;
+				iommu_map(data->iommu_domain, IOVA_DUMP_BUFFER, abox_rmem->base,
+						abox_rmem->size, 0);
+			memset(data->dump_base, 0x0, abox_rmem->size);
+#ifdef CONFIG_SND_ABOX_DEBUG_FREE_MEMORY
+		}
+#endif
 	}
 
 	ret = device_create_file(dev, &dev_attr_gpr);

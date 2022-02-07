@@ -236,6 +236,7 @@ struct etspi_data {
 	struct pinctrl_state *pins_poweron;
 	struct pinctrl_state *pins_poweroff;
 	bool ldo_enabled;
+	const char *rb;
 };
 
 int etspi_io_read_cis_register(struct etspi_data *etspi, u8 *addr, u8 *buf);

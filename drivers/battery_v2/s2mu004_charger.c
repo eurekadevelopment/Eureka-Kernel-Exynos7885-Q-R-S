@@ -1068,6 +1068,8 @@ static int s2mu004_chg_set_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CHARGING_ENABLED:
 		charger->charge_mode = val->intval;
 		psy_do_property("battery", get, POWER_SUPPLY_PROP_ONLINE, value);
+		charger->cable_type = value.intval;
+
 		if (value.intval != SEC_BATTERY_CABLE_OTG) {
 			switch (charger->charge_mode) {
 			case SEC_BAT_CHG_MODE_BUCK_OFF:

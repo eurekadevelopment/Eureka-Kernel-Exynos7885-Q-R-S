@@ -1250,11 +1250,12 @@ int slsi_netif_add_locked(struct slsi_dev *sdev, const char *name, int ifnum)
 	SLSI_DBG1(sdev, SLSI_NETDEV, "ifnum=%d\n", ndev_vif->ifnum);
 
 	/* For HS2 interface */
-	if (SLSI_IS_VIF_INDEX_WLAN(ndev_vif))
+	if (SLSI_IS_VIF_INDEX_WLAN(ndev_vif)) {
 		sdev->wlan_unsync_vif_state = WLAN_UNSYNC_NO_VIF;
-
-	/* For p2p0 interface */
-	else if (SLSI_IS_VIF_INDEX_P2P(ndev_vif)) {
+		SLSI_NET_INFO(dev, "Initializing Hs2 Del Vif Work\n");
+		INIT_DELAYED_WORK(&ndev_vif->unsync.hs2_del_vif_work, slsi_hs2_unsync_vif_delete_work);
+	} else if (SLSI_IS_VIF_INDEX_P2P(ndev_vif)) {
+		/* For p2p0 interface */
 		ret = slsi_p2p_init(sdev, ndev_vif);
 		if (ret)
 			goto exit_with_error;

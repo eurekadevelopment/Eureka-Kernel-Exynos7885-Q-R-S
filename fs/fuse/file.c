@@ -1623,11 +1623,15 @@ int fuse_write_inode(struct inode *inode, struct writeback_control *wbc)
 	struct fuse_file *ff;
 	int err;
 
+	/* @fs.sec -- E8B3F75DDB82DFE8F52508F039ABE4FF -- */
+	current->flags |= PF_NOFS_MASK;
+
 	ff = __fuse_write_file_get(fc, fi);
 	err = fuse_flush_times(inode, ff);
 	if (ff)
 		fuse_file_put(ff, 0);
 
+	current->flags &= ~PF_NOFS_MASK;
 	return err;
 }
 

@@ -11,6 +11,11 @@
 #include <linux/completion.h>
 #include <linux/ccic/usbpd.h>
 
+#include <linux/power_supply.h>
+#if defined(CONFIG_BATTERY_SAMSUNG_V2)
+#include "../battery_v2/include/sec_charging_common.h"
+#endif
+
 #include <linux/muic/muic.h>
 #if defined(CONFIG_MUIC_NOTIFIER)
 #include <linux/muic/muic_notifier.h>
@@ -347,6 +352,9 @@ policy_state usbpd_policy_src_ready(struct policy_data *policy)
 
 	/* PD State Inform for AP */
 	dev_info(pd_data->dev, "%s\n", __func__);
+
+	if (pd_data->pd_nego == false)
+		pd_data->pd_nego = true;
 
 #if defined (CONFIG_TYPEC) && defined (CONFIG_CCIC_TYPEC_PRSWAP)
 	if (policy->pd_support == 0) {
@@ -1065,6 +1073,8 @@ policy_state usbpd_policy_snk_evaluate_capability(struct policy_data *policy)
 	struct usbpd_data *pd_data = policy_to_usbpd(policy);
 	int sink_request_obj_num = 0;
 	int ret = PE_SNK_Evaluate_Capability;
+	union power_supply_propval val;
+	struct power_supply *psy;
 
 	/**********************************************
 	Actions on entry:
@@ -1076,6 +1086,14 @@ policy_state usbpd_policy_snk_evaluate_capability(struct policy_data *policy)
 
 	/* PD State Inform to AP */
 	dev_info(pd_data->dev, "%s\n", __func__);
+
+	psy = power_supply_get_by_name("battery");
+	if (psy) {
+		val.intval = 1;
+		psy_do_property("battery", set, POWER_SUPPLY_EXT_PROP_SRCCAP, val);
+	} else {
+		pr_err("%s: Fail to get psy battery\n", __func__);
+	}
 
 #if defined(CONFIG_PDIC_PD30)
 	/* Check Specification Revision */
@@ -1285,6 +1303,9 @@ policy_state usbpd_policy_snk_ready(struct policy_data *policy)
 	if(pd_data->protocol_rx.msg_header.msg_type != USBPD_Vendor_Defined){
 		dev_info(pd_data->dev, "%s\n", __func__);
 	}
+
+	if (pd_data->pd_nego == false)
+		pd_data->pd_nego = true;
 
 #if defined (CONFIG_TYPEC) && defined (CONFIG_CCIC_TYPEC_PRSWAP)
 	if (policy->pd_support == 0) {

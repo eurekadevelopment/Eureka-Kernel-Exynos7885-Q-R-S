@@ -440,7 +440,11 @@ int sensor_gc5035_cis_mode_change(struct v4l2_subdev *subdev, u32 mode)
 
 	I2C_MUTEX_LOCK(cis->i2c_lock);
 	sensor_gc5035_cis_data_calculation(sensor_gc5035_pllinfos[mode], cis->cis_data);
+	I2C_MUTEX_UNLOCK(cis->i2c_lock);
 
+	msleep(50);
+
+	I2C_MUTEX_LOCK(cis->i2c_lock);
 	ret = sensor_cis_set_registers_addr8(subdev, sensor_gc5035_setfiles[mode], sensor_gc5035_setfile_sizes[mode]);
 	if (ret < 0) {
 		err("sensor_gc5035_set_registers fail!!");
@@ -754,8 +758,10 @@ int sensor_gc5035_cis_stream_off(struct v4l2_subdev *subdev)
 
 	/* Sensor stream off */
 	ret = fimc_is_sensor_addr8_write8(client, 0x3e, 0x00);
-	if (unlikely(ret))
+	if (ret < 0) {
 		err("i2c treansfer fail addr(%x), val(%x), ret(%d)\n", 0x3e, 0x00, ret);
+		goto p_err;
+	}
 
 	cis_data->stream_on = false;
 

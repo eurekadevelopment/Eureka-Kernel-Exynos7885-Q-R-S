@@ -78,7 +78,8 @@ void sec_bat_calc_time_to_full(struct sec_battery_info *battery)
 			charge = battery->ttf_d->ttf_hv_12v_charge_current;
 		} else if (is_hv_wire_type(battery->cable_type) ||
 			/* if max_charge_power could support over than max_charging_current,calculate based on ttf_hv_charge_current */
-			battery->max_charge_power >= (battery->ttf_d->max_charging_current * 5)) {
+			(battery->max_charge_power >= (battery->ttf_d->max_charging_current * 5)) ||
+			(battery->cable_type == SEC_BATTERY_CABLE_PREPARE_TA)) {
 			charge = battery->ttf_d->ttf_hv_charge_current;
 		} else if (is_hv_wireless_type(battery->cable_type) ||
 				battery->cable_type == SEC_BATTERY_CABLE_PREPARE_WIRELESS_HV) {
@@ -185,7 +186,7 @@ int sec_ttf_parse_dt(struct sec_battery_info *battery)
 			&pdata->max_charging_current);
 	if (ret) {
 		pr_err("%s: max_charging_current is Empty\n", __func__);
-		pdata->max_charging_current = 1000;
+		pdata->max_charging_current = 3000;
 	}
 	/* temporary dt setting */
 	ret = of_property_read_u32(np, "battery,ttf_predict_wc20_charge_current",

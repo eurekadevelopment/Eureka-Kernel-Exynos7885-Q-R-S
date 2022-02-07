@@ -102,6 +102,8 @@
 #define DEFAULT_HEALTH_CHECK_COUNT	5
 #define TEMP_HIGHLIMIT_DEFAULT	2000
 
+#define SELECT_PDO_INPUT_CURRENT		1000
+
 #define SIOP_INPUT_LIMIT_CURRENT		1200
 #define SIOP_CHARGING_LIMIT_CURRENT		1000
 #define SIOP_WIRELESS_INPUT_LIMIT_CURRENT	530
@@ -206,6 +208,7 @@ struct sec_battery_info {
 #if defined(CONFIG_CCIC_NOTIFIER)
 	bool pdic_attach;
 	bool pdic_ps_rdy;
+	bool init_src_cap;
 	struct pdic_notifier_struct pdic_info;
 	struct sec_bat_pdic_list pd_list;
 #endif
