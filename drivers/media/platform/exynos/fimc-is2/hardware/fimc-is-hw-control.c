@@ -1388,7 +1388,7 @@ int fimc_is_hardware_config_lock(struct fimc_is_hw_ip *hw_ip, u32 instance, u32 
 
 retry_get_frame:
 	framemgr_e_barrier(framemgr, 0);
-	frame = get_frame(framemgr, FS_HW_REQUEST);
+	frame = get_frame(framemgr, (enum fimc_is_frame_state) FS_HW_REQUEST);
 	if (!IS_ERR_OR_NULL(frame)) {
 		if (unlikely(frame->fcount <= framenum)) {
 			put_frame(framemgr, frame, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
@@ -1559,9 +1559,9 @@ void fimc_is_hardware_frame_start(struct fimc_is_hw_ip *hw_ip, u32 instance)
 	framemgr = hw_ip->framemgr;
 
 	framemgr_e_barrier(framemgr, 0);
-	frame = get_frame(framemgr, FS_HW_CONFIGURE);
+	frame = get_frame(framemgr, (enum fimc_is_frame_state) FS_HW_CONFIGURE);
 	if (IS_ERR_OR_NULL(frame)) {
-		check_frame = find_frame(framemgr, FS_HW_WAIT_DONE,
+		check_frame = find_frame(framemgr, (enum fimc_is_frame_state) FS_HW_WAIT_DONE,
 			frame_fcount, (void *)(ulong)atomic_read(&hw_ip->fcount));
 		if (check_frame) {
 			msdbgs_hw(2, "[F:%d] already processed to HW_WAIT_DONE state",
@@ -1598,7 +1598,7 @@ void fimc_is_hardware_frame_start(struct fimc_is_hw_ip *hw_ip, u32 instance)
 	frame->frame_info[INFO_FRAME_START].pid = current->pid;
 	frame->frame_info[INFO_FRAME_START].when = local_clock();
 
-	put_frame(framemgr, frame, FS_HW_WAIT_DONE);
+	put_frame(framemgr, frame, (enum fimc_is_frame_state) FS_HW_WAIT_DONE);
 	framemgr_x_barrier(framemgr, 0);
 
 	if (test_bit(FIMC_IS_GROUP_OTF_INPUT, &head->state))
