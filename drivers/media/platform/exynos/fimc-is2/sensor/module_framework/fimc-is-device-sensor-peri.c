@@ -1882,22 +1882,10 @@ stream_on_retry:
 		if (sensor_peri->flash != NULL && dual_info->mode == FIMC_IS_DUAL_MODE_NOTHING) {
 			sensor_peri->flash->flash_data.mode = CAM2_FLASH_MODE_OFF;
 			if (sensor_peri->flash->flash_data.flash_fired == true) {
-				sensor_peri->flash->flash_data.intensity = 0;
-				sensor_peri->flash->flash_data.firing_time_us = 0;
-
-				info("[%s] Flash OFF(%d), pow(%d), time(%d)\n",
-					__func__,
-					sensor_peri->flash->flash_data.mode,
-					sensor_peri->flash->flash_data.intensity,
-					sensor_peri->flash->flash_data.firing_time_us);
-
 				ret = fimc_is_sensor_flash_fire(sensor_peri, 0);
 				if (ret) {
 					err("failed to turn off flash at flash expired handler\n");
 				}
-
-				sensor_peri->flash->flash_ae.pre_fls_ae_reset = false;
-				sensor_peri->flash->flash_ae.frm_num_pre_fls = 0;
 			}
 		}
 

@@ -355,7 +355,8 @@ u32 fimc_is_scaler_sw_reset(void __iomem *base_addr, u32 hw_id, u32 global, u32 
 {
 	int ret = 0;
 
-	ret = fimc_is_scaler_sw_reset_global(base_addr);
+	if (global)
+		ret = fimc_is_scaler_sw_reset_global(base_addr);
 
 	return ret;
 }
