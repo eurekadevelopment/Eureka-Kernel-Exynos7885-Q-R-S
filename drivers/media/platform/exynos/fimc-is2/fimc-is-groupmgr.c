@@ -697,7 +697,6 @@ p_retry:
 		goto p_retry;
 	}
 
-	fimc_is_group_subdev_cancel(group, ldr_frame, FIMC_IS_DEVICE_MAX, FS_PROCESS, false);
 	fimc_is_group_subdev_cancel(group, ldr_frame, FIMC_IS_DEVICE_MAX, FS_REQUEST, false);
 
 	clear_bit(group->leader.id, &ldr_frame->out_flag);
@@ -3104,11 +3103,7 @@ p_skip_sync:
 		goto p_err_cancel;
 	}
 
-	ret = fimc_is_itf_grp_shot(device, group, frame);
-	if (ret) {
-		merr("fimc_is_itf_grp_shot is fail(%d)", device, ret);
-		goto p_err_cancel;
-	}
+	fimc_is_itf_grp_shot(device, group, frame);
 	atomic_inc(&group->scount);
 
 	clear_bit(FIMC_IS_GROUP_SHOT, &group->state);
