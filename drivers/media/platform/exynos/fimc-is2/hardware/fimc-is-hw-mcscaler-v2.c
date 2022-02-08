@@ -134,9 +134,6 @@ static int fimc_is_hw_mcsc_handle_interrupt(u32 id, void *context)
 	if (status & (1 << INTR_MC_SCALER_WDMA_FINISH))
 		mserr_hw("Disabeld interrupt occurred! WDAM FINISH!! (0x%x)", instance, hw_ip, status);
 
-	if ((status & (1 << INTR_MC_SCALER_FRAME_START)) && (status & (1 << INTR_MC_SCALER_FRAME_END)))
-		mswarn_hw("start/end overlapped!! (0x%x)", instance, hw_ip, status);
-
 	if (status & (1 << INTR_MC_SCALER_FRAME_START)) {
 		atomic_inc(&hw_ip->count.fs);
 		hw_ip->cur_s_int++;
@@ -149,7 +146,12 @@ static int fimc_is_hw_mcsc_handle_interrupt(u32 id, void *context)
 			if (!atomic_read(&hardware->streaming[hardware->sensor_position[instance]]))
 				msinfo_hw("[F:%d]F.S\n", instance, hw_ip, hw_fcount);
 
-			fimc_is_hardware_frame_start(hw_ip, instance);
+			if (param->input.dma_cmd == DMA_INPUT_COMMAND_ENABLE) {
+				fimc_is_hardware_frame_start(hw_ip, instance);
+			} else {
+				clear_bit(HW_CONFIG, &hw_ip->state);
+				atomic_set(&hw_ip->status.Vvalid, V_VALID);
+			}
 		}
 
 		/* for set shadow register write start */
@@ -843,7 +845,7 @@ config:
 		if (ret) {
 			mserr_hw("[F:%d]mcsc rdma_cfg failed\n",
 				instance, hw_ip, frame->fcount);
-			goto shot_fail;
+			return ret;
 		}
 	}
 
@@ -889,15 +891,6 @@ config:
 	hw_mcsc->instance = instance;
 	clear_bit(HW_MCSC_OUT_CLEARED_ALL, &hw_mcsc_out_configured);
 	set_bit(HW_CONFIG, &hw_ip->state);
-
-	if (ret)
-		goto shot_fail;
-
-	return 0;
-
-shot_fail:
-	if (!test_bit(FIMC_IS_GROUP_OTF_INPUT, &head->state))
-		up(&hw_ip->smp_resource);
 
 	return ret;
 }
@@ -2714,12 +2707,10 @@ int fimc_is_hw_mcsc_restore(struct fimc_is_hw_ip *hw_ip, u32 instance)
 	int ret = 0;
 	struct fimc_is_hw_mcsc *hw_mcsc;
 	struct is_param_region *param;
-	struct fimc_is_group *head;
 
 	BUG_ON(!hw_ip);
 
 	hw_mcsc = (struct fimc_is_hw_mcsc *)hw_ip->priv_info;
-	head = GET_HEAD_GROUP_IN_DEVICE(FIMC_IS_DEVICE_ISCHAIN, hw_ip->group[instance]);
 
 	fimc_is_hw_mcsc_reset(hw_ip);
 
@@ -2735,11 +2726,7 @@ int fimc_is_hw_mcsc_restore(struct fimc_is_hw_ip *hw_ip, u32 instance)
 	info_hw("[RECOVERY]: tdnr update param\n");
 
 	fimc_is_hw_mcsc_clear_interrupt(hw_ip);
-
-	if (!test_bit(FIMC_IS_GROUP_OTF_INPUT, &head->state))
-		up(&hw_ip->smp_resource);
-	else
-		fimc_is_scaler_start(hw_ip->regs, hw_ip->id);
+	fimc_is_scaler_start(hw_ip->regs, hw_ip->id);
 
 	return ret;
 }

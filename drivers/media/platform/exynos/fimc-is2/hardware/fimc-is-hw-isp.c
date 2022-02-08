@@ -447,16 +447,8 @@ config:
 
 	ret = fimc_is_hw_isp_set_yuv_range(hw_ip, param_set, frame->fcount, hw_map);
 	ret |= fimc_is_lib_isp_shot(hw_ip, &hw_isp->lib[frame->instance], param_set, frame->shot);
-	if (ret)
-		goto shot_fail;
 
 	set_bit(HW_CONFIG, &hw_ip->state);
-
-	return 0;
-
-shot_fail:
-	if (!test_bit(FIMC_IS_GROUP_OTF_INPUT, &head->state))
-		up(&hw_ip->smp_resource);
 
 	return ret;
 }
@@ -756,7 +748,6 @@ int fimc_is_hw_isp_restore(struct fimc_is_hw_ip *hw_ip, u32 instance)
 {
 	int ret = 0;
 	struct fimc_is_hw_isp *hw_isp = NULL;
-	struct fimc_is_group *head;
 
 	BUG_ON(!hw_ip);
 	BUG_ON(!hw_ip->priv_info);
@@ -771,10 +762,6 @@ int fimc_is_hw_isp_restore(struct fimc_is_hw_ip *hw_ip, u32 instance)
 		mserr_hw("fimc_is_lib_isp_reset_recovery fail ret(%d)",
 				instance, hw_ip, ret);
 	}
-
-	head = GET_HEAD_GROUP_IN_DEVICE(FIMC_IS_DEVICE_ISCHAIN, hw_ip->group[instance]);
-	if (!test_bit(FIMC_IS_GROUP_OTF_INPUT, &head->state))
-		up(&hw_ip->smp_resource);
 
 	return ret;
 }
