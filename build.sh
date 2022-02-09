@@ -1,6 +1,6 @@
 #!/bin/sudo bash
 #
-# Custom build script for Eureka kernels by Chatur27 and Gabriel260 @Github - 2020
+# Custom build script for Eureka kernels by Chatur27, Gabriel2392 and roynatech2544 @Github - 2022
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -119,6 +119,17 @@ CLANG_CLEAN() {
 			rm -rf kernel_zip/anykernel/dtbo.img
 			rm -rf kernel_zip/anykernel/dtb.img
 		}
+	fi
+
+	if [ "${BUILD_NO}" == "" ]; then
+		if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
+			rm drivers/media/platform/exynos/Kconfig
+			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
+		fi
+		if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		fi
 	fi
 }
 
@@ -429,8 +440,8 @@ ZIPPIFY() {
 			fi
 
 			# Comment & uncomment here to use DTBO.img from source
-			#PREBUILT_DTBO
-			cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
+			PREBUILT_DTBO
+			#cp -f arch/$ARCH/boot/dtbo.img kernel_zip/anykernel/dtbo.img
 
 			# Go to anykernel directory
 			cd kernel_zip/anykernel
@@ -590,7 +601,7 @@ RENAME() {
 		VERSION="Eureka_R"$REV"_"$CODENAME"_Q_R_S"
 		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q_R_S.zip"
 	else
-		VERSION="Eureka_R"$REV"_"$CODENAME"Legacy_Q/R/S"
+		VERSION="Eureka_R"$REV"_"$CODENAME"_Legacy_Q/R/S"
 		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Legacy_Q_R_S.zip"
 	fi
 	AROMAZIPNAME="Eureka_R"$REV"_"$CODENAME"_AROMA-"$SCHEDULER".zip"
