@@ -605,7 +605,7 @@ TELEGRAM_UPLOAD() {
 		-F "caption=$POST_CAPTION"
 	}
 
-	if [ "${BUILD_NO}" == "2" ]; then
+	if [ "${BUILD_NO}" == "1" ]; then
 		for files in ./kernel_zip/aroma/*.zip; do
 			MODEL="$(echo "$files" | grep -Po $REV'_\K[^*_]+')"
 			POST_CAPTION="Eureka R$REV for $MODEL (AROMA)"
