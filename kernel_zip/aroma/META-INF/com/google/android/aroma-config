@@ -67,8 +67,8 @@ viewbox(
 " WELCOME \t\t\t\t\t\t",
 " INFORMATION ABOUT THIS KERNEL:\n\n"+
 " NAME  \t\t\t: <b><#selectbg_g>Eureka Kernel</#></b>\n"+
-" VERSION \t\t: <b><#selectbg_g>R9.0</#></b>\n"+
-" BUILD DATE \t\t: <b><#selectbg_g>07/02/2022</#></b>\n"+
+" VERSION \t\t: <b><#selectbg_g>R9.1</#></b>\n"+
+" BUILD DATE \t\t: <b><#selectbg_g>15/02/2022</#></b>\n"+
 " DEVELOPER \t\t: <b><#selectbg_g>Chatur</#></b>\n"+
 " CO-DEVELOPERS \t: <b><#selectbg_g>Gabriel, Roynatech</#></b>\n"+
 " DEVICE \t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n\n\n"+
@@ -137,10 +137,7 @@ if (prop("menu.prop","selected")=="1") then
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
-	        "AOSP Q/R/S (Legacy)",         " For old Eureka ROMs which do NOT have February 2022 SPL.",       0,  #-- selected.1 = 1
-	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 2
-	        "OneUI 2 (Q vendor)",          " For OneUI 2 ROMs or GSIs using Q vendor",                        0,  #-- selected.1 = 3
-	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor",                        0,  #-- selected.1 = 4
+	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 1
 
 	       "SElinux Type:",                "",                                                     2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
@@ -179,10 +176,7 @@ if (prop("menu.prop","selected")=="2") then
 	      #             TITLE            |                       SUBTITLE                      |         Initial Value          #
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
-	        "AOSP Q/R/S (Legacy)",         " For old Eureka ROMs which do NOT have February 2022 SPL.",       0,  #-- selected.1 = 1
-	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 2
-	        "OneUI 2 (Q vendor)",          " For OneUI 2 ROMs or GSIs using Q vendor.",                       0,  #-- selected.1 = 3
-	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor.",                       0,  #-- selected.1 = 4
+	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 1
 
 	       "SElinux Type(depends on kernel):", "",                                                 2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
@@ -282,7 +276,7 @@ endif;
 # CHANGELOG
 #
 if (prop("menu.prop","selected")=="4") then
- textdialog("Eureka R9.0 Changelog", resread("changelog.txt"), "Close");
+ textdialog("Eureka R9.1 Changelog", resread("changelog.txt"), "Close");
   #-- Back to Menu
   back("1");
 endif;
