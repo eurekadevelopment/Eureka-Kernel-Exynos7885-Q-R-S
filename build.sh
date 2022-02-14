@@ -264,59 +264,23 @@ DTB_GENERATOR() {
 		if [ ! -e "kernel_zip/aroma/dtb/aosp/perm/default" ]; then
 			mkdir kernel_zip/aroma/dtb/aosp/perm/default -p
 		fi
-		if [ ! -e "kernel_zip/aroma/dtb/oneui2/enf/default" ]; then
-			mkdir kernel_zip/aroma/dtb/oneui2/enf/default -p
-		fi
-		if [ ! -e "kernel_zip/aroma/dtb/oneui2/perm/default" ]; then
-			mkdir kernel_zip/aroma/dtb/oneui2/perm/default -p
-		fi
-		if [ ! -e "kernel_zip/aroma/dtb/oneui3/enf/default" ]; then
-			mkdir kernel_zip/aroma/dtb/oneui3/enf/default -p
-		fi
-		if [ ! -e "kernel_zip/aroma/dtb/oneui3/perm/default" ]; then
-			mkdir kernel_zip/aroma/dtb/oneui3/perm/default -p
-		fi
 
 		if [ "$1" == "0" ]; then
 			if [ "$2" == "0" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/default/
-                fi
-            elif [ "$2" == "2" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/enf/default/
-                fi
-            elif [ "$2" == "3" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/enf/default/
-                fi
+                		if [ "${CUSTOM_DTB}" == "1" ]; then
+					cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/${12}/
+		                else
+					cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/enf/default/
+				fi
 			fi
 		elif [ "$1" == "1" ]; then
 			if [ "$2" == "0" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/default/
-                fi
-            elif [ "$2" == "2" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui2/perm/default/
-                fi
-            elif [ "$2" == "3" ]; then
-                if [ "${CUSTOM_DTB}" == "1" ]; then
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/${12}/
-                else
-                    cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/oneui3/perm/default/
-                fi
-            fi
+				if [ "${CUSTOM_DTB}" == "1" ]; then
+					cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/${12}/
+				else
+					cp -f out/arch/$ARCH/boot/dtb.img kernel_zip/aroma/dtb/aosp/perm/default/
+				fi
+			fi
 		fi
 
 		chown -R $username:$username kernel_zip/aroma/dtb
@@ -361,28 +325,6 @@ CUSTOM_DTB() {
         DTB_GENERATOR 0 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
         DTB_GENERATOR 0 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
 
-        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
-        DTB_GENERATOR 0 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
-        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
-        DTB_GENERATOR 0 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
-        DTB_GENERATOR 0 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
-        DTB_GENERATOR 0 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
-        DTB_GENERATOR 0 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
-        DTB_GENERATOR 0 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
-        DTB_GENERATOR 0 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
-        DTB_GENERATOR 0 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
-
-        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
-        DTB_GENERATOR 0 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
-        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
-        DTB_GENERATOR 0 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
-        DTB_GENERATOR 0 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
-        DTB_GENERATOR 0 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
-        DTB_GENERATOR 0 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
-        DTB_GENERATOR 0 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
-        DTB_GENERATOR 0 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
-        DTB_GENERATOR 0 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
-
         DTB_GENERATOR 1 0 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
         DTB_GENERATOR 1 0 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
         DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
@@ -393,28 +335,6 @@ CUSTOM_DTB() {
         DTB_GENERATOR 1 0 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
         DTB_GENERATOR 1 0 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
         DTB_GENERATOR 1 0 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
-
-        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
-        DTB_GENERATOR 1 2 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
-        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
-        DTB_GENERATOR 1 2 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
-        DTB_GENERATOR 1 2 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
-        DTB_GENERATOR 1 2 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
-        DTB_GENERATOR 1 2 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
-        DTB_GENERATOR 1 2 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
-        DTB_GENERATOR 1 2 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
-        DTB_GENERATOR 1 2 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
-
-        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" default
-        DTB_GENERATOR 1 3 546000 1794000 1690000 520000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 1
-        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 2
-        DTB_GENERATOR 1 3 839000 1352000 1352000 728000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 3
-        DTB_GENERATOR 1 3 839000 1586000 1586000 728000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 4
-        DTB_GENERATOR 1 3 546000 1690000 1586000 520000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 5
-        DTB_GENERATOR 1 3 208000 1794000 1690000 208000 2080000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 6
-        DTB_GENERATOR 1 3 208000 1586000 1586000 208000 1768000 1768000 845000 676000 "845000 676000 545000 545000 450000 343000" 7
-        DTB_GENERATOR 1 3 208000 1690000 1586000 208000 2288000 2080000 1300000 1200000 "1200000 1100000 1001000 845000 676000 343000" 8
-        DTB_GENERATOR 1 3 208000 1352000 1352000 208000 1560000 1560000 676000 545000 "676000 545000 545000 450000 343000 343000" 9
 }
 
 ZIPPIFY() {
@@ -519,10 +439,10 @@ AROMA() {
 
 	cd aroma
 	mv $CODENAME"_oneui3.zip" kernel/oneui3.zip
-	mv $CODENAME"_qrs.zip" kernel/qrs.zip
+	#mv $CODENAME"_qrs.zip" kernel/qrs.zip
 	zip -r9 $AROMAZIPNAME META-INF dtb dtbo kernel spectrum tools > /dev/null
 	rm -f kernel/oneui3.zip
-	rm -f kernel/qrs.zip
+	#rm -f kernel/qrs.zip
 	rm -rf dtbo
 	cd ../..
 }
@@ -598,13 +518,13 @@ USER() {
 RENAME() {
 	# Give proper name to kernel and zip name
 	if [ "$ONEUI3" == "1" ]; then
-		VERSION="Eureka_R"$REV"_"$CODENAME"_Q_R_S"
-		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Q_R_S.zip"
+		VERSION="Eureka_R"$REV"_"$CODENAME"_S"
+		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"S.zip"
 	else
 		VERSION="Eureka_R"$REV"_"$CODENAME"_Legacy_Q/R/S"
 		ZIPNAME="Eureka_R"$REV"_"$CODENAME"_"$SELINUX_STATUS"Legacy_Q_R_S.zip"
 	fi
-	AROMAZIPNAME="Eureka_R"$REV"_"$CODENAME"_AROMA-"$SCHEDULER".zip"
+	AROMAZIPNAME="Eureka_R"$REV"_"$CODENAME"_AOSP-"$SCHEDULER".zip"
 }
 
 SELINUX() {
@@ -741,14 +661,7 @@ BUILD_ALL() {
 		clear
 		# Generate all default DTBs in advance.
 		DTB_GENERATOR 0 0
-		DTB_GENERATOR 0 2
-		DTB_GENERATOR 0 3
 		DTB_GENERATOR 1 0
-		DTB_GENERATOR 1 2
-		DTB_GENERATOR 1 3
-	fi
-	if [ "${BUILD_NO}" == "2" ]; then
-		OS_MENU
 	fi
 	clear
 	SM_A105X
@@ -763,34 +676,14 @@ BUILD_ALL() {
 	COMMON_STEPS
 	SM_A405X
 	COMMON_STEPS
-	if [ "${BUILD_NO}" == "1" ]; then
-		export BUILD_NO=2
-		cp drivers/media/platform/exynos/Kconfig drivers/media/platform/exynos/Kconfig.bak
-		sed -i '55s/.*/        default y/' drivers/media/platform/exynos/Kconfig
-		LOOPBACK
-	else
-		rm -rf kernel_zip/aroma/dtb/aosp/enf/default
-		rm -rf kernel_zip/aroma/dtb/aosp/perm/default
-		rm -rf kernel_zip/aroma/dtb/oneui2/enf/default
-		rm -rf kernel_zip/aroma/dtb/oneui2/perm/default
-		rm -rf kernel_zip/aroma/dtb/oneui3/enf/default
-		rm -rf kernel_zip/aroma/dtb/oneui3/perm/default
-		if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
-			rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
-			mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
-		fi
-		if [ -e "drivers/media/platform/exynos/Kconfig.bak" ]; then
-			rm -rf drivers/media/platform/exynos/Kconfig
-			mv drivers/media/platform/exynos/Kconfig.bak drivers/media/platform/exynos/Kconfig
-		fi
-		TELEGRAM_UPLOAD
-		DISPLAY_ELAPSED_TIME
-
+	rm -rf kernel_zip/aroma/dtb/aosp/enf/default
+	rm -rf kernel_zip/aroma/dtb/aosp/perm/default
+	if [ -e "arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak" ]; then
+		rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
+		mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
 	fi
-}
-
-LOOPBACK () {
-	BUILD_ALL
+	TELEGRAM_UPLOAD
+	DISPLAY_ELAPSED_TIME
 }
 
 COMMON_STEPS() {
@@ -809,7 +702,7 @@ COMMON_STEPS() {
 	cp -f out/arch/$ARCH/boot/dtbo.img arch/$ARCH/boot/dtbo.img
 	ZIPPIFY
 	sleep 1
-	if [ "${BUILD_NO}" == "2" ]; then
+	if [ "${BUILD_NO}" == "1" ]; then
 		AROMA
 	fi
 	sleep 1
@@ -838,9 +731,10 @@ OS_MENU() {
 	echo " ${ON_BLUE}Android Versions Available: ${STD}"
 
 	if [ "${BUILD_NO}" == "1" ]; then
-		ANDROID_VAR="Android 10 (Q) / 11 (R) / 12 (S)"
+		ANDROID_VAR="AOSP Android 11/12 (R vendor)"
 		ANDROID=r
 		AND_VER=11
+		ONEUI3=1
 		echo " "
 		echo "${GREEN} $ANDROID_VAR chosen as Android Major Version ${STD}"
 	elif [ "${BUILD_NO}" == "2" ]; then
