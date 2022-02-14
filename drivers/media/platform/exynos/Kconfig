@@ -52,6 +52,6 @@ config MEDIA_EXYNOS
 
 config ONEUI3_FIMC_IS2_CAMERA_HEADER
         bool "OneUI3 camera hal dependency"
-        default n
+        default y
         help
           Enable some codes in a header file for OneUI3 camera hal.
