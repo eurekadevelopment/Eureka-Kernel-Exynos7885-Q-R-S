@@ -728,7 +728,7 @@
 		clock-names = "gate_speedy";
 		status = "disabled";
 		audio_codec_cod3035x: cod3035x@03 {
-			eureka_kernel_variant = <2>;
+			eureka_kernel_variant = <0>;
 		};
 	};
 
