@@ -361,6 +361,10 @@ int bpf_check(struct bpf_prog **fp, union bpf_attr *attr);
 
 struct bpf_prog *bpf_prog_get_type_path(const char *name, enum bpf_prog_type type);
 
+static inline bool unprivileged_ebpf_enabled(void)
+{
+	return !sysctl_unprivileged_bpf_disabled;
+}
 #else
 static inline void bpf_register_prog_type(struct bpf_prog_type_list *tl)
 {
@@ -380,6 +384,7 @@ static inline struct bpf_prog *bpf_prog_get_type(u32 ufd,
 static inline void bpf_prog_put(struct bpf_prog *prog)
 {
 }
+
 static inline struct bpf_prog *bpf_prog_inc(struct bpf_prog *prog)
 {
 	return ERR_PTR(-EOPNOTSUPP);
@@ -393,6 +398,10 @@ static inline struct bpf_prog *bpf_prog_get_type_path(const char *name,
 				enum bpf_prog_type type)
 {
 	return ERR_PTR(-EOPNOTSUPP);
+
+static inline bool unprivileged_ebpf_enabled(void)
+{
+	return false;
 }
 #endif /* CONFIG_BPF_SYSCALL */
 
