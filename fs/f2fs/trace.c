@@ -22,7 +22,7 @@ static inline void __print_last_io(void)
 	if (!last_io.len)
 		return;
 
-	trace_printk("%3x:%3x %4x %-16s %2x %5x %5x %12x %4x\n",
+	pr_debug("%3x:%3x %4x %-16s %2x %5x %5x %12x %4x\n",
 			last_io.major, last_io.minor,
 			last_io.pid, "----------------",
 			last_io.type,
@@ -76,7 +76,7 @@ retry:
 		goto retry;
 	}
 
-	trace_printk("%3x:%3x %4x %-16s\n",
+	pr_debug("%3x:%3x %4x %-16s\n",
 			MAJOR(inode->i_sb->s_dev), MINOR(inode->i_sb->s_dev),
 			pid, current->comm);
 out:
