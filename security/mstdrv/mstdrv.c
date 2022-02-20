@@ -416,7 +416,7 @@ static ssize_t store_mst_drv(struct device *dev,
 #if !defined(CONFIG_MFC_CHARGER)
 			of_mst_hw_onoff(1);
 #endif
-			trace_printk("tracing mark write: MST transmission Start\n");
+			pr_debug("tracing mark write: MST transmission Start\n");
 #if defined(CONFIG_MST_NONSECURE)
 			case_i= 1;
 			printk("MST send track1 data, case_i %d\n", case_i);
@@ -438,7 +438,7 @@ static ssize_t store_mst_drv(struct device *dev,
 			printk(KERN_INFO "MST_LDO_DRV]]] Track1 data sent : %d\n", result);
 #endif
 #endif
-			trace_printk("tracing mark write: MST transmission End\n");
+			pr_debug("tracing mark write: MST transmission End\n");
 #if !defined(CONFIG_MFC_CHARGER)
 			of_mst_hw_onoff(0);
 #endif
@@ -448,7 +448,7 @@ static ssize_t store_mst_drv(struct device *dev,
 #if !defined(CONFIG_MFC_CHARGER)
 			of_mst_hw_onoff(1);
 #endif
-			trace_printk("tracing mark write: MST transmission Start\n");
+			pr_debug("tracing mark write: MST transmission Start\n");
 #if defined(CONFIG_MST_NONSECURE)
 			case_i = 2; 
 			printk("MST send track2 data, case_i : %d\n", case_i);
@@ -470,7 +470,7 @@ static ssize_t store_mst_drv(struct device *dev,
 			printk(KERN_INFO "MST_LDO_DRV]]] Track2 data sent : %d\n", result);
 #endif
 #endif
-			trace_printk("tracing mark write: MST transmission End\n");
+			pr_debug("tracing mark write: MST transmission End\n");
 #if !defined(CONFIG_MFC_CHARGER)
 			of_mst_hw_onoff(0);
 #endif

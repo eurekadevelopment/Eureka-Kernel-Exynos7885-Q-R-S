@@ -1419,7 +1419,7 @@ __hfi1_trace_def(TID);
 
 #ifdef HFI1_EARLY_DBG
 #define hfi1_dbg_early(fmt, ...) \
-	trace_printk(fmt, ##__VA_ARGS__)
+	pr_debug(fmt, ##__VA_ARGS__)
 #else
 #define hfi1_dbg_early(fmt, ...)
 #endif
