@@ -145,3 +145,7 @@
 • Eureka Display Control (EKCAL) which is based on Samsung mDNIE driver (Not available for A20e).
 
 • WIFI sharing is fixed if this kernel is used with an Eureka ROM built as from 15 Feb 2022.
+
+• Added required support for FM Radio for Eureka ROMs.
+
+• Switched to fq_codel queue discipline. Better download/upload speed.

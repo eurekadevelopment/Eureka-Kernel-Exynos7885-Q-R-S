@@ -1,2 +1,3 @@
-• Fixes WIFI sharing on Eureka ROMs.
+• Added required support for FM Radio for Eureka ROMs.
 
+• Switched to fq_codel queue discipline. Better download/upload speed.
