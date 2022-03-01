@@ -629,7 +629,7 @@ all: vmlinux
 
 ifeq ($(cc-name),clang)
 ifeq ($(CONFIG_SOC_EXYNOS7885), y)
-KBUILD_CFLAGS	+= -mcpu=cortex-a53
+KBUILD_CFLAGS	+= -mcpu=cortex-a53 -mtune=cortex-a53
 endif
 ifneq ($(CROSS_COMPILE),)
 CLANG_TRIPLE	?= $(CROSS_COMPILE)
