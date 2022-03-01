@@ -801,7 +801,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, packed-not-aligned)
 KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
 
 ifeq ($(ld-name),lld)
-LDFLAGS += -O2
+LDFLAGS += --lto-O3
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
