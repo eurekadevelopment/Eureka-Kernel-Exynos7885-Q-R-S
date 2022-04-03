@@ -30,8 +30,8 @@ ONEUI3=0
 GCC_ARM64_FILE=aarch64-linux-gnu-
 
 # Export Telegram variables
-export CHAT_ID=-0000000000000
-export BOT_TOKEN=0
+CHAT_ID=-1001207057155
+BOT_TOKEN=5068662666:AAGZPHd5Gj6eOrJS2QyR0MzHmW03Ngq41vk
 
 # Export commands
 export KBUILD_BUILD_USER=Eureka
