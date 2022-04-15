@@ -2768,6 +2768,9 @@ static int binder_translate_fd_array(struct binder_fd_array_object *fda,
 	struct binder_proc *proc = thread->proc;
 	struct binder_proc *target_proc = t->to_proc;
 
+	if (fda->num_fds == 0)
+		return 0;
+
 	fd_buf_size = sizeof(u32) * fda->num_fds;
 	if (fda->num_fds >= SIZE_MAX / sizeof(u32)) {
 		binder_user_error("%d:%d got transaction with invalid number of fds (%lld)\n",
