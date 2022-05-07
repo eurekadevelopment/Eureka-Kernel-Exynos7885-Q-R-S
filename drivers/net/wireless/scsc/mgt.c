@@ -316,29 +316,21 @@ mac_default:
 
 static void write_wifi_version_info_file(struct slsi_dev *sdev)
 {
-	struct file *fp = NULL;
-
+#ifdef CONFIG_SCSC_WLBTD
 #if defined(SCSC_SEP_VERSION) && (SCSC_SEP_VERSION >= 9)
 	char *filepath = "/data/vendor/conn/.wifiver.info";
 #else
 	char *filepath = "/data/misc/conn/.wifiver.info";
 #endif
+#endif
 	char buf[256];
 	char build_id_fw[128];
 	char build_id_drv[64];
 
-	fp = filp_open(filepath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-	if (IS_ERR(fp)) {
-		SLSI_WARN(sdev, "version file wasn't found\n");
-		return;
-	} else if (!fp) {
-		SLSI_WARN(sdev, "%s doesn't exist.\n", filepath);
-		return;
-	}
-
+#ifndef SLSI_TEST_DEV
 	mxman_get_fw_version(build_id_fw, 128);
 	mxman_get_driver_version(build_id_drv, 64);
+#endif
 
 	/* WARNING:
 	 * Please do not change the format of the following string
@@ -376,18 +368,14 @@ static void write_wifi_version_info_file(struct slsi_dev *sdev)
 #ifdef SCSC_SEP_VERSION
 #ifdef CONFIG_SCSC_WLBTD
 	wlbtd_write_file(filepath, buf);
-#else
-	kernel_write(fp, buf, strlen(buf), 0);
 #endif
-
-	if (fp)
-		filp_close(fp, NULL);
 
 	SLSI_INFO(sdev, "Succeed to write firmware/host information to .wifiver.info\n");
 #else
 	SLSI_UNUSED_PARAMETER(filepath);
 #endif
 }
+
 
 static void write_m_test_chip_version_file(struct slsi_dev *sdev)
 {
@@ -667,8 +655,6 @@ int slsi_start(struct slsi_dev *sdev)
 		offset += snprintf(buf + offset, sizeof(buf), "HalFn_getValidChannels=yes\n");
 #ifdef CONFIG_SCSC_WLBTD
 		wlbtd_write_file(filepath, buf);
-#else
-		kernel_write(fp, buf, strlen(buf), 0);
 #endif
 
 		if (fp)
