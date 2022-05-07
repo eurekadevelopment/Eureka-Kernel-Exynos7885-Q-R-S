@@ -1061,6 +1061,7 @@ static int mxman_start(struct mxman *mxman)
 	return 0;
 }
 
+#ifdef CONFIG_SCSC_WLBTD
 static bool is_bug_on_enabled(struct scsc_mx *mx)
 {
 	bool bug_on_enabled;
@@ -1100,6 +1101,9 @@ static bool is_bug_on_enabled(struct scsc_mx *mx)
 	return bug_on_enabled;
 #endif //CONFIG_SCSC_LOG_COLLECTION
 }
+#else
+static bool is_bug_on_enabled(struct scsc_mx *mx) { return false; }
+#endif
 
 static void print_panic_code_legacy(u16 code)
 {
@@ -2097,17 +2101,6 @@ int mx140_log_dump(void)
 	if (r) {
 		SCSC_TAG_ERR(MXMAN, "mx_logger_dump.sh path error\n");
 	} else {
-#ifndef CONFIG_SCSC_WLBTD
-		/*
-		 * Test presence of script before invoking, to suppress
-		 * unnecessary error message if not installed.
-		 */
-		r = __stat(mxlbin);
-		if (r) {
-			SCSC_TAG_DEBUG(MXMAN, "%s not installed\n", mxlbin);
-			return r;
-		}
-#endif
 		SCSC_TAG_INFO(MXMAN, "Invoking mx_logger_dump.sh UHM\n");
 		r = _mx_exec(mxlbin, UMH_WAIT_EXEC);
 		if (r)
@@ -2125,9 +2118,10 @@ bool mxman_recovery_disabled(void)
 	 */
 	if (disable_recovery_until_reboot)
 		return true;
-
+#ifdef CONFIG_SCSC_WLBTD
 	if (disable_recovery_handling == MEMDUMP_FILE_FOR_RECOVERY)
 		return disable_recovery_from_memdump_file;
+#endif
 	else
 		return disable_recovery_handling ? true : false;
 }
