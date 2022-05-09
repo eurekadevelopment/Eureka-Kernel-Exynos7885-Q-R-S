@@ -1,3 +1,11 @@
-• Added required support for FM Radio for Eureka ROMs.
+• Upstream Linux version to 4.4.302 patch level 4 (Extended maintenance patches)
 
-• Switched to fq_codel queue discipline. Better download/upload speed.
+• Use some extra build flags and configs such as LLVM polly for optimization
+
+• Remove sdcardfs support (Samsung's implementation of exfat). It is deprecated as of Android S
+
+• Update kernel wifi driver's struct for android S. For security in case of overflow
+
+• Always set bluetooth transport size to 16. The format needed for our Bluetooth firmware. (PCM not HCI) This will fix Bluetooth calls even on non bluetooth call patched ROMs.
+
+• Adapt to changes on Eureka ROMs. Now able to drop wlbtd and macloader from OSS vendor

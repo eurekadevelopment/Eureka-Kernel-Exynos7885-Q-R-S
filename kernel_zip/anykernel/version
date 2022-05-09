@@ -8,7 +8,7 @@
                                                 
 ************************************************
  Source    : Based on A305F_EUR_RR source code 
- Version   : Eureka R9.2
+ Version   : Eureka R9.5
  Chipset   : Exynos 7885 with Mali G71 MP2     
  Android   : For AOSP ROMs & GSIs
  Developer : Eureka Team  
@@ -27,5 +27,5 @@
  Removed Security Stuffs, debugging codes, etc..
  Balance between performance and battery life   
  Upstream kernel version from 4.4.177 to 4.4.302
- Compiled kernel with Vortex Clang 14 toolchain
+ Compiled kernel with Vortex Clang 15 toolchain
 ************************************************
