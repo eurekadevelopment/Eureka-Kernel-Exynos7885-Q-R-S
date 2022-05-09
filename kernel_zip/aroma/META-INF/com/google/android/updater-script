@@ -9,7 +9,7 @@ set_perm_recursive(0, 0, 0755, 0755, "/tmp/tools");
 ###### DEFAULT INSTALLATION MENU
 if file_getprop("/tmp/aroma/kernel.prop", "selected.1") == "1" then
 	### Install kernel base
-	run_program("/tmp/tools/busybox", "sh", "/tmp/kernel/update-binary", "dummy", "1", "/tmp/kernel/oneui3.zip");
+	run_program("/tmp/tools/busybox", "sh", "/tmp/kernel/update-binary", "dummy", "1", "/tmp/kernel/aosp.zip");
 	set_progress(0.5);
 
 	### Install DTB & DTBO support
@@ -66,7 +66,7 @@ endif;
 ###### CUSTOM INSTALLATION MENU
 if file_getprop("/tmp/aroma/customize.prop", "selected.1") == "1" then
 	### Install kernel base
-	run_program("/tmp/tools/busybox", "sh", "/tmp/kernel/update-binary", "dummy", "1", "/tmp/kernel/oneui3.zip");
+	run_program("/tmp/tools/busybox", "sh", "/tmp/kernel/update-binary", "dummy", "1", "/tmp/kernel/aosp.zip");
     set_progress(0.5);
 
 	### Install custom DTB based on SELinux and kernel variant selection
