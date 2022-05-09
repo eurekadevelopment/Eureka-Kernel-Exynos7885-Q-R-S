@@ -31,10 +31,10 @@
 ini_set("force_colorspace", "rgba");
 
 ini_set("rom_name",    "Eureka Kernel");
-ini_set("rom_version", "R9.2");
-ini_set("rom_author",  "Chatur");
+ini_set("rom_version", "R9.5");
+ini_set("rom_author",  "Chatur, Royna");
 ini_set("rom_device",  "Samsung Galaxy A-series");
-ini_set("rom_date",    "20 Feb 2022");
+ini_set("rom_date",    "09 May 2022");
 
 
 #
@@ -67,10 +67,10 @@ viewbox(
 " WELCOME \t\t\t\t\t\t",
 " INFORMATION ABOUT THIS KERNEL:\n\n"+
 " NAME  \t\t\t: <b><#selectbg_g>Eureka Kernel</#></b>\n"+
-" VERSION \t\t: <b><#selectbg_g>R9.2</#></b>\n"+
+" VERSION \t\t: <b><#selectbg_g>R9.5</#></b>\n"+
 " BUILD DATE \t\t: <b><#selectbg_g>20/02/2022</#></b>\n"+
-" DEVELOPER \t\t: <b><#selectbg_g>Chatur</#></b>\n"+
-" CO-DEVELOPERS \t: <b><#selectbg_g>Gabriel, Roynatech</#></b>\n"+
+" DEVELOPER \t\t: <b><#selectbg_g>Chatur, Royna</#></b>\n"+
+" CO-DEVELOPERS \t: <b><#selectbg_g>Gabriel</#></b>\n"+
 " DEVICE \t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n\n\n"+
 "\tPRESS START TO PROCEDE",
 "@welcome"
@@ -138,6 +138,7 @@ if (prop("menu.prop","selected")=="1") then
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
 	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 1
+	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor",                        0,  #-- selected.1 = 2
 
 	       "SElinux Type:",                "",                                                     2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
@@ -177,6 +178,7 @@ if (prop("menu.prop","selected")=="2") then
 	      #------------------------------+-----------------------------------------------------+--------------------------------#
 	       "Kernel Variants Available:",   "",                                                                2,  #-- Group 1. key = "selected.1"
 	        "AOSP Q/R/S (New)",            " For new Eureka ROMs which are released as from February 2022.",  0,  #-- selected.1 = 1
+	        "OneUI 3 (R vendor)",          " For OneUI 3 ROMs or GSIs using R vendor",                        0,  #-- selected.1 = 2
 
 	       "SElinux Type(depends on kernel):", "",                                                 2,  #-- Group 2. key = "selected.2"
             "Enforcing",                   " Recommended for security.",                           0,  #-- selected.2 = 1
@@ -276,7 +278,7 @@ endif;
 # CHANGELOG
 #
 if (prop("menu.prop","selected")=="4") then
- textdialog("Eureka R9.2 Changelog", resread("changelog.txt"), "Close");
+ textdialog("Eureka R9.5 Changelog", resread("changelog.txt"), "Close");
   #-- Back to Menu
   back("1");
 endif;
