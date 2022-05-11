@@ -358,7 +358,7 @@ int smp_call_function_single_async(int cpu, struct call_single_data *csd)
 {
 	int err = 0;
 
-	preempt_disable();
+	migrate_disable();
 
 	/* We could deadlock if we have to wait here with interrupts disabled! */
 	if (WARN_ON_ONCE(csd->flags & CSD_FLAG_LOCK))
@@ -368,7 +368,7 @@ int smp_call_function_single_async(int cpu, struct call_single_data *csd)
 	smp_wmb();
 
 	err = generic_exec_single(cpu, csd, csd->func, csd->info);
-	preempt_enable();
+	migrate_enable();
 
 	return err;
 }
