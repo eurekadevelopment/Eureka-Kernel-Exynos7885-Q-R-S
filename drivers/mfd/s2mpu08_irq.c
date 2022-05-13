@@ -151,7 +151,7 @@ static struct irq_chip s2mpu08_irq_chip = {
 
 int codec_notifier_flag = 0;
 
-void set_codec_notifier_flag()
+void set_codec_notifier_flag(void)
 {
 	codec_notifier_flag = 1;
 }
