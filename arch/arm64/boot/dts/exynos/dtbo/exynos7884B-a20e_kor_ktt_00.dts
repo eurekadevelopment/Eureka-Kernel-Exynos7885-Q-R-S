@@ -1,0 +1,140 @@
+/*
+ * SAMSUNG EXYNOS7884B board device tree source
+
+ *
+ * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+/plugin/;
+
+#include "exynos7884B-a20e_common.dtsi"
+#include "exynos7884B-a20e_kor_ktt_gpio_00.dtsi"
+#include "exynos7884B-a20e_fingerprint_00.dtsi"
+#include "exynos7884B-a20e_kor-tdmb-00.dtsi"
+
+/ {
+	compatible = "samsung,A20E KOR KTT 00", "samsung,EXYNOS7884B";
+
+	dtbo-hw_rev = <0>;
+    dtbo-hw_rev_end = <255>;
+
+
+	fragment@model {
+		target-path = "/";
+		__overlay__ {
+			#address-cells = <2>;
+			#size-cells = <1>;
+
+			model = "Samsung A20E KOR KTT 00 - Eureka Exynos7885 R9.5";
+
+			fm@14840000 {
+				/delete-property/ elna_gpio;
+				elna_gpio = <&gpg0 2 0x1>; /* FM_LNA_EN */
+				num-trfon-freq = <56>;
+				val-trfon-freq = <87500 87600 88300 88400 89000 89100 89800 89900
+					90600 90700 91300 91400 92100 92200 92900 93000 93600 93700
+					94400 94500 95200 95300 96700 96800 97500 97600 98300 98400 99000 99800 99900 99100
+					100000 100600 100700 101300 101400 101500 101600 102100 102200 102900 103000 103600
+					103700 104000 104400 104500 105200 105300 105900 106000 106700 106800 107500 107600 >;
+				spur-trfon-freq = <1536>;
+			};
+
+		}; /* end of __overlay__ */
+	}; /* end of fragment */
+}; /* end of root */
+
+&pinctrl_0 { //11CB0000
+	nfc_clk: nfc-clk {
+		samsung,pins = "gpq0-0";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+	};
+
+	nfc_int: nfc-int {
+		samsung,pins = "gpa1-0";
+		samsung,pin-function = <0>;
+		samsung,pin-pud = <1>;
+	};
+};
+
+&pinctrl_2 { //13430000
+	sd2_bus1: sd2-bus-width1 {
+		samsung,pins = "gpf4-2";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <3>;
+		samsung,pin-drv = <1>;
+	};
+
+	sd2_bus4: sd2-bus-width4 {
+		samsung,pins = "gpf4-3", "gpf4-4", "gpf4-5";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <3>;
+		samsung,pin-drv = <1>;
+	};
+};
+
+&pinctrl_3 { //139B0000
+	nfc_pvdd_en: nfc_pvdd_en {
+		samsung,pins = "gpp6-4";
+		samsung,pin-function = <1>;
+		samsung,pin-pud = <0>;
+		samsung,pin-val = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_firm: nfc_firm {
+		samsung,pins = "gpp3-2";
+		samsung,pin-function = <1>;
+		samsung,pin-pud = <0>;
+		samsung,pin-val = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_pd: nfc_pd {
+		samsung,pins = "gpp2-2";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <0>;
+		samsung,pin-drv = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+
+	nfc_clk_req: nfc_clk_req {
+		samsung,pins = "gpp2-3";
+		samsung,pin-function = <2>;
+		samsung,pin-pud = <1>;
+		samsung,pin-drv = <0>;
+		samsung,pin-con-pdn = <3>;
+		samsung,pin-pud-pdn = <0>;
+	};
+};
+
+&hsi2c_5 {
+	status = "okay";
+	clock-frequency = <400000>;  /*   400 kHz  */
+	sec-nfc@27{
+		compatible = "sec-nfc";
+		reg = <0x27>;
+
+		interrupt-parent = <&gpa1>;
+		interrupts = <0 0 0>;
+
+		sec-nfc,nfc_pd = <&gpp2 2 0x2>;
+		sec-nfc,firm-gpio = <&gpp3 2 1>;
+		sec-nfc,irq-gpio = <&gpa1 0 0>;
+		sec-nfc,nfc_clkreq = <&gpp2 3 0x2>;
+		sec-nfc,pvdd_en = <&gpp6 4 1>;
+		clkctrl-reg = <0x11C8600C>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_pd &nfc_firm &nfc_int &nfc_clk &nfc_pvdd_en &nfc_clk_req>;
+	};
+};

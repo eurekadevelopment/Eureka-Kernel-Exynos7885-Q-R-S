@@ -28,7 +28,8 @@ dtbo-$(CONFIG_MACH_EXYNOS7885_A20_GLOBAL) := \
 
 dtbo-$(CONFIG_MACH_EXYNOS7885_A20e_OPEN) := \
 	exynos/dtbo/exynos7884B-a20e_eur_open_00.dtbo \
-	exynos/dtbo/exynos7884B-a20e_eur_open_03.dtbo
+	exynos/dtbo/exynos7884B-a20e_eur_open_03.dtbo \
+	exynos/dtbo/exynos7884B-a20e_kor_ktt_00.dtbo
 
 dtbo-$(CONFIG_MACH_EXYNOS7885_A30_OPEN) := \
 	exynos/dtbo/exynos7904-a30_cis_open_00.dtbo \
