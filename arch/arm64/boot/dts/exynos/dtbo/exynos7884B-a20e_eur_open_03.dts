@@ -30,7 +30,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A20E EUR OPEN 03 - Eureka Exynos7885 R9.0";
+			model = "Samsung A20E EUR OPEN 03 - Eureka Exynos7885 R9.5";
 			fm@14840000 {
 				/delete-property/ elna_gpio;
 				elna_gpio = <&gpg0 2 0x1>; /* FM_LNA_EN */
