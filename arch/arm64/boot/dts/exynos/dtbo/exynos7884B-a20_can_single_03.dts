@@ -32,7 +32,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A20 CAN SINGLE 03 - Eureka Exynos7885 R9.0";
+			model = "Samsung A20 CAN SINGLE 03 - Eureka Exynos7885 R9.5";
 
 			speedy@11CE0000 {
 				audio_codec_cod3035x: cod3035x@03 {

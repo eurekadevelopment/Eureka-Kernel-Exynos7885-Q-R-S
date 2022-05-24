@@ -28,7 +28,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A10 SEA OPEN 00 - Eureka Exynos7885 R9.0";
+			model = "Samsung A10 SEA OPEN 00 - Eureka Exynos7885 R9.5";
 
 		}; /* end of __overlay__ */
 	}; /* end of fragment */

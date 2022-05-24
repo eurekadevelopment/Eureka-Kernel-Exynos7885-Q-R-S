@@ -30,7 +30,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A20E EUR OPEN 00 - Eureka Exynos7885 R9.0";
+			model = "Samsung A20E EUR OPEN 00 - Eureka Exynos7885 R9.5";
 			
 			fm@14840000 {
 				without_elna = <1>;

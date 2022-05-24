@@ -33,7 +33,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A20 KOR SKT 01 - Eureka Exynos7885 R9.0";
+			model = "Samsung A20 KOR SKT 01 - Eureka Exynos7885 R9.5";
 
 		}; /* end of __overlay__ */
 	}; /* end of fragment */
