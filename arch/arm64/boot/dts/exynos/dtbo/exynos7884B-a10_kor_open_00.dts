@@ -28,7 +28,7 @@
 			#address-cells = <2>;
 			#size-cells = <1>;
 
-			model = "Samsung A10 KOR OPEN 00 - Eureka Exynos7885 R9.0";
+			model = "Samsung A10 KOR OPEN 00 - Eureka Exynos7885 R9.5";
 
 			i2c@20 {
 				tc3xxk@20 {
