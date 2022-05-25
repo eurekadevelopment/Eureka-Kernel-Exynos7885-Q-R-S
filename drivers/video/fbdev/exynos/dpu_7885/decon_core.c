@@ -2152,8 +2152,8 @@ static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 		}
 		break;
 
-#if defined(CONFIG_EXYNOS_DOZE)
 	case S3CFB_POWER_MODE:
+#if defined(CONFIG_EXYNOS_DOZE)
 		if (get_user(doze, (int __user *)arg)) {
 			ret = -EFAULT;
 			break;
@@ -2161,8 +2161,8 @@ static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = decon_set_doze_mode(decon, doze);
 		if (ret)
 			decon_err("DECON:ERR:%s:failed to set doze mode\n", __func__);
-		break;
 #endif
+		break;
 	default:
 		ret = -ENOTTY;
 	}
