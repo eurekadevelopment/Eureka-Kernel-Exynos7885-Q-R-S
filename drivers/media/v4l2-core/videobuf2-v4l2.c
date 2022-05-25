@@ -1145,6 +1145,12 @@ static size_t __vb2_perform_fileio(struct vb2_queue *q, char __user *data, size_
 	if (!data)
 		return -EINVAL;
 
+	if (q->waiting_in_dqbuf) {
+		dprintk(3, "another dup()ped fd is %s\n",
+			read ? "reading" : "writing");
+		return -EBUSY;
+	}
+
 	/*
 	 * Initialize emulator on first call.
 	 */
