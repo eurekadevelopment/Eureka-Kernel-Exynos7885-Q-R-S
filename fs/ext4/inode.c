@@ -47,6 +47,10 @@
 #include <trace/events/android_fs.h>
 
 #define MPAGE_DA_EXTENT_TAIL 0x01
+struct other_inode {
+	unsigned long		orig_ino;
+	struct ext4_inode	*raw_inode;
+};
 
 static __u32 ext4_inode_csum(struct inode *inode, struct ext4_inode *raw,
 			      struct ext4_inode_info *ei)
@@ -4260,28 +4264,6 @@ void ext4_get_inode_flags(struct ext4_inode_info *ei)
 	} while (cmpxchg(&ei->i_flags, old_fl, new_fl) != old_fl);
 }
 
-static blkcnt_t ext4_inode_blocks(struct ext4_inode *raw_inode,
-				  struct ext4_inode_info *ei)
-{
-	blkcnt_t i_blocks ;
-	struct inode *inode = &(ei->vfs_inode);
-	struct super_block *sb = inode->i_sb;
-
-	if (ext4_has_feature_huge_file(sb)) {
-		/* we are using combined 48 bit field */
-		i_blocks = ((u64)le16_to_cpu(raw_inode->i_blocks_high)) << 32 |
-					le32_to_cpu(raw_inode->i_blocks_lo);
-		if (ext4_test_inode_flag(inode, EXT4_INODE_HUGE_FILE)) {
-			/* i_blocks represent file system block size */
-			return i_blocks  << (inode->i_blkbits - 9);
-		} else {
-			return i_blocks;
-		}
-	} else {
-		return le32_to_cpu(raw_inode->i_blocks_lo);
-	}
-}
-
 static inline void ext4_iget_extra_inode(struct inode *inode,
 					 struct ext4_inode *raw_inode,
 					 struct ext4_inode_info *ei)
@@ -4319,7 +4301,9 @@ static blkcnt_t ext4_inode_blocks(struct ext4_inode *raw_inode,
 	}
 }
 
-struct inode *ext4_iget(struct super_block *sb, unsigned long ino)
+struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+                          ext4_iget_flags flags, const char *function,
+			  unsigned int line)
 {
 	struct ext4_iloc iloc;
 	struct ext4_inode *raw_inode;
@@ -4655,11 +4639,6 @@ static int ext4_inode_blocks_set(handle_t *handle,
 	return 0;
 }
 
-struct other_inode {
-	unsigned long		orig_ino;
-	struct ext4_inode	*raw_inode;
-};
-
 static int other_inode_match(struct inode * inode, unsigned long ino,
 			     void *data)
 {
@@ -4718,43 +4697,6 @@ static void ext4_update_other_inodes_time(struct super_block *sb,
 		oi.raw_inode = (struct ext4_inode *) buf;
 		(void) find_inode_nowait(sb, ino, other_inode_match, &oi);
 	}
-}
-
-static int ext4_inode_blocks_set(handle_t *handle,
-				struct ext4_inode *raw_inode,
-				struct ext4_inode_info *ei)
-{
-	struct inode *inode = &(ei->vfs_inode);
-	u64 i_blocks = inode->i_blocks;
-	struct super_block *sb = inode->i_sb;
-	int err = 0;
-
-	if (i_blocks <= ~0U) {
-		/*
-		 * i_blocks can be represnted in a 32 bit variable
-		 * as multiple of 512 bytes
-		 */
-		raw_inode->i_blocks_lo   = cpu_to_le32((u32)i_blocks);
-		raw_inode->i_blocks_high = 0;
-	} else if (i_blocks <= 0xffffffffffffULL) {
-		/*
-		 * i_blocks can be represented in a 48 bit variable
-		 * as multiple of 512 bytes
-		 */
-		err = ext4_update_rocompat_feature(handle, sb,
-					    EXT4_FEATURE_RO_COMPAT_HUGE_FILE);
-		if (err)
-			goto  err_out;
-		/* i_block is stored in the split  48 bit fields */
-		raw_inode->i_blocks_lo   = cpu_to_le32((u32)i_blocks);
-		raw_inode->i_blocks_high = cpu_to_le16(i_blocks >> 32);
-	} else {
-		ext4_error(sb, __FUNCTION__,
-				"Wrong inode i_blocks count  %llu\n",
-				(unsigned long long)inode->i_blocks);
-	}
-err_out:
-	return err;
 }
 
 /*
