@@ -15,6 +15,7 @@
 
 #include "himax_platform.h"
 #include "himax_common.h"
+#include <linux/reboot.h>
 
 #ifdef CONFIG_SAMSUNG_TUI
 #include "stui_inf.h"

@@ -2541,7 +2541,7 @@ static loff_t ext4_max_bitmap_size(int bits, int has_huge_files)
 	 * number of 512-byte sectors of the file.
 	 */
 
-	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64){
+	if (!has_huge_files || sizeof(blkcnt_t) < sizeof(u64)) {
 		/*
 		 * CONFIG_LSF is not enabled implies the inode
 		 * i_block represent total blocks in 512 bytes
