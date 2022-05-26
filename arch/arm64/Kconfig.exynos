@@ -19,6 +19,13 @@ config MACH_EXYNOS7885_A20e_OPEN
 	help
 	Say Y here if you want to enable building dtbo for Galaxy A20e.
 
+config MACH_EXYNOS7885_A20e_KOR
+	bool "Build Dtbo image for SM-A202K"
+	depends on SOC_EXYNOS7885
+	default n
+	help
+	Say Y here if you want to enable building dtbo for Galaxy A20e Korean varient, has DMB support.
+
 config MACH_EXYNOS7885_A30_OPEN
 	bool "Build Dtbo image for SM-A305"
 	depends on SOC_EXYNOS7885

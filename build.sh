@@ -69,6 +69,11 @@ SM_A202X() {
 	DEFCONFIG=exynos7885-a20e_defconfig
 }
 
+SM_A202K() {
+	CODENAME=A202K
+	DEFCONFIG=exynos7885-a20ektt_defconfig
+}
+
 SM_A305X() {
 	CODENAME=A305
 	DEFCONFIG=exynos7885-a30_defconfig
@@ -202,6 +207,8 @@ PREBUILT_DTBO() {
 		cp -f kernel_zip/dtbo/a20/dtbo.img kernel_zip/anykernel/dtbo.img
 	elif [ "${CODENAME}" == "A202" ]; then
 		cp -f kernel_zip/dtbo/a20e/dtbo.img kernel_zip/anykernel/dtbo.img
+	elif [ "${CODENAME}" == "A202K" ]; then
+		cp -f kernel_zip/dtbo/a20ektt/dtbo.img kernel_zip/anykernel/dtbo.img
 	elif [ "${CODENAME}" == "A305" ]; then
 		cp -f kernel_zip/dtbo/a30/dtbo.img kernel_zip/anykernel/dtbo.img
 	elif [ "${CODENAME}" == "A307" ]; then
@@ -885,7 +892,7 @@ INDIVIDUAL() {
 	PS3='
 	 Please select your device: '
 	echo " ${GREEN}"
-	menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A305X" "SM_A307X" "SM_A405X" "SM_A3050X" "SM_M205X" "Exit")
+	menuoptions=("SM_A105X" "SM_A205X" "SM_A202X" "SM_A202K" "SM_A305X" "SM_A307X" "SM_A405X" "SM_A3050X" "SM_M205X" "Exit")
 	select menuoptions in "${menuoptions[@]}"; do
 		case $menuoptions in
 		"SM_A105X")
@@ -909,6 +916,14 @@ INDIVIDUAL() {
 			OS_MENU
 			echo " "
 			SM_A202X
+			COMMON_STEPS
+			break
+			;;
+		"SM_A202K")
+			echo " ${STD}"
+			OS_MENU
+			echo " "
+			SM_A202K
 			COMMON_STEPS
 			break
 			;;
