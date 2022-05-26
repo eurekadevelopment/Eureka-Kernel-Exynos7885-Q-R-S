@@ -860,7 +860,6 @@ posix_acl_xattr_set(const struct xattr_handler *handler,
 		return value ? -EACCES : 0;
 	if (!inode_owner_or_capable(inode))
 		return -EPERM;
->>>>>>> 98e9cb5711c6... vfs: Distinguish between full xattr names and proper prefixes
 
 	if (value) {
 		acl = posix_acl_from_xattr(&init_user_ns, value, size);
