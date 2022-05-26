@@ -26,7 +26,6 @@
 #include "s5p_mfc_mem.h"
 
 static int s5p_mfc_enc_queue_setup(struct vb2_queue *vq,
-				const void *parg,
 				unsigned int *buf_count, unsigned int *plane_count,
 				unsigned int psize[], void *allocators[])
 {

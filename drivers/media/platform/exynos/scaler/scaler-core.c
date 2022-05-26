@@ -1727,7 +1727,7 @@ static int sc_find_scaling_ratio(struct sc_ctx *ctx)
 }
 
 static int sc_vb2_queue_setup(struct vb2_queue *vq,
-		const void *parg, unsigned int *num_buffers,
+		unsigned int *num_buffers,
 		unsigned int *num_planes, unsigned int sizes[],
 		void *allocators[])
 {
