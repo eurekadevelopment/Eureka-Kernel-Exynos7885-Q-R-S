@@ -601,7 +601,6 @@ const struct v4l2_ioctl_ops fimc_is_vra_video_ioctl_ops = {
 };
 
 static int fimc_is_vra_queue_setup(struct vb2_queue *vbq,
-	const void *parg,
 	unsigned int *num_buffers, unsigned int *num_planes,
 	unsigned int sizes[],
 	void *allocators[])
