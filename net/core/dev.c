@@ -4457,7 +4457,7 @@ static gro_result_t napi_skb_finish(gro_result_t ret, struct sk_buff *skb)
 
 gro_result_t napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
 {
-	skb_mark_napi_id(skb, napi);
+	skb->napi_id = napi->napi_id;
 	trace_napi_gro_receive_entry(skb);
 
 	skb_gro_reset_offset(skb);
@@ -4497,7 +4497,7 @@ struct sk_buff *napi_get_frags(struct napi_struct *napi)
 		skb = napi_alloc_skb(napi, GRO_MAX_HEAD);
 		if (skb) {
 			napi->skb = skb;
-			skb_mark_napi_id(skb, napi);
+			skb->napi_id = napi->napi_id;
 		}
 	}
 	return skb;
