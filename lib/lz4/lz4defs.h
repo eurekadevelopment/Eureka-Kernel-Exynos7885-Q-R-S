@@ -61,10 +61,10 @@ typedef uintptr_t uptrval;
 #define LZ4_ARCH64 0
 #endif
 
-#if defined(__LITTLE_ENDIAN)
-#define LZ4_LITTLE_ENDIAN 1
-#else
+#if defined(CONFIG_CPU_BIG_ENDIAN)
 #define LZ4_LITTLE_ENDIAN 0
+#else
+#define LZ4_LITTLE_ENDIAN 1
 #endif
 
 /*-************************************
