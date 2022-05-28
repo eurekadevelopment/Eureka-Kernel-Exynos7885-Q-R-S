@@ -22,7 +22,4 @@
  * UTS_VERSION (Date etc)
  * info inherited from headers
  */
- 
-#define KERNEL_VERSION "8.5"
-#define KERNEL_SCHED "HMP"
 #endif
