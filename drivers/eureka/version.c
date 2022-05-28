@@ -39,7 +39,7 @@ static ssize_t show_eureka_version(struct device *dev, struct device_attribute *
 }
 static ssize_t show_sched(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%s\n", KERNEL_SCHED);
+	return snprintf(buf, PAGE_SIZE, "%s\n", KERNEL_HMP ? "HMP" : "EMS" );
 }
 
 static DEVICE_ATTR(compiler, 0440, show_compiler, NULL);

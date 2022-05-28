@@ -781,6 +781,17 @@ ifdef CONFIG_KCOV
   endif
 endif
 
+# Eureka Kernel Versioning
+REV := $(shell grep -Po 'Eureka R\K[^*]+' ../kernel_zip/anykernel/version)
+SCHED := $(shell stat kernel/sched/ems > /dev/null 2>&1 && echo EMS || echo HMP)
+EUREKA_VERSION := $(call cc-option, -DKERNEL_VERSION=$(REV))
+ifeq ($(SCHED), "HMP")
+EUREKA_SCHED := $(call cc-option, -DKERNEL_HMP=1)
+else
+EUREKA_SCHED := $(call cc-option, -DKERNEL_HMP=0)
+endif
+export EUREKA_VERSION EUREKA_SCHED
+
 ifeq ($(cc-name),clang)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
