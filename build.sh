@@ -181,8 +181,7 @@ DTB_BUILD() {
 	make O=out ARCH=arm64 $DEFCONFIG > /dev/null
 	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
 		make dtb.img -j$CORES O=out \
-		ARCH=arm64 \
-		CC=clang \
+		LLVM=1 \
 		CROSS_COMPILE=$GCC_ARM64_FILE
 	 echo "${STD}"
 }
@@ -193,9 +192,7 @@ CLANG_BUILD() {
 	make O=out ARCH=arm64 $DEFCONFIG > /dev/null
 	PATH="$KERNEL_DIR/toolchain/bin:$KERNEL_DIR/toolchain/bin:${PATH}" \
 		make -j$CORES O=out \
-		ARCH=arm64 \
-		LLVM_DIS=llvm-dis AR=llvm-ar NM=llvm-nm LD=ld.lld OBJDUMP=llvm-objdump STRIP=llvm-strip \
-		CC=clang \
+		LLVM=1 \
 		CROSS_COMPILE=$GCC_ARM64_FILE
 }
 
