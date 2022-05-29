@@ -87,8 +87,7 @@ CLANG_BUILD() {
 	make O=out ARCH=arm64 $DEFCONFIG > /dev/null
 	PATH="`pwd`/toolchain/bin:${PATH}" \
 		make -j`nproc` O=out \
-		ARCH=arm64 \
-		LLVM_DIS=llvm-dis AR=llvm-ar NM=llvm-nm LD=ld.lld OBJDUMP=llvm-objdump STRIP=llvm-strip \
+		LLVM=1 \
 		CC=clang \
 		CROSS_COMPILE=aarch64-linux-gnu-
 }
