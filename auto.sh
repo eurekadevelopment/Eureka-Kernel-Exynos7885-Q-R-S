@@ -232,7 +232,7 @@ if [ "$2" == "oneui" ]; then
     export ONEUI3=1
 elif [ "$2" == "aosp" ]; then
     export ONEUI3=0
-elif [ "$1" == "zip" ]; then
+elif [ "$2" == "zip" ]; then
 	SM_A105X
 	RENAME
 	AROMA
