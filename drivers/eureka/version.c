@@ -35,7 +35,7 @@ static ssize_t show_version(struct device *dev, struct device_attribute *attr, c
 }
 static ssize_t show_eureka_version(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%s\n", KERNEL_VERSION);
+	return snprintf(buf, PAGE_SIZE, "R9.5\n");
 }
 static ssize_t show_sched(struct device *dev, struct device_attribute *attr, char *buf)
 {
