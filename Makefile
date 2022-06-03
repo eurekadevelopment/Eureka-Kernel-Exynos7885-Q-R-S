@@ -1716,7 +1716,7 @@ tags TAGS cscope gtags: FORCE
 # ---------------------------------------------------------------------------
 
 quiet_cmd_gen_compile_commands = GEN     $@
-      cmd_gen_compile_commands = $(PYTHON3) $< -a $(AR) -o $@ $(filter-out $<, $(real-prereqs))
+      cmd_gen_compile_commands = $(PYTHON3) $< -o $@ $(filter-out $<, $(real-prereqs))
 
 compile_commands.json: scripts/gen_compile_commands.py \
 	$(if $(KBUILD_EXTMOD),,$(KBUILD_VMLINUX_OBJS) $(KBUILD_VMLINUX_LIBS)) \
@@ -1731,7 +1731,7 @@ ifeq ($(CC),clang)
 quiet_cmd_clang_tools = CHECK   $<
       cmd_clang_tools = $(PYTHON3) $(srctree)/scripts/run-clang-tools.py $@ $<
 
-clang-tidy clang-analyzer: $compile_commands.json
+clang-tidy clang-analyzer: compile_commands.json
 	$(call cmd,clang_tools)
 else
 clang-tidy clang-analyzer:
