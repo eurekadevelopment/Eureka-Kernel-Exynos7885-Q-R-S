@@ -2649,6 +2649,7 @@ redo:
 			deactivate_slab(s, page, c->freelist);
 			c->page = NULL;
 			c->freelist = NULL;
+			c->tid = next_tid(c->tid);
 			goto new_slab;
 		}
 	}
@@ -2662,6 +2663,7 @@ redo:
 		deactivate_slab(s, page, c->freelist);
 		c->page = NULL;
 		c->freelist = NULL;
+		c->tid = next_tid(c->tid);
 		goto new_slab;
 	}
 
@@ -2674,6 +2676,7 @@ redo:
 
 	if (!freelist) {
 		c->page = NULL;
+		c->tid = next_tid(c->tid);
 		stat(s, DEACTIVATE_BYPASS);
 		goto new_slab;
 	}
@@ -2698,6 +2701,7 @@ new_slab:
 		c->partial = page->next;
 		stat(s, CPU_PARTIAL_ALLOC);
 		c->freelist = NULL;
+		c->tid = next_tid(c->tid);
 		goto redo;
 	}
 
@@ -2720,6 +2724,7 @@ new_slab:
 	deactivate_slab(s, page, get_freepointer(s, freelist));
 	c->page = NULL;
 	c->freelist = NULL;
+	c->tid = next_tid(c->tid);
 	return freelist;
 }
 
