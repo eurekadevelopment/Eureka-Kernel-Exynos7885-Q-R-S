@@ -228,6 +228,37 @@ static void scan_and_kill(void)
 		struct victim_info *victim = &victims[i];
 		struct task_struct *t, *vtsk = victim->tsk;
 
+		// If the task is kthread, continue
+		if (vtsk->flags & PF_KTHREAD) {
+			pr_info("Not killing %s. Reason: Is kthread", vtsk->comm);
+			task_unlock(vtsk);
+			continue;
+		}
+
+		// Do not kill uninterruptible processes
+		if (vtsk->state & TASK_UNINTERRUPTIBLE) {
+			pr_info("Not killing %s. Reason: The process is uninterruptible", vtsk->comm);
+			task_unlock(vtsk);
+			continue;
+		}
+
+		// Check the oom_score_adj value before kill
+		if (vtsk->signal->oom_score_adj >= 920) {
+			// Background Process
+			pr_info("Proceeding the kill of background process %s", vtsk->comm);
+		} else {
+			if (vtsk->signal->oom_score_adj == 700) {
+				// The app is in background but user didnt close it. Somethinge like it is on recents app list
+				pr_info("The process %s not clased by the user.. Skipping kill", vtsk->comm);
+				task_unlock(vtsk);	
+				continue;
+			} else {
+				pr_info("The process %s somehow has high priority. Skipping kill", vtsk->comm);
+				task_unlock(vtsk);
+				continue;
+			}
+		}
+
 		pr_info("Killing %s with adj %d to free %lu KiB\n", vtsk->comm,
 			vtsk->signal->oom_score_adj,
 			victim->size << (PAGE_SHIFT - 10));
