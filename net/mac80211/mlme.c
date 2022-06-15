@@ -1345,7 +1345,7 @@ ieee80211_find_80211h_pwr_constr(struct ieee80211_sub_if_data *sdata,
 		WARN_ON_ONCE(1);
 		/* fall through */
 	case NL80211_BAND_2GHZ:
-	case IEEE80211_BAND_60GHZ:
+	case NL80211_BAND_60GHZ:
 		chan_increment = 1;
 		break;
 	case NL80211_BAND_5GHZ:
