@@ -31,7 +31,7 @@
 ini_set("force_colorspace", "rgba");
 
 ini_set("rom_name",    "Eureka Kernel");
-ini_set("rom_version", "R9.6");
+ini_set("rom_version", "R10.0");
 ini_set("rom_author",  "Chatur, Royna");
 ini_set("rom_device",  "Samsung Galaxy A-series");
 ini_set("rom_date",    "09 May 2022");
@@ -67,7 +67,7 @@ viewbox(
 " WELCOME \t\t\t\t\t\t",
 " INFORMATION ABOUT THIS KERNEL:\n\n"+
 " NAME  \t\t\t: <b><#selectbg_g>Eureka Kernel</#></b>\n"+
-" VERSION \t\t: <b><#selectbg_g>R9.6</#></b>\n"+
+" VERSION \t\t: <b><#selectbg_g>R10.0</#></b>\n"+
 " BUILD DATE \t\t: <b><#selectbg_g>20/02/2022</#></b>\n"+
 " DEVELOPER \t\t: <b><#selectbg_g>Chatur, Royna</#></b>\n"+
 " CO-DEVELOPERS \t: <b><#selectbg_g>Gabriel</#></b>\n"+
@@ -278,7 +278,7 @@ endif;
 # CHANGELOG
 #
 if (prop("menu.prop","selected")=="4") then
- textdialog("Eureka R9.6 Changelog", resread("changelog.txt"), "Close");
+ textdialog("Eureka R10.0 Changelog", resread("changelog.txt"), "Close");
   #-- Back to Menu
   back("1");
 endif;

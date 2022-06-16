@@ -8,7 +8,7 @@
                                                 
 ************************************************
  Source    : Based on A305F_EUR_RR source code 
- Version   : Eureka R9.6
+ Version   : Eureka R10.0
  Chipset   : Exynos 7885 with Mali G71 MP2     
  Android   : For OneUI3 & AOSP ROMs & GSIs
  Developer : Eureka Team  
@@ -26,6 +26,6 @@
  Overclock GPU max freq to 1300MHz
  Removed Security Stuffs, debugging codes, etc..
  Balance between performance and battery life   
- Upstream kernel from 4.4.177 to 4.4.302-4
+ Upstream kernel from 4.4.177 to 4.4.302-p4
  Compiled kernel with Eureka Clang 14.0.5 
 ************************************************
