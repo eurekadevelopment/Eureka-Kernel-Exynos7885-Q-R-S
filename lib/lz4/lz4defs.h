@@ -3,7 +3,6 @@
 
 /*
  * lz4defs.h -- common and architecture specific defines for the kernel usage
-
  * LZ4 - Fast LZ compression algorithm
  * Copyright (C) 2011-2016, Yann Collet.
  * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
@@ -61,10 +60,10 @@ typedef uintptr_t uptrval;
 #define LZ4_ARCH64 0
 #endif
 
-#if defined(CONFIG_CPU_BIG_ENDIAN)
-#define LZ4_LITTLE_ENDIAN 0
-#else
+#if defined(__LITTLE_ENDIAN)
 #define LZ4_LITTLE_ENDIAN 1
+#else
+#define LZ4_LITTLE_ENDIAN 0
 #endif
 
 /*-************************************
@@ -136,17 +135,6 @@ static FORCE_INLINE void LZ4_writeLE16(void *memPtr, U16 value)
 {
 	return put_unaligned_le16(value, memPtr);
 }
-
-/*
- * LZ4 relies on memcpy with a constant size being inlined. In freestanding
- * environments, the compiler can't assume the implementation of memcpy() is
- * standard compliant, so apply its specialized memcpy() inlining logic. When
- * possible, use __builtin_memcpy() to tell the compiler to analyze memcpy()
- * as-if it were standard compliant, so it can inline it in freestanding
- * environments. This is needed when decompressing the Linux Kernel, for example.
- */
-#define LZ4_memcpy(dst, src, size) __builtin_memcpy(dst, src, size)
-#define LZ4_memmove(dst, src, size) __builtin_memmove(dst, src, size)
 
 static FORCE_INLINE void LZ4_copy8(void *dst, const void *src)
 {

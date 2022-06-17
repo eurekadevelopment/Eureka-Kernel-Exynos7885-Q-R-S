@@ -141,9 +141,6 @@ static FORCE_INLINE int LZ4_decompress_generic(
 		 * space in the output for those 18 bytes earlier, upon
 		 * entering the shortcut (in other words, there is a
 		 * combined check for both stages).
-		 *
-		 * The & in the likely() below is intentionally not && so that
-		 * some compilers can produce better parallelized runtime code
 		 */
 		if ((endOnInput ? length != RUN_MASK : length <= 8)
 		   /*
@@ -153,7 +150,7 @@ static FORCE_INLINE int LZ4_decompress_generic(
 		   && likely((endOnInput ? ip < shortiend : 1) &
 			     (op <= shortoend))) {
 			/* Copy the literals */
-			LZ4_memcpy(op, ip, endOnInput ? 16 : 8);
+			memcpy(op, ip, endOnInput ? 16 : 8);
 			op += length; ip += length;
 
 			/*
@@ -172,9 +169,9 @@ static FORCE_INLINE int LZ4_decompress_generic(
 			    (offset >= 8) &&
 			    (dict == withPrefix64k || match >= lowPrefix)) {
 				/* Copy the match. */
-				LZ4_memcpy(op + 0, match + 0, 8);
-				LZ4_memcpy(op + 8, match + 8, 8);
-				LZ4_memcpy(op + 16, match + 16, 2);
+				memcpy(op + 0, match + 0, 8);
+				memcpy(op + 8, match + 8, 8);
+				memcpy(op + 16, match + 16, 2);
 				op += length + MINMATCH;
 				/* Both stages worked, load the next token. */
 				continue;
@@ -263,20 +260,12 @@ static FORCE_INLINE int LZ4_decompress_generic(
 				}
 			}
 
-			/*
-			 * supports overlapping memory regions; only matters
-			 * for in-place decompression scenarios
-			 */
-			LZ4_memmove(op, ip, length);
+			memcpy(op, ip, length);
 			ip += length;
 			op += length;
 
-			/* Necessarily EOF when !partialDecoding.
-			 * When partialDecoding, it is EOF if we've either
-			 * filled the output buffer or
-			 * can't proceed with reading an offset for following match.
-			 */
-			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
+			/* Necessarily EOF, due to parsing restrictions */
+			if (!partialDecoding || (cpy == oend))
 				break;
 		} else {
 			/* may overwrite up to WILDCOPYLENGTH beyond cpy */
@@ -358,7 +347,7 @@ _copy_match:
 				size_t const copySize = (size_t)(lowPrefix - match);
 				size_t const restSize = length - copySize;
 
-				LZ4_memcpy(op, dictEnd - copySize, copySize);
+				memcpy(op, dictEnd - copySize, copySize);
 				op += copySize;
 				if (restSize > (size_t)(op - lowPrefix)) {
 					/* overlap copy */
@@ -368,7 +357,7 @@ _copy_match:
 					while (op < endOfMatch)
 						*op++ = *copyFrom++;
 				} else {
-					LZ4_memcpy(op, lowPrefix, restSize);
+					memcpy(op, lowPrefix, restSize);
 					op += restSize;
 				}
 			}
@@ -394,7 +383,7 @@ _copy_match:
 				while (op < copyEnd)
 					*op++ = *match++;
 			} else {
-				LZ4_memcpy(op, match, mlen);
+				memcpy(op, match, mlen);
 			}
 			op = copyEnd;
 			if (op == oend)
@@ -408,7 +397,7 @@ _copy_match:
 			op[2] = match[2];
 			op[3] = match[3];
 			match += inc32table[offset];
-			LZ4_memcpy(op + 4, match, 4);
+			memcpy(op + 4, match, 4);
 			match -= dec64table[offset];
 		} else {
 			LZ4_copy8(op, match);
@@ -485,7 +474,7 @@ int LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 
 /* ===== Instantiate a few more decoding cases, used more than once. ===== */
 
-static int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
+int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
 				      int compressedSize, int maxOutputSize)
 {
 	return LZ4_decompress_generic(source, dest,
@@ -705,6 +694,46 @@ int LZ4_decompress_fast_usingDict(const char *source, char *dest,
 		dictStart, dictSize);
 }
 
+/*-******************************
+ *	For backwards compatibility
+ ********************************/
+int lz4_decompress_unknownoutputsize(const unsigned char *src,
+	size_t src_len, unsigned char *dest, size_t *dest_len) {
+	*dest_len = LZ4_decompress_safe(src, dest,
+		src_len, *dest_len);
+
+	/*
+	 * Prior lz4_decompress_unknownoutputsize will return
+	 * 0 for success and a negative result for error
+	 * new LZ4_decompress_safe returns
+	 * - the length of data read on success
+	 * - and also a negative result on error
+	 * meaning when result > 0, we just return 0 here
+	 */
+	if (src_len > 0)
+		return 0;
+	else
+		return -1;
+}
+
+int lz4_decompress(const unsigned char *src, size_t *src_len,
+	unsigned char *dest, size_t actual_dest_len) {
+	*src_len = LZ4_decompress_fast(src, dest, actual_dest_len);
+
+	/*
+	 * Prior lz4_decompress will return
+	 * 0 for success and a negative result for error
+	 * new LZ4_decompress_fast returns
+	 * - the length of data read on success
+	 * - and also a negative result on error
+	 * meaning when result > 0, we just return 0 here
+	 */
+	if (*src_len > 0)
+		return 0;
+	else
+		return -1;
+}
+
 #ifndef STATIC
 EXPORT_SYMBOL(LZ4_decompress_safe);
 EXPORT_SYMBOL(LZ4_decompress_safe_partial);
@@ -714,6 +743,8 @@ EXPORT_SYMBOL(LZ4_decompress_safe_continue);
 EXPORT_SYMBOL(LZ4_decompress_fast_continue);
 EXPORT_SYMBOL(LZ4_decompress_safe_usingDict);
 EXPORT_SYMBOL(LZ4_decompress_fast_usingDict);
+EXPORT_SYMBOL(lz4_decompress_unknownoutputsize);
+EXPORT_SYMBOL(lz4_decompress);
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_DESCRIPTION("LZ4 decompressor");
