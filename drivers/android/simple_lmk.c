@@ -246,7 +246,7 @@ static void scan_and_kill(void)
 		}
 
 		// The app process' priority values should be correct, but for compatibility.
-		if (task_prio(vtsk) >= PRIO_APP_FOREGROUND && task_prio(vtsk) <= PRIO_APP_BACKGROUND_NOT_CLOSED) {
+		if (task_prio(vtsk) >= PRIO_APP_FOREGROUND && task_prio(vtsk) < PRIO_APP_BACKGROUND_NOT_CLOSED) {
 			pr_info("Process %s has high priority %d, maybe foreground app, not killing!",
 				vtsk->comm, task_prio(vtsk));
 			task_unlock(vtsk);
