@@ -2160,8 +2160,6 @@ ATTRIBUTE_GROUPS(s610_radio);
 
 int create_s610_radio_sysfs(void)
 {
-	int err = -EINVAL;
-
 	if (IS_ERR_OR_NULL(s610_radio_class)) {
 		s610_radio_class = class_create(THIS_MODULE, "s610_radio");
 		if (IS_ERR_OR_NULL(s610_radio_class)) {
@@ -2175,16 +2173,6 @@ int create_s610_radio_sysfs(void)
 	if (IS_ERR_OR_NULL(s610_radio_dev)) {
 		pr_err("s610_sysfs: failed to create device(s610_radio)\n");
 		return -EINVAL;
-	}
-	err = device_create_file(s610_radio_dev, &dev_attr_radio_freq_ctrl);
-	if (unlikely(err < 0)) {
-		pr_err("s610_sysfs: failed to create device file, %s\n",
-				dev_attr_radio_freq_ctrl.attr.name);
-	}
-	err = device_create_file(s610_radio_dev, &dev_attr_radio_freq_seek);
-	if (unlikely(err < 0)) {
-		pr_err("s610_sysfs: failed to create device file, %s\n",
-				dev_attr_radio_freq_seek.attr.name);
 	}
 
 	return 1;
