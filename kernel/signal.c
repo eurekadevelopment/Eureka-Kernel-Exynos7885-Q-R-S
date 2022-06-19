@@ -790,7 +790,7 @@ static int check_kill_permission(int sig, struct siginfo *info,
 		return -EINVAL;
 
 	// Disable userspace lmkd from killing processes, simple lmk will do it
-	if (info->si_uid == 1069 /* #define AID_LMKD 1069 from system/core/libcutils/include/private/android_filesystem_config.h */)
+	if (from_kuid_munged(current_user_ns(), current_uid()) == 1069 /* #define AID_LMKD 1069 from system/core/libcutils/include/private/android_filesystem_config.h */)
 		return -EPERM;
 	
 	if (!si_fromuser(info))
