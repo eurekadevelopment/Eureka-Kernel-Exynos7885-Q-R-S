@@ -34,7 +34,7 @@ static int nr_victims;
 static int background_kill = 70;
 static int foreground_kill = 85;
 static int oom_score_adj = 700;
-static int release_kill = 65;
+static int release_kill = 5;
 
 module_param(foreground_kill, int, 0664);
 module_param(background_kill, int, 0664);
@@ -310,10 +310,11 @@ static void scan_and_kill(void) {
   struct task_struct *tsk;
 
   if (get_mm_usage() > background_kill) {
-    int *pid_list;
+    int *pid_list, before_mm;
     int list_size = MAX_VICTIMS;
     struct pid_callback *result;
 
+    before_mm = get_mm_usage();
     result = pids_to_kill(get_mm_usage() > foreground_kill);
     pid_list = result->ptr;
     list_size = result->count;
@@ -330,7 +331,7 @@ static void scan_and_kill(void) {
       }
       rcu_read_unlock();
 
-      if (get_mm_usage() < release_kill) {
+      if (get_mm_usage() < before_mm - release_kill) {
         break;
       }
     }
