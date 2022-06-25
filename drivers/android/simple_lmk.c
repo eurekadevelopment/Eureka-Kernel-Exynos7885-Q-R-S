@@ -31,24 +31,13 @@ static struct victim_info victims[MAX_VICTIMS] __cacheline_aligned_in_smp;
 static struct task_struct *task_bucket[SHRT_MAX + 1] __cacheline_aligned_in_smp;
 static int nr_victims;
 
-static int background_kill = 70;
-static int foreground_kill = 85;
-static int oom_score_adj = 700;
-static int release_kill = 5;
+static int wanted = 85;
 
-module_param(foreground_kill, int, 0664);
-module_param(background_kill, int, 0664);
-module_param(release_kill, int, 0664);
-module_param(oom_score_adj, int, 0664);
+module_param(wanted, int, 0664);
 
 static void simple_lmk_reclaim_work(struct work_struct *data);
 static struct workqueue_struct *kill_work_queue;
 static DECLARE_DELAYED_WORK(kill_task_work, simple_lmk_reclaim_work);
-
-enum {
-  PRIO_APP_FOREGROUND = 10,
-  PRIO_APP_BACKGROUND_NOT_CLOSED = 20,
-};
 
 static int victim_cmp(const void *lhs_ptr, const void *rhs_ptr) {
   const struct victim_info *lhs = (typeof(lhs))lhs_ptr;
@@ -163,19 +152,6 @@ static void kill_task(struct task_struct *vtsk) {
   static const struct sched_param sched_zero_prio = {.sched_priority = 0};
   struct task_struct *t;
 
-  // Don't kill su daemon
-  if (strcmp(vtsk->comm, "su") == 0) {
-    task_unlock(vtsk);
-    return;
-  }
-
-  // Check UID for user app
-  if (from_kuid_munged(vtsk->cred->user_ns, vtsk->cred->uid) < 10000 &&
-      from_kuid_munged(vtsk->cred->user_ns, vtsk->cred->uid) > 20000) {
-    task_unlock(vtsk);
-    return;
-  }
-
   /* Accelerate the victim's death by forcing the kill signal */
   do_send_sig_info(SIGKILL, SEND_SIG_FORCED, vtsk, true);
 
@@ -217,9 +193,7 @@ static void simple_lmk_kvfree(unsigned long size, void *ptr) {
 
 struct process_data {
   int pid;
-  int mem_data;
-  int score;
-  bool foreground;
+  unsigned long score;
 };
 
 static struct process_data *processes[MAX_VICTIMS];
@@ -238,112 +212,39 @@ static int get_mm_usage(void) {
          ((info.freeram + info.bufferram + cached) / (info.totalram / 100));
 }
 
-// High score -> kill last
-static int calculate_score(struct process_data *data) {
-  int score = 100;
-  if (data->foreground) score += 100;
-
-  score -= data->mem_data * 10 / (100 - get_mm_usage());
-  data->score = score;
-  return score;
-}
-
-static int compare_mm_small_first(const void *arg1, const void *arg2) {
+static int compare_mm(const void *arg1, const void *arg2) {
   const struct process_data *first = (struct process_data *)(arg1);
   const struct process_data *second = (struct process_data *)(arg2);
-  return first->score - second->score;
+  return second->score - first->score > 0 ? 1 : -1;
 }
 
-static int compare_mm_big_first(const void *arg1, const void *arg2) {
-  const struct process_data *first = (struct process_data *)(arg1);
-  const struct process_data *second = (struct process_data *)(arg2);
-  return second->score - first->score;
-}
-
-struct pid_callback {
-	int *ptr;
-	int count;
-};
-
-static struct pid_callback *pids_to_kill(bool foreground) {
-  int *list, i, count = 0;
-  struct process_data *tmp[MAX_VICTIMS], dummy = {
-                                             .pid = -1,
-                                             .mem_data = -1,
-                                             .foreground = false,
-                                             .score = -1,
-                                         };
-
-  struct pid_callback *callback = kvmalloc(sizeof(struct pid_callback));
-
-  for (i = 0; i < MAX_VICTIMS; i++) {
-    if (!foreground && processes[i]->foreground) {
-      tmp[i] = &dummy;
-    } else {
-      tmp[i] = processes[i];
-      count++;
-    }
-  }
-  list = kvmalloc(count * sizeof(int));
-
-  if (foreground)
-    sort(tmp, MAX_VICTIMS, sizeof(struct process_data *),
-         &compare_mm_small_first, NULL);
-  else
-    sort(tmp, MAX_VICTIMS, sizeof(struct process_data *), &compare_mm_big_first,
-         NULL);
-
-  count = 0;
-  for (i = 0; i < MAX_VICTIMS; i++) {
-    if (tmp[i]->pid != -1) {
-      list[count] = tmp[i]->pid;
-      count++;
-    }
-  }
-  callback->ptr = list;
-  callback->count = count;
-  return callback;
-}
 static void scan_and_kill(void) {
   int i, nr_found = 0, k = 0;
   unsigned long pages_found;
   struct task_struct *tsk;
 
-  if (get_mm_usage() > background_kill) {
-    int *pid_list, before_mm;
-    int list_size = MAX_VICTIMS;
-    struct pid_callback *result;
-
-    before_mm = get_mm_usage();
-    result = pids_to_kill(get_mm_usage() > foreground_kill);
-    pid_list = result->ptr;
-    list_size = result->count;
-    simple_lmk_kvfree(sizeof(struct pid_callback), result);
-
-    for (k = 0; k < list_size; k++) {
-      rcu_read_lock();
-      for_each_process(tsk) {
-        if (tsk->pid == pid_list[k]) {
-          task_lock(tsk);
-          kill_task(tsk);
-          usleep_range(500000, 1000000);
-        }
-      }
-      rcu_read_unlock();
-
-      if (get_mm_usage() < before_mm - release_kill) {
-        break;
+  sort(processes, MAX_VICTIMS, sizeof(struct process_data *), &compare_mm,
+       NULL);
+  for (k = 0; k < MAX_VICTIMS; k++) {
+    rcu_read_lock();
+    for_each_process(tsk) {
+      if (tsk->pid == processes[i]->pid) {
+        task_lock(tsk);
+        kill_task(tsk);
+        usleep_range(1500000, 2000000);
       }
     }
-    simple_lmk_kvfree(list_size * sizeof(int), pid_list);
+    rcu_read_unlock();
+
+    if (get_mm_usage() < wanted) {
+      break;
+    }
   }
 
   // Reset the collected data
   for (i = 0; i < MAX_VICTIMS; i++) {
     processes[i]->pid = -1;
-    processes[i]->mem_data = -1;
     processes[i]->score = -1;
-    processes[i]->foreground = false;
   }
 
   /* Populate the victims array with tasks sorted by adj and then size */
@@ -360,18 +261,16 @@ static void scan_and_kill(void) {
   for (i = 0; i < nr_victims; i++) {
     struct victim_info *victim = &victims[i];
     struct task_struct *vtsk = victim->tsk;
+    unsigned long totalpages = totalram_pages + total_swap_pages;
 
     processes[i]->pid = vtsk->pid;
-    processes[i]->mem_data = (get_mm_rss(vtsk->mm) << (PAGE_SHIFT - 10)) / 1024;
-    processes[i]->foreground =
-        ((task_prio(vtsk) == PRIO_APP_FOREGROUND ||
-          task_prio(vtsk) == PRIO_APP_BACKGROUND_NOT_CLOSED) ||
-         vtsk->signal->oom_score_adj <= oom_score_adj);
-    calculate_score(processes[i]);
-    pr_info("%s: comm: %s, mem: %d, foreground: %d, pid: %d, score: %d\n",
-            __func__, vtsk->comm, processes[i]->mem_data,
-            processes[i]->foreground ? 1 : 0, processes[i]->pid,
-            processes[i]->score);
+    task_unlock(vtsk);
+    processes[i]->score =
+        oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
+    task_lock(vtsk);
+    pr_info("%s: comm: %s, pid: %d, prio: %d, score: %lu\n",
+            __func__, vtsk->comm,
+            processes[i]->pid, task_prio(vtsk), processes[i]->score);
     task_unlock(vtsk);
   }
 
@@ -391,9 +290,7 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
   for (i = 0; i < MAX_VICTIMS; i++) {
     processes[i] = kvmalloc(sizeof(struct process_data));
     processes[i]->pid = -1;
-    processes[i]->mem_data = -1;
     processes[i]->score = -1;
-    processes[i]->foreground = false;
   }
 
   kill_work_queue = create_workqueue("simple_lmk");
