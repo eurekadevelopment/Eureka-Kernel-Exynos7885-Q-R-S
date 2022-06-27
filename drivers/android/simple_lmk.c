@@ -11,6 +11,7 @@
 #include <linux/export.h>
 #include <linux/fdtable.h>
 #include <linux/freezer.h>
+#include <linux/pid_namespace.h>
 #include <linux/fs.h>
 #include <linux/fs_struct.h>
 #include <linux/mm.h>
@@ -200,31 +201,41 @@ static bool check_fd_for_hwbinder(struct task_struct *tsk) {
   int i = 0;
   struct path files_path;
   char *cwd;
-  char *buf = (char *)kmalloc(PATH_MAX, GFP_KERNEL);
+  char *buf = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL);
+
+  // The task is dead here, but we need to skip killing this task, therefore
+  // return true.
+  if (!pid_alive(tsk)) {
+    pr_err("%s: [ERR] task is dead. return\n", __func__);
+    kfree(buf);
+    return true;
+  }
 
   task_lock(tsk);
   current_files = tsk->files;
   if (!current_files) {
+    pr_err("%s: [ERR] task->files is NULL. return\n", __func__);
     kfree(buf);
     task_unlock(tsk);
     return false;
   }
   files_table = files_fdtable(current_files);
   if (!files_table) {
+    pr_err("%s: [ERR] files_fdtable return value is NULL. return\n", __func__);
     kfree(buf);
     task_unlock(tsk);
     return false;
   }
 
-  while (files_table->fd[i]) {
+  while (files_table->fd[i] && i < files_table->max_fds) {
     files_path = files_table->fd[i]->f_path;
     cwd = d_path(&files_path, buf, PAGE_SIZE);
-    if (IS_ERR_OR_NULL(cwd)) {
-      i++;
-      continue;
+    if (!cwd) {
+	    i++;
+	    continue;
     }
     if (strstr(cwd, "/dev/hwbinder")) {
-      pr_info("%s: comm: %s has /dev/hwbinder open\n", __func__, tsk->comm);
+      pr_info("%s: [INFO] comm: %s has /dev/hwbinder open as fd %d\n", __func__, tsk->comm, i);
       kfree(buf);
       task_unlock(tsk);
       return true;
@@ -241,19 +252,26 @@ static void scan_and_kill(void) {
   unsigned long pages_found;
   struct task_struct *tsk;
 
-  sort(processes, MAX_VICTIMS, sizeof(struct process_data *), &compare_mm,
-       NULL);
+  sort(processes, MAX_VICTIMS, sizeof(struct process_data *), &compare_mm, NULL);
 
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
       if (tsk->pid == processes[i]->pid) {
-        if ((check_fd_for_hwbinder(tsk) && get_mm_usage() < max) ||
-            processes[i]->score < 300 || strcmp(tsk->comm, "su") == 0)
-          continue;
-
+	bool hwbinder = check_fd_for_hwbinder(tsk);
+	int ppid;
+       	rcu_read_lock();
+	ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent), 
+			task_active_pid_ns(tsk)) : 0;
+	rcu_read_unlock();
+        if (ppid != 1 && ((hwbinder && get_mm_usage() < max) ||
+            processes[i]->score < 300 || strcmp(tsk->comm, "su") == 0)){
+          pr_info("%s: [SKIP] comm: %s, hwbinder %d, score: %d\n", __func__, tsk->comm, 
+			  hwbinder ? 1 : 0, processes[i]->score);
+	  continue;
+	}
         rcu_read_lock();
-        pr_info("%s: Killing comm: %s, pid: %d, mm_usage: %d\n", __func__,
-                tsk->comm, tsk->pid, get_mm_usage());
+        pr_info("%s: [KILL] comm: %s, pid: %d, ppid: %d, system_mm_usage: %d\n", __func__,
+                tsk->comm, tsk->pid, ppid, get_mm_usage());
         task_lock(tsk);
         kill_task(tsk);
         usleep_range(1500000, 2000000);
@@ -271,7 +289,7 @@ static void scan_and_kill(void) {
   /* Populate the victims array with tasks sorted by adj and then size */
   pages_found = find_victims(&nr_found);
   if (unlikely(!nr_found)) {
-    pr_err("No processes available to kill!\n");
+    pr_err("[ERR] No processes available to kill!\n");
     return;
   }
 
@@ -286,12 +304,9 @@ static void scan_and_kill(void) {
 
     processes[i]->pid = vtsk->pid;
     task_unlock(vtsk);
-    processes[i]->score =
-        oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
+    processes[i]->score = oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
     task_lock(vtsk);
-    pr_info("%s: comm: %s, pid: %d, prio: %d, score: %lu\n", __func__,
-            vtsk->comm, processes[i]->pid, task_prio(vtsk),
-            processes[i]->score);
+    pr_info("%s: comm: %s, pid: %d\n", __func__, vtsk->comm, processes[i]->pid);
     task_unlock(vtsk);
   }
 
@@ -300,7 +315,7 @@ static void scan_and_kill(void) {
 
 static void simple_lmk_reclaim_work(struct work_struct *data) {
   scan_and_kill();
-  queue_delayed_work(kill_work_queue, &kill_task_work, 1000);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
 }
 
 /* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
@@ -315,12 +330,13 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
   }
 
   kill_work_queue = create_workqueue("simple_lmk");
-  queue_delayed_work(kill_work_queue, &kill_task_work, 1000);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
   return 0;
 }
 
 static const struct kernel_param_ops simple_lmk_init_ops = {
-    .set = simple_lmk_init_set};
+    .set = simple_lmk_init_set
+};
 
 /* Needed to prevent Android from thinking there's no LMK and thus rebooting */
 #undef MODULE_PARAM_PREFIX
