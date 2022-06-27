@@ -8,7 +8,6 @@
 
 #include <linux/dcache.h>
 #include <linux/delay.h>
-#include <linux/export.h>
 #include <linux/fdtable.h>
 #include <linux/freezer.h>
 #include <linux/pid_namespace.h>
@@ -25,6 +24,7 @@
 
 /* Kill up to this many victims per reclaim */
 #define MAX_VICTIMS 64
+#define MAX_FOREGROUND 16
 
 struct victim_info {
   struct task_struct *tsk;
@@ -174,6 +174,7 @@ struct process_data {
 };
 
 static struct process_data *processes[MAX_VICTIMS];
+static int foreground[MAX_FOREGROUND];
 
 static int get_mm_usage(void) {
   static struct sysinfo info;
@@ -193,6 +194,21 @@ static int compare_mm(const void *arg1, const void *arg2) {
   const struct process_data *first = (struct process_data *)(arg1);
   const struct process_data *second = (struct process_data *)(arg2);
   return second->score - first->score > 0 ? 1 : -1;
+}
+
+static void put_new_foreground (int pid) {
+	int tmp[MAX_FOREGROUND], i;
+	for (i = 0; i < MAX_FOREGROUND; i++) {
+	    if (foreground[i] == pid)
+		return;
+	}
+	for (i = 0; i < MAX_FOREGROUND - 1; i++) {
+		tmp[i] = foreground[i + 1];
+	}
+	tmp[MAX_FOREGROUND - 1] = pid;
+	for (i = 0; i < MAX_FOREGROUND; i++) {
+		foreground[i] = tmp[i];
+	}
 }
 
 static bool check_fd_for_hwbinder(struct task_struct *tsk) {
@@ -236,6 +252,7 @@ static bool check_fd_for_hwbinder(struct task_struct *tsk) {
     }
     if (strstr(cwd, "/dev/hwbinder")) {
       pr_info("%s: [INFO] comm: %s has /dev/hwbinder open as fd %d\n", __func__, tsk->comm, i);
+      put_new_foreground(tsk->pid);
       kfree(buf);
       task_unlock(tsk);
       return true;
@@ -257,16 +274,20 @@ static void scan_and_kill(void) {
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
       if (tsk->pid == processes[i]->pid) {
-	bool hwbinder = check_fd_for_hwbinder(tsk);
-	int ppid;
+	bool is_foreground = check_fd_for_hwbinder(tsk);
+	int i, ppid;
+	for (i = 0; i < MAX_FOREGROUND; i++) {
+		if (foreground[i] == tsk->pid)
+			is_foreground = true;
+	}
        	rcu_read_lock();
 	ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent), 
 			task_active_pid_ns(tsk)) : 0;
 	rcu_read_unlock();
-        if (ppid != 1 && ((hwbinder && get_mm_usage() < max) ||
+        if (ppid != 1 && ((is_foreground && get_mm_usage() < max) ||
             processes[i]->score < 300 || strcmp(tsk->comm, "su") == 0)){
-          pr_info("%s: [SKIP] comm: %s, hwbinder %d, score: %d\n", __func__, tsk->comm, 
-			  hwbinder ? 1 : 0, processes[i]->score);
+          pr_info("%s: [SKIP] comm: %s, is_foreground: %d, score: %d\n", __func__, tsk->comm, 
+			  is_foreground ? 1 : 0, processes[i]->score);
 	  continue;
 	}
         rcu_read_lock();
@@ -274,8 +295,8 @@ static void scan_and_kill(void) {
                 tsk->comm, tsk->pid, ppid, get_mm_usage());
         task_lock(tsk);
         kill_task(tsk);
-        usleep_range(1500000, 2000000);
         rcu_read_unlock();
+	usleep_range(150000, 200000);
       }
     }
   }
@@ -328,6 +349,9 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
     processes[i]->pid = -1;
     processes[i]->score = -1;
   }
+
+  for (i = 0; i < MAX_FOREGROUND; i++)
+	  foreground[i] = 0;
 
   kill_work_queue = create_workqueue("simple_lmk");
   queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
