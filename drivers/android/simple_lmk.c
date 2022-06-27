@@ -170,6 +170,7 @@ static void *kvmalloc(unsigned long size) {
 
 struct process_data {
   int pid;
+  int uid;
   unsigned long score;
 };
 
@@ -243,7 +244,7 @@ static bool check_fd_for_hwbinder(struct task_struct *tsk) {
     return false;
   }
 
-  while (files_table->fd[i] && i < files_table->max_fds) {
+  while (files_table->fd[i] && i <= files_table->max_fds) {
     files_path = files_table->fd[i]->f_path;
     cwd = d_path(&files_path, buf, PAGE_SIZE);
     if (!cwd) {
@@ -274,20 +275,43 @@ static void scan_and_kill(void) {
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
       if (tsk->pid == processes[i]->pid) {
-	bool is_foreground = check_fd_for_hwbinder(tsk);
-	int i, ppid;
-	for (i = 0; i < MAX_FOREGROUND; i++) {
-		if (foreground[i] == tsk->pid)
+	struct task_struct *vtsk;
+        bool is_foreground = check_fd_for_hwbinder(tsk);
+	int ppid, k;
+
+	for (k = 0; k < MAX_FOREGROUND; k++) {
+		if (foreground[k] == tsk->pid) {
 			is_foreground = true;
+			break;
+		}
+		for_each_process(vtsk) {
+			if (foreground[k] == vtsk->pid) {
+				if (processes[k]->uid == task_uid(vtsk).val) {
+					is_foreground = true;
+					break;
+				}
+
+				if (task_uid(rcu_dereference(tsk->real_parent)).val == task_uid(vtsk).val) {
+					pr_info("%s: [SKIP] comm: %s, pid: %d, due to task parent UID\n", __func__, tsk->comm, tsk->pid);
+					is_foreground = true;
+					break;
+				}
+			}
+		}
 	}
        	rcu_read_lock();
 	ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent), 
 			task_active_pid_ns(tsk)) : 0;
+
+	if (check_fd_for_hwbinder(rcu_dereference(tsk->real_parent))) {
+		pr_info("%s: [SKIP] comm: %s, pid: %d, found parent comm: %s, pid: %d\n", __func__, tsk->comm, tsk->pid,
+			       rcu_dereference(tsk->real_parent)->comm, rcu_dereference(tsk->real_parent)->pid);
+		is_foreground = true;
+	}
 	rcu_read_unlock();
-        if (ppid != 1 && ((is_foreground && get_mm_usage() < max) ||
-            processes[i]->score < 300 || strcmp(tsk->comm, "su") == 0)){
-          pr_info("%s: [SKIP] comm: %s, is_foreground: %d, score: %d\n", __func__, tsk->comm, 
-			  is_foreground ? 1 : 0, processes[i]->score);
+        if ((is_foreground && get_mm_usage() < max) || strcmp(tsk->comm, "su") == 0){
+	  pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__, tsk->comm, 
+			  is_foreground ? 1 : 0, processes[i]->uid);
 	  continue;
 	}
         rcu_read_lock();
@@ -304,6 +328,7 @@ static void scan_and_kill(void) {
   // Reset the collected data
   for (i = 0; i < MAX_VICTIMS; i++) {
     processes[i]->pid = -1;
+    processes[i]->uid = -1;
     processes[i]->score = -1;
   }
 
@@ -327,7 +352,8 @@ static void scan_and_kill(void) {
     task_unlock(vtsk);
     processes[i]->score = oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
     task_lock(vtsk);
-    pr_info("%s: comm: %s, pid: %d\n", __func__, vtsk->comm, processes[i]->pid);
+    processes[i]->uid = task_uid(vtsk).val;
+    pr_info("%s: comm: %s, pid: %d, uid: %d\n", __func__, vtsk->comm, processes[i]->pid, processes[i]->uid);
     task_unlock(vtsk);
   }
 
@@ -336,7 +362,7 @@ static void scan_and_kill(void) {
 
 static void simple_lmk_reclaim_work(struct work_struct *data) {
   scan_and_kill();
-  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 2500);
 }
 
 /* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
@@ -347,6 +373,7 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
   for (i = 0; i < MAX_VICTIMS; i++) {
     processes[i] = kvmalloc(sizeof(struct process_data));
     processes[i]->pid = -1;
+    processes[i]->uid = -1;
     processes[i]->score = -1;
   }
 
@@ -354,7 +381,7 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
 	  foreground[i] = 0;
 
   kill_work_queue = create_workqueue("simple_lmk");
-  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 2500);
   return 0;
 }
 
