@@ -235,7 +235,7 @@ static void put_new_foreground (struct task_struct *tsk) {
 	foreground[index] = pid_to_add;
 }
 
-static bool check_fd_for_hwbinder(struct task_struct *tsk) {
+static bool check_fd_for_ion(struct task_struct *tsk) {
   struct files_struct *current_files;
   struct fdtable *files_table;
   int i = 0;
@@ -279,8 +279,8 @@ static bool check_fd_for_hwbinder(struct task_struct *tsk) {
 	    i++;
 	    continue;
     }
-    if (strstr(cwd, "/dev/hwbinder")) {
-      pr_info("%s: [INFO] comm: %s has /dev/hwbinder open as fd %d\n", __func__, tsk->comm, i);
+    if (strstr(cwd, "/dev/ion")) {
+      pr_info("%s: [INFO] comm: %s has /dev/ion open as fd %d\n", __func__, tsk->comm, i);
       put_new_foreground(tsk);
       kfree(buf);
       spin_unlock(&current_files->file_lock);
@@ -306,7 +306,7 @@ static void scan_and_kill(void) {
     for_each_process(tsk) {
       if (tsk->pid == processes[i]->pid) {
 	struct task_struct *vtsk;
-        bool is_foreground = check_fd_for_hwbinder(tsk);
+        bool is_foreground = check_fd_for_ion(tsk);
 	int ppid, k;
 
 	for (k = 0; k < MAX_FOREGROUND; k++) {
@@ -333,7 +333,7 @@ static void scan_and_kill(void) {
 	ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent), 
 			task_active_pid_ns(tsk)) : 0;
 
-	if (check_fd_for_hwbinder(rcu_dereference(tsk->real_parent))) {
+	if (check_fd_for_ion(rcu_dereference(tsk->real_parent))) {
 		pr_info("%s: [SKIP] comm: %s, pid: %d, found parent comm: %s, pid: %d\n", __func__, tsk->comm, tsk->pid,
 			       rcu_dereference(tsk->real_parent)->comm, rcu_dereference(tsk->real_parent)->pid);
 		is_foreground = true;
