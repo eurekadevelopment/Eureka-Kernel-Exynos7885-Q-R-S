@@ -304,6 +304,8 @@ static void scan_and_kill(void) {
 
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
+      if (!tsk) continue;
+      if (!pid_alive(tsk)) continue;
       if (tsk->pid == processes[i]->pid) {
 	struct task_struct *vtsk;
         bool is_foreground = check_fd_for_ion(tsk);
