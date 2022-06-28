@@ -417,8 +417,10 @@ static struct notifier_block simple_lmk_fb_notifier_block = {
 	.priority = -1,
 };
 
-/* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
-static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
+/* For dummy minfree parameter */
+static int simple_lmk_minfree(const char *val, const struct kernel_param *kp) { return 0; }
+
+static int __init simple_lmk_init(void) {
   int i;
 
   // Init values
@@ -438,11 +440,12 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
   return 0;
 }
 
-static const struct kernel_param_ops simple_lmk_init_ops = {
-    .set = simple_lmk_init_set
+static const struct kernel_param_ops simple_lmk_minfree_ops = {
+    .set = simple_lmk_minfree
 };
 
+late_initcall(simple_lmk_init);
 /* Needed to prevent Android from thinking there's no LMK and thus rebooting */
 #undef MODULE_PARAM_PREFIX
 #define MODULE_PARAM_PREFIX "lowmemorykiller."
-module_param_cb(minfree, &simple_lmk_init_ops, NULL, 0200);
+module_param_cb(minfree, &simple_lmk_minfree_ops, NULL, 0200);
