@@ -346,6 +346,10 @@ static void scan_and_kill(void) {
 		is_foreground = true;
 	}
 
+	// It lost its parent process :(
+	if (ppid == 1)
+		is_foreground = false;
+
 	rcu_read_unlock();
         if ((is_foreground && get_mm_usage() < max) || strcmp(tsk->comm, "su") == 0){
 	  pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__, tsk->comm, 
