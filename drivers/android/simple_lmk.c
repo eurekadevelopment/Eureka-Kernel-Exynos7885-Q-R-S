@@ -8,6 +8,7 @@
 
 #include <linux/dcache.h>
 #include <linux/delay.h>
+#include <linux/fb.h>
 #include <linux/fdtable.h>
 #include <linux/freezer.h>
 #include <linux/pid_namespace.h>
@@ -24,7 +25,7 @@
 
 /* Kill up to this many victims per reclaim */
 #define MAX_VICTIMS 64
-#define MAX_FOREGROUND 16
+#define MAX_FOREGROUND 25
 
 struct victim_info {
   struct task_struct *tsk;
@@ -199,10 +200,6 @@ static int compare_mm(const void *arg1, const void *arg2) {
 
 static void put_new_foreground (int pid) {
 	int tmp[MAX_FOREGROUND], i;
-	for (i = 0; i < MAX_FOREGROUND; i++) {
-	    if (foreground[i] == pid)
-		return;
-	}
 	for (i = 0; i < MAX_FOREGROUND - 1; i++) {
 		tmp[i] = foreground[i + 1];
 	}
@@ -362,8 +359,30 @@ static void scan_and_kill(void) {
 
 static void simple_lmk_reclaim_work(struct work_struct *data) {
   scan_and_kill();
-  queue_delayed_work(kill_work_queue, &kill_task_work, 2500);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
 }
+
+static int simple_lmk_fb_notifier(struct notifier_block *self, unsigned long event, void *data)
+{
+	struct fb_event *evdata = (struct fb_event *) data;
+	if ((event == FB_EVENT_BLANK) && evdata && evdata->data) {
+		int blank = *(int *)evdata->data;
+		if (blank == FB_BLANK_POWERDOWN) {
+			pr_info("%s: Stopping", __func__);
+			cancel_delayed_work(&kill_task_work);
+		} else if (blank == FB_BLANK_UNBLANK) {
+			pr_info("%s: Restarting", __func__);
+			queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
+		}
+		return NOTIFY_OK;
+	}
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block simple_lmk_fb_notifier_block = {
+	.notifier_call = simple_lmk_fb_notifier,
+	.priority = -1,
+};
 
 /* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
 static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
@@ -381,7 +400,8 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp) {
 	  foreground[i] = 0;
 
   kill_work_queue = create_workqueue("simple_lmk");
-  queue_delayed_work(kill_work_queue, &kill_task_work, 2500);
+  queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
+  fb_register_client(&simple_lmk_fb_notifier_block);
   return 0;
 }
 
