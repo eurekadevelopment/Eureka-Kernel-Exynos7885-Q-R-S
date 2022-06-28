@@ -338,6 +338,12 @@ static void scan_and_kill(void) {
 			       rcu_dereference(tsk->real_parent)->comm, rcu_dereference(tsk->real_parent)->pid);
 		is_foreground = true;
 	}
+
+	if (task_uid(rcu_dereference(tsk->real_parent)).val == 1053 /* Android WebView zygote process UID */){
+		pr_info("%s: [SKIP] comm: %s, pid: %d, instance of Android WebView zygote\n", __func__, tsk->comm, tsk->pid);
+		is_foreground = true;
+	}
+
 	rcu_read_unlock();
         if ((is_foreground && get_mm_usage() < max) || strcmp(tsk->comm, "su") == 0){
 	  pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__, tsk->comm, 
