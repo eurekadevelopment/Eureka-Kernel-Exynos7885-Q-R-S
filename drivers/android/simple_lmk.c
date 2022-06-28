@@ -346,6 +346,9 @@ static void scan_and_kill(void) {
 		is_foreground = true;
 	}
 
+	if (processes[i]->score < 200)
+		is_foreground = true;
+
 	// It lost its parent process :(
 	if (ppid == 1)
 		is_foreground = false;
