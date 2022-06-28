@@ -25,7 +25,7 @@
 
 /* Kill up to this many victims per reclaim */
 #define MAX_VICTIMS 64
-#define MAX_FOREGROUND 25
+#define MAX_FOREGROUND 32
 
 struct victim_info {
   struct task_struct *tsk;
@@ -198,22 +198,47 @@ static int compare_mm(const void *arg1, const void *arg2) {
   return second->score - first->score > 0 ? 1 : -1;
 }
 
-static void put_new_foreground (int pid) {
-	int tmp[MAX_FOREGROUND], i;
-	for (i = 0; i < MAX_FOREGROUND - 1; i++) {
-		tmp[i] = foreground[i + 1];
+static void put_new_foreground (struct task_struct *tsk) {
+	static int index = 0, i, pid_to_add;
+	pid_to_add = tsk->pid;
+	rcu_read_lock();
+	if (task_uid(rcu_dereference(tsk->real_parent)).val != 0) {
+		pid_to_add = rcu_dereference(tsk->real_parent)->pid;
 	}
-	tmp[MAX_FOREGROUND - 1] = pid;
+	rcu_read_unlock();
 	for (i = 0; i < MAX_FOREGROUND; i++) {
-		foreground[i] = tmp[i];
+		if (foreground[i] == pid_to_add) {
+			pr_info("%s: Abort, pid %d already on list\n", __func__, pid_to_add);
+			return;
+		}
 	}
+	index++;
+	if (index == MAX_FOREGROUND) {
+		int tmp[MAX_FOREGROUND] = { 0 }, count = 0;
+		struct task_struct *task;
+
+		for(i = 0; i < MAX_FOREGROUND; i++) {
+			rcu_read_lock();
+			task = find_task_by_vpid(foreground[i]);
+			rcu_read_unlock();
+			if (!task)
+				continue;
+			tmp[count] = foreground[i];
+			count++;
+		}
+		for (i = 0; i < MAX_FOREGROUND; i++) {
+			foreground[i] = i >= count ? -1 : tmp[i];
+		}
+		index = count;
+	}
+	pr_info("%s: Adding pid %d to list\n", __func__, pid_to_add);
+	foreground[index] = pid_to_add;
 }
 
 static bool check_fd_for_hwbinder(struct task_struct *tsk) {
   struct files_struct *current_files;
   struct fdtable *files_table;
   int i = 0;
-  struct path files_path;
   char *cwd;
   char *buf = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL);
 
@@ -233,31 +258,39 @@ static bool check_fd_for_hwbinder(struct task_struct *tsk) {
     task_unlock(tsk);
     return false;
   }
+  spin_lock(&current_files->file_lock);
   files_table = files_fdtable(current_files);
   if (!files_table) {
     pr_err("%s: [ERR] files_fdtable return value is NULL. return\n", __func__);
     kfree(buf);
+    spin_unlock(&current_files->file_lock);
     task_unlock(tsk);
     return false;
   }
 
-  while (files_table->fd[i] && i <= files_table->max_fds) {
-    files_path = files_table->fd[i]->f_path;
-    cwd = d_path(&files_path, buf, PAGE_SIZE);
+  while (i <= files_table->max_fds) {
+    struct file *fd_file = fcheck_files(current_files, i);
+    if (!fd_file) {
+	    i++;
+	    continue;
+    }
+    cwd = d_path(&fd_file->f_path, buf, PAGE_SIZE);
     if (!cwd) {
 	    i++;
 	    continue;
     }
     if (strstr(cwd, "/dev/hwbinder")) {
       pr_info("%s: [INFO] comm: %s has /dev/hwbinder open as fd %d\n", __func__, tsk->comm, i);
-      put_new_foreground(tsk->pid);
+      put_new_foreground(tsk);
       kfree(buf);
+      spin_unlock(&current_files->file_lock);
       task_unlock(tsk);
       return true;
     }
     i++;
   }
   kfree(buf);
+  spin_unlock(&current_files->file_lock);
   task_unlock(tsk);
   return false;
 }
