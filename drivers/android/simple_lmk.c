@@ -310,7 +310,6 @@ static void scan_and_kill(void) {
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
       if (!tsk) continue;
-      if (!pid_alive(tsk)) continue;
       if (tsk->pid == processes[i]->pid) {
 	struct task_struct *vtsk;
         bool is_foreground = check_fd_for_ion(tsk);
@@ -319,19 +318,19 @@ static void scan_and_kill(void) {
 	for (k = 0; k < MAX_FOREGROUND; k++) {
 		if (foreground[k] == tsk->pid) {
 			is_foreground = true;
-			break;
+			goto final_check;
 		}
 		for_each_process(vtsk) {
 			if (foreground[k] == vtsk->pid) {
 				if (processes[k]->uid == task_uid(vtsk).val) {
 					is_foreground = true;
-					break;
+					goto final_check;
 				}
 
 				if (task_uid(rcu_dereference(tsk->real_parent)).val == task_uid(vtsk).val) {
 					pr_info("%s: [SKIP] comm: %s, pid: %d, due to task parent UID\n", __func__, tsk->comm, tsk->pid);
 					is_foreground = true;
-					break;
+					goto final_check;
 				}
 			}
 		}
@@ -344,16 +343,22 @@ static void scan_and_kill(void) {
 		pr_info("%s: [SKIP] comm: %s, pid: %d, found parent comm: %s, pid: %d\n", __func__, tsk->comm, tsk->pid,
 			       rcu_dereference(tsk->real_parent)->comm, rcu_dereference(tsk->real_parent)->pid);
 		is_foreground = true;
+		rcu_read_unlock();
+		goto final_check;
 	}
 
 	if (task_uid(rcu_dereference(tsk->real_parent)).val == 1053 /* Android WebView zygote process UID */){
 		pr_info("%s: [SKIP] comm: %s, pid: %d, instance of Android WebView zygote\n", __func__, tsk->comm, tsk->pid);
 		is_foreground = true;
+		rcu_read_unlock();
+		goto final_check;
 	}
 
 	if (processes[i]->score < 200)
 		is_foreground = true;
 
+	rcu_read_unlock();
+final_check:
 	// It lost its parent process :(
 	if (ppid == 1)
 		is_foreground = false;
