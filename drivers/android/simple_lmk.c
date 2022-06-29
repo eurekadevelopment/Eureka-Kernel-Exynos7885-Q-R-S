@@ -212,7 +212,7 @@ static void put_new_foreground (struct task_struct *tsk) {
 
 		for(i = 0; i < MAX_FOREGROUND; i++) {
 			rcu_read_lock();
-			task = find_task_by_vpid(foreground[i]);
+			task = get_pid_task(find_get_pid(foreground[i]), PIDTYPE_PID);
 			rcu_read_unlock();
 			if (!task)
 				continue;
