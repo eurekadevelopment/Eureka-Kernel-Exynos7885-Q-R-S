@@ -156,25 +156,13 @@ static void kill_task(struct task_struct *vtsk) {
   task_unlock(vtsk);
 }
 
-/*
- * Avoid using vmalloc for a small buffer.
- * Should not be used when the size is statically known.
- */
-
-static void *kvmalloc(unsigned long size) {
-  if (size > PAGE_SIZE)
-    return vmalloc(size);
-  else
-    return kzalloc(size, GFP_KERNEL);
-}
-
 struct process_data {
   int pid;
   int uid;
   unsigned long score;
 };
 
-static struct process_data *processes[MAX_VICTIMS];
+static struct process_data processes[MAX_VICTIMS];
 static int foreground[MAX_FOREGROUND];
 
 static int get_mm_usage(void) {
@@ -300,8 +288,7 @@ static void scan_and_kill(void) {
 
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
-      if (!tsk) continue;
-      if (tsk->pid == processes[i]->pid) {
+      if (tsk->pid == processes[i].pid) {
 	struct task_struct *vtsk;
         bool is_foreground = check_fd_for_ion(tsk);
 	int ppid, k;
@@ -313,7 +300,7 @@ static void scan_and_kill(void) {
 		}
 		for_each_process(vtsk) {
 			if (foreground[k] == vtsk->pid) {
-				if (processes[k]->uid == task_uid(vtsk).val) {
+				if (processes[k].uid == task_uid(vtsk).val) {
 					is_foreground = true;
 					goto final_check;
 				}
@@ -345,7 +332,7 @@ static void scan_and_kill(void) {
 		goto final_check;
 	}
 
-	if (processes[i]->score < 200)
+	if (processes[i].score < 200)
 		is_foreground = true;
 
 	rcu_read_unlock();
@@ -373,9 +360,9 @@ final_check:
 
   // Reset the collected data
   for (i = 0; i < MAX_VICTIMS; i++) {
-    processes[i]->pid = -1;
-    processes[i]->uid = -1;
-    processes[i]->score = -1;
+    processes[i].pid = -1;
+    processes[i].uid = -1;
+    processes[i].score = -1;
   }
 
   /* Populate the victims array with tasks sorted by adj and then size */
@@ -394,12 +381,12 @@ final_check:
     struct task_struct *vtsk = victim->tsk;
     unsigned long totalpages = totalram_pages + total_swap_pages;
 
-    processes[i]->pid = vtsk->pid;
+    processes[i].pid = vtsk->pid;
     task_unlock(vtsk);
-    processes[i]->score = oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
+    processes[i].score = oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
     task_lock(vtsk);
-    processes[i]->uid = task_uid(vtsk).val;
-    pr_info("%s: comm: %s, pid: %d, uid: %d\n", __func__, vtsk->comm, processes[i]->pid, processes[i]->uid);
+    processes[i].uid = task_uid(vtsk).val;
+    pr_info("%s: comm: %s, pid: %d, uid: %d\n", __func__, vtsk->comm, processes[i].pid, processes[i].uid);
     task_unlock(vtsk);
   }
 
@@ -441,10 +428,9 @@ static int __init simple_lmk_init(void) {
 
   // Init values
   for (i = 0; i < MAX_VICTIMS; i++) {
-    processes[i] = kvmalloc(sizeof(struct process_data));
-    processes[i]->pid = -1;
-    processes[i]->uid = -1;
-    processes[i]->score = -1;
+    processes[i].pid = -1;
+    processes[i].uid = -1;
+    processes[i].score = -1;
   }
 
   for (i = 0; i < MAX_FOREGROUND; i++)
