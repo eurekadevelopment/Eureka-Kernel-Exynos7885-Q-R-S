@@ -18,7 +18,6 @@
 #include <linux/moduleparam.h>
 #include <linux/oom.h>
 #include <linux/slab.h>
-#include <linux/sort.h>
 #include <linux/string.h>
 #include <linux/swap.h>
 #include <linux/vmalloc.h>
@@ -192,12 +191,6 @@ static int get_mm_usage(void) {
          ((info.freeram + info.bufferram + cached) / (info.totalram / 100));
 }
 
-static int compare_mm(const void *arg1, const void *arg2) {
-  const struct process_data *first = (struct process_data *)(arg1);
-  const struct process_data *second = (struct process_data *)(arg2);
-  return second->score - first->score > 0 ? 1 : -1;
-}
-
 static void put_new_foreground (struct task_struct *tsk) {
 	static int index = 0, i, pid_to_add;
 	pid_to_add = tsk->pid;
@@ -304,8 +297,6 @@ static void scan_and_kill(void) {
   int nr_found = 0, i;
   unsigned long pages_found;
   struct task_struct *tsk;
-
-  sort(processes, MAX_VICTIMS, sizeof(struct process_data *), &compare_mm, NULL);
 
   for (i = 0; i < MAX_VICTIMS; i++) {
     for_each_process(tsk) {
