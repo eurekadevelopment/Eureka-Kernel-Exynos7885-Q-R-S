@@ -240,7 +240,12 @@ static bool check_fd_for_ion(struct task_struct *tsk) {
   struct fdtable *files_table;
   int i = 0;
   char *cwd;
-  char *buf = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL);
+  char *buf = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN);
+
+  if (!buf) {
+	pr_err("%s: [ERR] failed to alloc buffer. return\n", __func__);
+	return false;
+  }
 
   // The task is dead here, but we need to skip killing this task, therefore
   // return true.
@@ -365,7 +370,7 @@ static void scan_and_kill(void) {
         task_lock(tsk);
         kill_task(tsk);
         rcu_read_unlock();
-	usleep_range(150000, 200000);
+	usleep_range(750000, 800000);
       }
     }
   }
