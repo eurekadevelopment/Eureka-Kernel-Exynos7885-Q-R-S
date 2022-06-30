@@ -36,9 +36,11 @@ static struct victim_info victims[MAX_VICTIMS] __cacheline_aligned_in_smp;
 static struct task_struct *task_bucket[SHRT_MAX + 1] __cacheline_aligned_in_smp;
 static int nr_victims;
 
-static int max = 85;
+static int foreground_start = 87;
+static int background_start = 83;
 
-module_param(max, int, 0664);
+module_param(foreground_start, int, 0664);
+module_param(background_start, int, 0664);
 
 static void simple_lmk_reclaim_work(struct work_struct *data);
 static struct workqueue_struct *kill_work_queue;
@@ -137,7 +139,7 @@ static void kill_task(struct task_struct *vtsk) {
   struct task_struct *t;
 
   /* Accelerate the victim's death by forcing the kill signal */
-  do_send_sig_info(SIGKILL, SEND_SIG_FORCED, vtsk, true);
+  group_send_sig_info(SIGKILL, SEND_SIG_FORCED, vtsk);
 
   /* Mark the thread group dead so that other kernel code knows */
   rcu_read_lock();
@@ -287,7 +289,7 @@ static void scan_and_kill(void) {
     if (tsk && pid_alive(tsk)) {
       struct task_struct *vtsk;
       bool is_foreground;
-      int ppid, k;
+      int ppid, k, usage;
 
       task_lock(tsk);
       is_foreground = check_fd_for_mali(tsk);
@@ -314,8 +316,7 @@ static void scan_and_kill(void) {
       }
       rcu_read_lock();
       ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent),
-                                              task_active_pid_ns(tsk))
-                            : 0;
+                                              task_active_pid_ns(tsk)) : 0;
 
       if (check_fd_for_mali(rcu_dereference(tsk->real_parent))) {
         pr_info(
@@ -328,12 +329,9 @@ static void scan_and_kill(void) {
         goto final_check;
       }
 
-      if (task_uid(rcu_dereference(tsk->real_parent)).val ==
-          1053 /* Android WebView zygote process UID */) {
-        pr_info(
-            "%s: [SKIP] comm: %s, pid: %d, instance of Android WebView "
-            "zygote\n",
-            __func__, tsk->comm, tsk->pid);
+      if (task_uid(rcu_dereference(tsk->real_parent)).val == 1053 /* Android WebView zygote process UID */) {
+        pr_info("%s: [SKIP] comm: %s, pid: %d, instance of Android WebView "
+            "zygote\n", __func__, tsk->comm, tsk->pid);
         is_foreground = true;
         rcu_read_unlock();
         goto final_check;
@@ -346,19 +344,23 @@ static void scan_and_kill(void) {
       // It lost its parent process :(
       if (ppid == 1) is_foreground = false;
 
-      rcu_read_unlock();
-      if ((is_foreground && get_mm_usage() < max) ||
-          strcmp(tsk->comm, "su") == 0) {
-        pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__,
-                tsk->comm, is_foreground ? 1 : 0, processes[i].uid);
-	task_unlock(tsk);
-        continue;
+      usage = get_mm_usage();
+      if (usage < background_start) {
+	      if (is_foreground || strcmp(tsk->comm, "su") == 0) {
+		      task_unlock(tsk);
+		      continue;
+	      }
+      } else if (background_start <= usage && usage < foreground_start) {
+	      if (tsk->signal->oom_score_adj == 0 || strcmp(tsk->comm, "su") == 0) {
+		      task_unlock(tsk);
+		      continue;
+	      }
       }
-      rcu_read_lock();
-      pr_info("%s: [KILL] comm: %s, pid: %d, ppid: %d, system_mm_usage: %d\n",
-              __func__, tsk->comm, tsk->pid, ppid, get_mm_usage());
+
+      pr_info("%s: [KILL] comm: %s, pid: %d, system_mm_usage: %d\n",
+              __func__, tsk->comm, tsk->pid, get_mm_usage());
+
       kill_task(tsk);
-      rcu_read_unlock();
       usleep_range(550000, 600000);
     }
   }
