@@ -11,12 +11,12 @@
 #include <linux/fb.h>
 #include <linux/fdtable.h>
 #include <linux/freezer.h>
-#include <linux/pid_namespace.h>
 #include <linux/fs.h>
 #include <linux/fs_struct.h>
 #include <linux/mm.h>
 #include <linux/moduleparam.h>
 #include <linux/oom.h>
+#include <linux/pid_namespace.h>
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/swap.h>
@@ -179,41 +179,40 @@ static int get_mm_usage(void) {
          ((info.freeram + info.bufferram + cached) / (info.totalram / 100));
 }
 
-static void put_new_foreground (struct task_struct *tsk) {
-	static int index = 0, i, pid_to_add;
-	pid_to_add = tsk->pid;
-	rcu_read_lock();
-	if (task_uid(rcu_dereference(tsk->real_parent)).val != 0) {
-		pid_to_add = rcu_dereference(tsk->real_parent)->pid;
-	}
-	rcu_read_unlock();
-	for (i = 0; i < MAX_FOREGROUND; i++) {
-		if (foreground[i] == pid_to_add) {
-			pr_info("%s: Abort, pid %d already on list\n", __func__, pid_to_add);
-			return;
-		}
-	}
-	index++;
-	if (index == MAX_FOREGROUND) {
-		int tmp[MAX_FOREGROUND] = { 0 }, count = 0;
-		struct task_struct *task;
+static void put_new_foreground(struct task_struct *tsk) {
+  static int index = 0, i, pid_to_add;
+  pid_to_add = tsk->pid;
+  rcu_read_lock();
+  if (task_uid(rcu_dereference(tsk->real_parent)).val != 0) {
+    pid_to_add = rcu_dereference(tsk->real_parent)->pid;
+  }
+  rcu_read_unlock();
+  for (i = 0; i < MAX_FOREGROUND; i++) {
+    if (foreground[i] == pid_to_add) {
+      pr_info("%s: Abort, pid %d already on list\n", __func__, pid_to_add);
+      return;
+    }
+  }
+  index++;
+  if (index == MAX_FOREGROUND) {
+    int tmp[MAX_FOREGROUND] = {0}, count = 0;
+    struct task_struct *task;
 
-		for(i = 0; i < MAX_FOREGROUND; i++) {
-			rcu_read_lock();
-			task = get_pid_task(find_get_pid(foreground[i]), PIDTYPE_PID);
-			rcu_read_unlock();
-			if (!task)
-				continue;
-			tmp[count] = foreground[i];
-			count++;
-		}
-		for (i = 0; i < MAX_FOREGROUND; i++) {
-			foreground[i] = i >= count ? -1 : tmp[i];
-		}
-		index = count;
-	}
-	pr_info("%s: Adding pid %d to list\n", __func__, pid_to_add);
-	foreground[index] = pid_to_add;
+    for (i = 0; i < MAX_FOREGROUND; i++) {
+      rcu_read_lock();
+      task = get_pid_task(find_get_pid(foreground[i]), PIDTYPE_PID);
+      rcu_read_unlock();
+      if (!task) continue;
+      tmp[count] = foreground[i];
+      count++;
+    }
+    for (i = 0; i < MAX_FOREGROUND; i++) {
+      foreground[i] = i >= count ? -1 : tmp[i];
+    }
+    index = count;
+  }
+  pr_info("%s: Adding pid %d to list\n", __func__, pid_to_add);
+  foreground[index] = pid_to_add;
 }
 
 static bool check_fd_for_ion(struct task_struct *tsk) {
@@ -221,11 +220,12 @@ static bool check_fd_for_ion(struct task_struct *tsk) {
   struct fdtable *files_table;
   int i = 0;
   char *cwd;
-  char *buf = (char *)kmalloc(PAGE_SIZE, GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN);
+  char *buf =
+      (char *)kmalloc(PAGE_SIZE, GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN);
 
   if (!buf) {
-	pr_err("%s: [ERR] failed to alloc buffer. return\n", __func__);
-	return false;
+    pr_err("%s: [ERR] failed to alloc buffer. return\n", __func__);
+    return false;
   }
 
   // The task is dead here, but we need to skip killing this task, therefore
@@ -236,12 +236,10 @@ static bool check_fd_for_ion(struct task_struct *tsk) {
     return true;
   }
 
-  task_lock(tsk);
   current_files = tsk->files;
   if (!current_files) {
     pr_err("%s: [ERR] task->files is NULL. return\n", __func__);
     kfree(buf);
-    task_unlock(tsk);
     return false;
   }
   spin_lock(&current_files->file_lock);
@@ -250,34 +248,32 @@ static bool check_fd_for_ion(struct task_struct *tsk) {
     pr_err("%s: [ERR] files_fdtable return value is NULL. return\n", __func__);
     kfree(buf);
     spin_unlock(&current_files->file_lock);
-    task_unlock(tsk);
     return false;
   }
 
   while (i <= files_table->max_fds) {
     struct file *fd_file = fcheck_files(current_files, i);
     if (!fd_file) {
-	    i++;
-	    continue;
+      i++;
+      continue;
     }
     cwd = d_path(&fd_file->f_path, buf, PAGE_SIZE);
     if (!cwd) {
-	    i++;
-	    continue;
+      i++;
+      continue;
     }
     if (strstr(cwd, "/dev/ion")) {
-      pr_info("%s: [INFO] comm: %s has /dev/ion open as fd %d\n", __func__, tsk->comm, i);
+      pr_info("%s: [INFO] comm: %s has /dev/ion open as fd %d\n", __func__,
+              tsk->comm, i);
       put_new_foreground(tsk);
       kfree(buf);
       spin_unlock(&current_files->file_lock);
-      task_unlock(tsk);
       return true;
     }
     i++;
   }
   kfree(buf);
   spin_unlock(&current_files->file_lock);
-  task_unlock(tsk);
   return false;
 }
 
@@ -287,74 +283,83 @@ static void scan_and_kill(void) {
   struct task_struct *tsk;
 
   for (i = 0; i < MAX_VICTIMS; i++) {
-    for_each_process(tsk) {
-      if (tsk->pid == processes[i].pid) {
-	struct task_struct *vtsk;
-        bool is_foreground = check_fd_for_ion(tsk);
-	int ppid, k;
+    tsk = get_pid_task(find_get_pid(processes[i].pid), PIDTYPE_PID);
+    if (tsk && pid_alive(tsk)) {
+      struct task_struct *vtsk;
+      bool is_foreground;
+      int ppid, k;
 
-	for (k = 0; k < MAX_FOREGROUND; k++) {
-		if (foreground[k] == tsk->pid) {
-			is_foreground = true;
-			goto final_check;
-		}
-		for_each_process(vtsk) {
-			if (foreground[k] == vtsk->pid) {
-				if (processes[k].uid == task_uid(vtsk).val) {
-					is_foreground = true;
-					goto final_check;
-				}
+      task_lock(tsk);
+      is_foreground = check_fd_for_ion(tsk);
+      for (k = 0; k < MAX_FOREGROUND; k++) {
+        if (foreground[k] == tsk->pid) {
+          is_foreground = true;
+          goto final_check;
+        }
+        vtsk = get_pid_task(find_get_pid(foreground[k]), PIDTYPE_PID);
+        if (vtsk && pid_alive(vtsk)) {
+          if (processes[k].uid == task_uid(vtsk).val) {
+            is_foreground = true;
+            goto final_check;
+          }
 
-				if (task_uid(rcu_dereference(tsk->real_parent)).val == task_uid(vtsk).val) {
-					pr_info("%s: [SKIP] comm: %s, pid: %d, due to task parent UID\n", __func__, tsk->comm, tsk->pid);
-					is_foreground = true;
-					goto final_check;
-				}
-			}
-		}
-	}
-       	rcu_read_lock();
-	ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent), 
-			task_active_pid_ns(tsk)) : 0;
-
-	if (check_fd_for_ion(rcu_dereference(tsk->real_parent))) {
-		pr_info("%s: [SKIP] comm: %s, pid: %d, found parent comm: %s, pid: %d\n", __func__, tsk->comm, tsk->pid,
-			       rcu_dereference(tsk->real_parent)->comm, rcu_dereference(tsk->real_parent)->pid);
-		is_foreground = true;
-		rcu_read_unlock();
-		goto final_check;
-	}
-
-	if (task_uid(rcu_dereference(tsk->real_parent)).val == 1053 /* Android WebView zygote process UID */){
-		pr_info("%s: [SKIP] comm: %s, pid: %d, instance of Android WebView zygote\n", __func__, tsk->comm, tsk->pid);
-		is_foreground = true;
-		rcu_read_unlock();
-		goto final_check;
-	}
-
-	if (processes[i].score < 200)
-		is_foreground = true;
-
-	rcu_read_unlock();
-final_check:
-	// It lost its parent process :(
-	if (ppid == 1)
-		is_foreground = false;
-
-	rcu_read_unlock();
-        if ((is_foreground && get_mm_usage() < max) || strcmp(tsk->comm, "su") == 0){
-	  pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__, tsk->comm, 
-			  is_foreground ? 1 : 0, processes[i]->uid);
-	  continue;
-	}
-        rcu_read_lock();
-        pr_info("%s: [KILL] comm: %s, pid: %d, ppid: %d, system_mm_usage: %d\n", __func__,
-                tsk->comm, tsk->pid, ppid, get_mm_usage());
-        task_lock(tsk);
-        kill_task(tsk);
-        rcu_read_unlock();
-	usleep_range(750000, 800000);
+          if (task_uid(rcu_dereference(tsk->real_parent)).val ==
+              task_uid(vtsk).val) {
+            pr_info("%s: [SKIP] comm: %s, pid: %d, due to task parent UID\n",
+                    __func__, tsk->comm, tsk->pid);
+            is_foreground = true;
+            goto final_check;
+          }
+        }
       }
+      rcu_read_lock();
+      ppid = pid_alive(tsk) ? task_tgid_nr_ns(rcu_dereference(tsk->real_parent),
+                                              task_active_pid_ns(tsk))
+                            : 0;
+
+      if (check_fd_for_ion(rcu_dereference(tsk->real_parent))) {
+        pr_info(
+            "%s: [SKIP] comm: %s, pid: %d, found parent comm: %s, pid: %d\n",
+            __func__, tsk->comm, tsk->pid,
+            rcu_dereference(tsk->real_parent)->comm,
+            rcu_dereference(tsk->real_parent)->pid);
+        is_foreground = true;
+        rcu_read_unlock();
+        goto final_check;
+      }
+
+      if (task_uid(rcu_dereference(tsk->real_parent)).val ==
+          1053 /* Android WebView zygote process UID */) {
+        pr_info(
+            "%s: [SKIP] comm: %s, pid: %d, instance of Android WebView "
+            "zygote\n",
+            __func__, tsk->comm, tsk->pid);
+        is_foreground = true;
+        rcu_read_unlock();
+        goto final_check;
+      }
+
+      if (processes[i].score < 200) is_foreground = true;
+
+      rcu_read_unlock();
+    final_check:
+      // It lost its parent process :(
+      if (ppid == 1) is_foreground = false;
+
+      rcu_read_unlock();
+      if ((is_foreground && get_mm_usage() < max) ||
+          strcmp(tsk->comm, "su") == 0) {
+        pr_info("%s: [SKIP] comm: %s, is_foreground: %d, uid: %d\n", __func__,
+                tsk->comm, is_foreground ? 1 : 0, processes[i].uid);
+	task_unlock(tsk);
+        continue;
+      }
+      rcu_read_lock();
+      pr_info("%s: [KILL] comm: %s, pid: %d, ppid: %d, system_mm_usage: %d\n",
+              __func__, tsk->comm, tsk->pid, ppid, get_mm_usage());
+      kill_task(tsk);
+      rcu_read_unlock();
+      usleep_range(550000, 600000);
     }
   }
 
@@ -383,10 +388,12 @@ final_check:
 
     processes[i].pid = vtsk->pid;
     task_unlock(vtsk);
-    processes[i].score = oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
+    processes[i].score =
+        oom_badness(vtsk, NULL, NULL, totalpages) * 1000 / totalpages;
     task_lock(vtsk);
     processes[i].uid = task_uid(vtsk).val;
-    pr_info("%s: comm: %s, pid: %d, uid: %d\n", __func__, vtsk->comm, processes[i].pid, processes[i].uid);
+    pr_info("%s: comm: %s, pid: %d, uid: %d\n", __func__, vtsk->comm,
+            processes[i].pid, processes[i].uid);
     task_unlock(vtsk);
   }
 
@@ -398,30 +405,32 @@ static void simple_lmk_reclaim_work(struct work_struct *data) {
   queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
 }
 
-static int simple_lmk_fb_notifier(struct notifier_block *self, unsigned long event, void *data)
-{
-	struct fb_event *evdata = (struct fb_event *) data;
-	if ((event == FB_EVENT_BLANK) && evdata && evdata->data) {
-		int blank = *(int *)evdata->data;
-		if (blank == FB_BLANK_POWERDOWN) {
-			pr_info("%s: Stopping", __func__);
-			cancel_delayed_work(&kill_task_work);
-		} else if (blank == FB_BLANK_UNBLANK) {
-			pr_info("%s: Restarting", __func__);
-			queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
-		}
-		return NOTIFY_OK;
-	}
-	return NOTIFY_DONE;
+static int simple_lmk_fb_notifier(struct notifier_block *self,
+                                  unsigned long event, void *data) {
+  struct fb_event *evdata = (struct fb_event *)data;
+  if ((event == FB_EVENT_BLANK) && evdata && evdata->data) {
+    int blank = *(int *)evdata->data;
+    if (blank == FB_BLANK_POWERDOWN) {
+      pr_info("%s: Stopping", __func__);
+      cancel_delayed_work(&kill_task_work);
+    } else if (blank == FB_BLANK_UNBLANK) {
+      pr_info("%s: Restarting", __func__);
+      queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
+    }
+    return NOTIFY_OK;
+  }
+  return NOTIFY_DONE;
 }
 
 static struct notifier_block simple_lmk_fb_notifier_block = {
-	.notifier_call = simple_lmk_fb_notifier,
-	.priority = -1,
+    .notifier_call = simple_lmk_fb_notifier,
+    .priority = -1,
 };
 
 /* For dummy minfree parameter */
-static int simple_lmk_minfree(const char *val, const struct kernel_param *kp) { return 0; }
+static int simple_lmk_minfree(const char *val, const struct kernel_param *kp) {
+  return 0;
+}
 
 static int __init simple_lmk_init(void) {
   int i;
@@ -433,8 +442,7 @@ static int __init simple_lmk_init(void) {
     processes[i].score = -1;
   }
 
-  for (i = 0; i < MAX_FOREGROUND; i++)
-	  foreground[i] = 0;
+  for (i = 0; i < MAX_FOREGROUND; i++) foreground[i] = 0;
 
   kill_work_queue = create_workqueue("simple_lmk");
   queue_delayed_work(kill_work_queue, &kill_task_work, 5000);
@@ -443,8 +451,7 @@ static int __init simple_lmk_init(void) {
 }
 
 static const struct kernel_param_ops simple_lmk_minfree_ops = {
-    .set = simple_lmk_minfree
-};
+    .set = simple_lmk_minfree};
 
 late_initcall(simple_lmk_init);
 /* Needed to prevent Android from thinking there's no LMK and thus rebooting */
