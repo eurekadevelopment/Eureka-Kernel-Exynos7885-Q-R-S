@@ -337,7 +337,7 @@ static void scan_and_kill(void) {
         goto final_check;
       }
 
-      if (processes[i].score < 200) is_foreground = true;
+      if (processes[i].score <= 350) is_foreground = true;
 
       rcu_read_unlock();
     final_check:
