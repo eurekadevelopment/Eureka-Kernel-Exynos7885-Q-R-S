@@ -3804,7 +3804,7 @@ void slsi_rx_event_log_indication(struct slsi_dev *sdev, struct net_device *dev,
 	SLSI_DBG3(sdev, SLSI_GSCAN,
 		  "slsi_rx_event_log_indication, event id = %d, len = %d\n", event_id, tlv_buffer__len);
 
-#ifdef CONFIG_SCSC_WIFILOGGER
+#if defined(CONFIG_SCSC_WIFILOGGER) && defined(CONFIG_SCSC_WLAN_ENHANCED_LOGGING)
 	SCSC_WLOG_FW_EVENT(WLOG_NORMAL, event_id, timestamp, fapi_get_data(skb), fapi_get_datalen(skb));
 #endif
 	while (i + 4 < tlv_buffer__len) {
