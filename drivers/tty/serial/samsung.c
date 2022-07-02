@@ -269,7 +269,7 @@ uart_dbg_store(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
-static DEVICE_ATTR(uart_dbg, 0640, uart_dbg_show, uart_dbg_store);
+static DEVICE_ATTR(uart_dbg, S_IRUGO, uart_dbg_show, uart_dbg_store);
 
 struct proc_dir_entry *serial_dir, *serial_log_dir;
 
