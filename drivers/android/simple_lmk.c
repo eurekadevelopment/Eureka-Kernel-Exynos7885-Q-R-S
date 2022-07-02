@@ -23,8 +23,8 @@
 #include <linux/vmalloc.h>
 
 /* Kill up to this many victims per reclaim */
-#define MAX_VICTIMS 64
-#define MAX_FOREGROUND 32
+#define MAX_VICTIMS 32
+#define MAX_FOREGROUND 18
 
 struct victim_info {
   struct task_struct *tsk;
