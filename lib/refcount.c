@@ -218,6 +218,7 @@ void refcount_dec(refcount_t *r)
 	WARN(refcount_dec_and_test(r), "refcount_t: decrement hit 0; leaking memory.\n");
 }
 EXPORT_SYMBOL_GPL(refcount_dec);
+#endif /* CONFIG_REFCOUNT_FULL */
 
 /*
  * No atomic_t counterpart, it attempts a 1 -> 0 transition and returns the
