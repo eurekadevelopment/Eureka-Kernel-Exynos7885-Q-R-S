@@ -12,6 +12,8 @@ unsigned int sysctl_sched_cfs_boost __read_mostly;
 
 #ifdef CONFIG_CGROUP_SCHEDTUNE
 
+bool schedtune_initialized = false;
+
 /*
  * EAS scheduler tunables for task groups.
  */
@@ -160,6 +162,9 @@ schedtune_boostgroup_update(int idx, int boost)
 	return 0;
 }
 
+#define ENQUEUE_TASK  1
+#define DEQUEUE_TASK -1
+
 static inline void
 schedtune_tasks_update(struct task_struct *p, int cpu, int idx, int task_count)
 {
@@ -188,6 +193,9 @@ void schedtune_enqueue_task(struct task_struct *p, int cpu)
 	struct schedtune *st;
 	int idx;
 
+	if (!unlikely(schedtune_initialized))
+		return;
+
 	/*
 	 * When a task is marked PF_EXITING by do_exit() it's going to be
 	 * dequeued and enqueued multiple times in the exit path.
@@ -203,7 +211,7 @@ void schedtune_enqueue_task(struct task_struct *p, int cpu)
 	idx = st->idx;
 	rcu_read_unlock();
 
-	schedtune_tasks_update(p, cpu, idx, 1);
+	schedtune_tasks_update(p, cpu, idx, ENQUEUE_TASK);
 }
 
 /*
@@ -213,6 +221,9 @@ void schedtune_dequeue_task(struct task_struct *p, int cpu)
 {
 	struct schedtune *st;
 	int idx;
+
+	if (!unlikely(schedtune_initialized))
+		return;
 
 	/*
 	 * When a task is marked PF_EXITING by do_exit() it's going to be
@@ -268,6 +279,9 @@ int schedtune_task_boost(struct task_struct *p)
 {
 	struct schedtune *st;
 	int task_boost;
+
+	if (!unlikely(schedtune_initialized))
+		return 0;
 
 	/* Get task boost value */
 	rcu_read_lock();
@@ -347,6 +361,9 @@ schedtune_init(void)
 
 	pr_info("  schedtune configured to support %d boost groups\n",
 		BOOSTGROUPS_COUNT);
+
+	schedtune_initialized = true;
+
 	return 0;
 }
 
