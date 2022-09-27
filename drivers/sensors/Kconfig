@@ -283,7 +283,7 @@ config SENSORS_TC3XXK
 	  Say N here if you do not use TC3XXK for grip.
 
 config SENSORS_TC3XXK_A7Y18LTE
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -294,7 +294,7 @@ config SENSORS_TC3XXK_A7Y18LTE
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_M20
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -305,7 +305,7 @@ config SENSORS_TC3XXK_M20
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_M30
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -316,7 +316,7 @@ config SENSORS_TC3XXK_M30
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A40
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -327,7 +327,7 @@ config SENSORS_TC3XXK_A40
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A30
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -339,7 +339,7 @@ config SENSORS_TC3XXK_A30
 
 
 config SENSORS_TC3XXK_A30_JPN
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -350,7 +350,7 @@ config SENSORS_TC3XXK_A30_JPN
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A20
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -361,7 +361,7 @@ config SENSORS_TC3XXK_A20
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A20E
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -372,7 +372,7 @@ config SENSORS_TC3XXK_A20E
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A10
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -383,7 +383,7 @@ config SENSORS_TC3XXK_A10
 	  Say N here if you do not use TC3XXK for grip Sensor.
 
 config SENSORS_TC3XXK_A10E
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
@@ -394,7 +394,7 @@ config SENSORS_TC3XXK_A10E
 	  Say N here if you do not use TC3XXK for grip.
 
 config SENSORS_TC3XXK_A10E_KOR
-	depends on I2C
+	depends on SENSORS_TC3XXK
 	tristate "TC3XXK driver for grip Sensor"
 	default n
 	help
