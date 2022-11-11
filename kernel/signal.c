@@ -51,6 +51,8 @@
 #include <linux/freecess.h>
 #endif
 
+#define DEBUG_KILLS
+
 /*
  * SLAB caches for signal bits.
  */
