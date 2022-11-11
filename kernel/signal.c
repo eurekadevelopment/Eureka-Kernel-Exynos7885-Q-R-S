@@ -787,10 +787,38 @@ static int check_kill_permission(int sig, struct siginfo *info,
 {
 	struct pid *sid;
 	int error;
+#ifdef DEBUG_KILLS
+	char *pathname, *p;
+	struct mm_struct *mm = current->mm;
+#endif
 
 	if (!valid_signal(sig))
 		return -EINVAL;
 
+#ifdef DEBUG_KILLS
+	if (mm) {
+		down_read(&mm->mmap_sem);
+		if (mm->exe_file) {
+			pathname = kzalloc(PATH_MAX, GFP_KERNEL);
+			if (pathname) {
+				p = d_path(&mm->exe_file->f_path, pathname, PATH_MAX);
+				pr_info("%s: caller: comm %s uid %d exe %s\n", __func__, current->comm,
+					from_kuid_munged(current_user_ns(), current_uid()), p);
+				kfree(pathname);
+			} else {
+				pr_err("%s: Failed to allocate memory\n", __func__);
+			}
+		}
+		up_read(&mm->mmap_sem);
+	}
+
+	// For the victim logging, it should be mostly apps here, so exe path will probably
+	// return /system/bin/app_process(32|64). So not including exe to log.
+	// 
+	// Also the UID will probably be random number in the apps region for the same reason.
+	// Not including as well.
+	pr_info("%s: victim: comm %s\n", __func__, t->comm);
+#endif
 	if (!si_fromuser(info))
 		return 0;
 
