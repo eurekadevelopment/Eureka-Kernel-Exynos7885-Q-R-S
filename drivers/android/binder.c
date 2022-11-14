@@ -497,6 +497,9 @@ struct binder_priority {
  * @files                 files_struct for process
  *                        (protected by @files_lock)
  * @files_lock            mutex to protect @files
+ * @cred                  struct cred associated with the `struct file`
+ *                        in binder_open()
+ *                        (invariant after initialized)
  * @deferred_work_node:   element for binder_deferred_list
  *                        (protected by binder_deferred_lock)
  * @deferred_work:        bitmap of deferred work to perform
@@ -556,6 +559,7 @@ struct binder_proc {
 	struct task_struct *tsk;
 	struct files_struct *files;
 	struct mutex files_lock;
+	const struct cred *cred;
 	struct hlist_node deferred_work_node;
 	int deferred_work;
 	int outstanding_txns;
@@ -3216,8 +3220,8 @@ static void binder_transaction(struct binder_proc *proc,
 			return_error_line = __LINE__;
 			goto err_invalid_target_handle;
 		}
-		if (security_binder_transaction(proc->cred,
-						target_proc->cred) < 0) {
+		if (security_binder_transaction(proc->tsk,
+						target_proc->tsk) < 0) {
 			return_error = BR_FAILED_REPLY;
 			return_error_param = -EPERM;
 			return_error_line = __LINE__;
@@ -3561,7 +3565,7 @@ retry_alloc:
 			binder_size_t parent_offset;
 			struct binder_fd_array_object *fda =
 				to_binder_fd_array_object(hdr);
-			size_t num_valid = (buffer_offset - off_start_offset) *
+			size_t num_valid = (buffer_offset - off_start_offset) /
 						sizeof(binder_size_t);
 			struct binder_buffer_object *parent =
 				binder_validate_ptr(target_proc, t->buffer,
@@ -3635,7 +3639,7 @@ retry_alloc:
 				t->buffer->user_data + sg_buf_offset;
 			sg_buf_offset += ALIGN(bp->length, sizeof(u64));
 
-			num_valid = (buffer_offset - off_start_offset) *
+			num_valid = (buffer_offset - off_start_offset) /
 					sizeof(binder_size_t);
 			ret = binder_fixup_parent(t, thread, bp,
 						  off_start_offset,
@@ -4444,7 +4448,7 @@ retry:
 			e->cmd = BR_OK;
 			ptr += sizeof(uint32_t);
 
-			binder_stat_br(proc, thread, cmd);
+			binder_stat_br(proc, thread, e->cmd);
 		} break;
 		case BINDER_WORK_TRANSACTION_COMPLETE: {
 			binder_inner_proc_unlock(proc);
@@ -4844,6 +4848,7 @@ static void binder_free_proc(struct binder_proc *proc)
 	}
 	binder_alloc_deferred_release(&proc->alloc);
 	put_task_struct(proc->tsk);
+	put_cred(proc->cred);
 	binder_stats_deleted(BINDER_STAT_PROC);
 	kfree(proc);
 }
@@ -5442,7 +5447,7 @@ err:
 		thread->looper_need_return = false;
 	wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
 	if (ret && ret != -ERESTARTSYS)
-		pr_info("%d:%d ioctl %x %lx returned %d\n", proc->pid, current->pid, cmd, arg, ret);
+		pr_debug("%d:%d ioctl %x %lx returned %d\n", proc->pid, current->pid, cmd, arg, ret);
 err_unlocked:
 	trace_binder_ioctl_done(ret);
 	return ret;
@@ -5543,6 +5548,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	get_task_struct(current->group_leader);
 	proc->tsk = current->group_leader;
 	mutex_init(&proc->files_lock);
+	proc->cred = get_cred(filp->f_cred);
 	INIT_LIST_HEAD(&proc->todo);
 	init_waitqueue_head(&proc->freeze_wait);
 	if (binder_supported_policy(current->policy)) {
@@ -6449,53 +6455,6 @@ static int binder_proc_show(struct seq_file *m, void *unused)
 	return 0;
 }
 
-static void print_binder_transaction_log_entry(struct seq_file *m,
-					struct binder_transaction_log_entry *e)
-{
-	int debug_id = READ_ONCE(e->debug_id_done);
-	/*
-	 * read barrier to guarantee debug_id_done read before
-	 * we print the log values
-	 */
-	smp_rmb();
-	seq_printf(m,
-		   "%d: %s from %d:%d to %d:%d context %s node %d handle %d size %d:%d ret %d/%d l=%d",
-		   e->debug_id, (e->call_type == 2) ? "reply" :
-		   ((e->call_type == 1) ? "async" : "call "), e->from_proc,
-		   e->from_thread, e->to_proc, e->to_thread, e->context_name,
-		   e->to_node, e->target_handle, e->data_size, e->offsets_size,
-		   e->return_error, e->return_error_param,
-		   e->return_error_line);
-	/*
-	 * read-barrier to guarantee read of debug_id_done after
-	 * done printing the fields of the entry
-	 */
-	smp_rmb();
-	seq_printf(m, debug_id && debug_id == READ_ONCE(e->debug_id_done) ?
-			"\n" : " (incomplete)\n");
-}
-
-static int binder_transaction_log_show(struct seq_file *m, void *unused)
-{
-	struct binder_transaction_log *log = m->private;
-	unsigned int log_cur = atomic_read(&log->cur);
-	unsigned int count;
-	unsigned int cur;
-	int i;
-
-	count = log_cur + 1;
-	cur = count < ARRAY_SIZE(log->entry) && !log->full ?
-		0 : count % ARRAY_SIZE(log->entry);
-	if (count > ARRAY_SIZE(log->entry) || log->full)
-		count = ARRAY_SIZE(log->entry);
-	for (i = 0; i < count; i++) {
-		unsigned int index = cur++ % ARRAY_SIZE(log->entry);
-
-		print_binder_transaction_log_entry(m, &log->entry[index]);
-	}
-	return 0;
-}
-
 const struct file_operations binder_fops = {
 	.owner = THIS_MODULE,
 	.poll = binder_poll,
@@ -6506,11 +6465,6 @@ const struct file_operations binder_fops = {
 	.flush = binder_flush,
 	.release = binder_release,
 };
-
-BINDER_DEBUG_ENTRY(state);
-BINDER_DEBUG_ENTRY(stats);
-BINDER_DEBUG_ENTRY(transactions);
-BINDER_DEBUG_ENTRY(transaction_log);
 
 static int __init init_binder_device(const char *name)
 {
@@ -6577,16 +6531,6 @@ static int __init binder_init(void)
 				    binder_debugfs_dir_entry_root,
 				    NULL,
 				    &binder_transactions_fops);
-		debugfs_create_file("transaction_log",
-				    0444,
-				    binder_debugfs_dir_entry_root,
-				    &binder_transaction_log,
-				    &binder_transaction_log_fops);
-		debugfs_create_file("failed_transaction_log",
-				    0444,
-				    binder_debugfs_dir_entry_root,
-				    &binder_transaction_log_failed,
-				    &binder_transaction_log_fops);
 	}
 
 	if (!IS_ENABLED(CONFIG_ANDROID_BINDERFS) &&
