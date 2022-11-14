@@ -691,7 +691,7 @@ void input_booster(struct input_dev *dev)
 }
 
 // ********** Init Booster ********** //
-void input_booster_init()
+void input_booster_init(void)
 {
 	// ********** Load Frequncy data from DTSI **********
 	struct device_node *np;

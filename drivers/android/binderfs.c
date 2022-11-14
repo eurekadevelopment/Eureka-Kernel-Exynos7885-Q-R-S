@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 
-#include <linux/compiler_types.h>
+#include <linux/compiler.h>
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/fsnotify.h>
@@ -48,16 +48,6 @@ static dev_t binderfs_dev;
 static DEFINE_MUTEX(binderfs_minors_mutex);
 static DEFINE_IDA(binderfs_minors);
 
-/**
- * binderfs_mount_opts - mount options for binderfs
- * @max: maximum number of allocatable binderfs binder devices
- * @stats_mode: enable binder stats in binderfs.
- */
-struct binderfs_mount_opts {
-	int max;
-	int stats_mode;
-};
-
 enum {
 	Opt_max,
 	Opt_stats_mode,
@@ -73,27 +63,6 @@ static const match_table_t tokens = {
 	{ Opt_max, "max=%d" },
 	{ Opt_stats_mode, "stats=%s" },
 	{ Opt_err, NULL     }
-};
-
-/**
- * binderfs_info - information about a binderfs mount
- * @ipc_ns:         The ipc namespace the binderfs mount belongs to.
- * @control_dentry: This records the dentry of this binderfs mount
- *                  binder-control device.
- * @root_uid:       uid that needs to be used when a new binder device is
- *                  created.
- * @root_gid:       gid that needs to be used when a new binder device is
- *                  created.
- * @mount_opts:     The mount options in use.
- * @device_count:   The current number of allocated binder devices.
- */
-struct binderfs_info {
-	struct ipc_namespace *ipc_ns;
-	struct dentry *control_dentry;
-	kuid_t root_uid;
-	kgid_t root_gid;
-	struct binderfs_mount_opts mount_opts;
-	int device_count;
 };
 
 static inline struct binderfs_info *BINDERFS_I(const struct inode *inode)
@@ -395,14 +364,13 @@ static inline bool is_binderfs_control_device(const struct dentry *dentry)
 }
 
 static int binderfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-			   struct inode *new_dir, struct dentry *new_dentry,
-			   unsigned int flags)
+			   struct inode *new_dir, struct dentry *new_dentry)
 {
 	if (is_binderfs_control_device(old_dentry) ||
 	    is_binderfs_control_device(new_dentry))
 		return -EPERM;
 
-	return simple_rename(old_dir, old_dentry, new_dir, new_dentry, flags);
+	return simple_rename(old_dir, old_dentry, new_dir, new_dentry);
 }
 
 static int binderfs_unlink(struct inode *dir, struct dentry *dentry)

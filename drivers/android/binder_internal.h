@@ -57,9 +57,7 @@ struct binderfs_mount_opts {
  * @root_gid:       gid that needs to be used when a new binder device is
  *                  created.
  * @mount_opts:     The mount options in use.
- * @device_count:   The current number of allocated binder devices.
- * @proc_log_dir:   Pointer to the directory dentry containing process-specific
- *                  logs.
+ * @device_count:   The current number of allocated binder devices.c
  */
 struct binderfs_info {
 	struct ipc_namespace *ipc_ns;
@@ -68,7 +66,6 @@ struct binderfs_info {
 	kgid_t root_gid;
 	struct binderfs_mount_opts mount_opts;
 	int device_count;
-	struct dentry *proc_log_dir;
 };
 
 extern const struct file_operations binder_fops;
