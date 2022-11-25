@@ -8114,6 +8114,11 @@ static void aot_enable(void *device_data)
 	
 	sec_cmd_set_default_result(sec);
 
+	if (val == info->aot_enable) {
+		snprintf(buff, sizeof(buff), "NOOP");
+		goto result;
+	}
+
 	if (val) {
 		info->aot_enable = 1;
 		zinitix_bit_set(info->lpm_mode, BIT_EVENT_AOT);
@@ -8124,6 +8129,7 @@ static void aot_enable(void *device_data)
 
 	snprintf(buff, sizeof(buff),
 			"aot_enable %s", val ? "enable" : "disable");
+result:
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 
 	mutex_lock(&sec->cmd_lock);

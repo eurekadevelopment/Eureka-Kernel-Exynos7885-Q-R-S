@@ -1572,6 +1572,7 @@ static void aot_enable(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct mms_ts_info *info = container_of(sec, struct mms_ts_info, sec);
+	static bool aot_enabled = false;
 	char buff[64] = { 0 };
 	int ret;
 
@@ -1586,6 +1587,11 @@ static void aot_enable(void *device_data)
 		return;
 	}
 
+	if (aot_enabled == sec->cmd_param[0]) {
+		snprintf(buff, sizeof(buff), "%s", "NOOP");
+		goto out_noop;
+	}
+
 	if (sec->cmd_param[0]) {
 		info->lowpower_mode = true;
 		info->lowpower_flag = info->lowpower_flag | MMS_MODE_SPONGE_DOUBLETAP_TO_WAKEUP;
@@ -1594,7 +1600,7 @@ static void aot_enable(void *device_data)
 		if (!info->lowpower_flag)
 			info->lowpower_mode = false;
 	}
-
+	aot_enabled = sec->cmd_param[0];
 	input_info(true, &info->client->dev, "%s: %s mode, %x\n",
 			__func__, info->lowpower_mode ? "LPM" : "normal",
 			info->lowpower_flag);
@@ -1606,6 +1612,7 @@ static void aot_enable(void *device_data)
 	}
 
 	snprintf(buff, sizeof(buff), "%s", "OK");
+out_noop:
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 	sec_cmd_set_cmd_exit(sec);
