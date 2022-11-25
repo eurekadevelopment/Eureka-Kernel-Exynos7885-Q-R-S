@@ -6398,8 +6398,16 @@ static struct security_hook_list selinux_hooks[] = {
 #endif
 };
 
+#ifdef CONFIG_SELINUX_STATE_DT_NODE
+#include <linux/of.h>
+#endif
+
 static __init int selinux_init(void)
 {
+#ifdef CONFIG_SELINUX_STATE_DT_NODE
+	struct device_node *selnode;
+	int ret;
+#endif
 	if (!security_module_enable("selinux")) {
 		selinux_enabled = 0;
 		return 0;
@@ -6429,6 +6437,18 @@ static __init int selinux_init(void)
 
 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
 		panic("SELinux: Unable to register AVC netcache callback\n");
+
+#ifdef CONFIG_SELINUX_STATE_DT_NODE
+	selnode = of_find_node_by_path("/selinux");
+	if (selnode) {
+		int enforcing;
+		ret = of_property_read_u32(selnode, "sel_boot_state", &enforcing);
+		if (!ret && (enforcing == 1 || enforcing == 0))
+			selinux_enforcing = enforcing;
+		else
+			printk(KERN_DEBUG "SELinux: Ignore DTB supplied value: %d\n", enforcing);
+	}
+#endif
 	if (selinux_enforcing)
 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
 	else
