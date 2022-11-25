@@ -2980,6 +2980,7 @@ static void glove_mode(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct sec_ts_data *ts = container_of(sec, struct sec_ts_data, sec);
+	static bool glove_mode_enabled = false;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int ret;
 
@@ -2989,11 +2990,20 @@ static void glove_mode(void *device_data)
 		snprintf(buff, sizeof(buff), "NG");
 		sec->cmd_state = SEC_CMD_STATUS_FAIL;
 	} else {
-		if (sec->cmd_param[0])
+		if (sec->cmd_param[0]) {
+			if (glove_mode_enabled) {
+				snprintf(buff, sizeof(buff), "%s", "NOOP");
+				goto result;
+			}
 			ts->touch_functions |= SEC_TS_BIT_SETFUNC_GLOVE;
-		else
+		} else {
+			if (!glove_mode_enabled) {
+				snprintf(buff, sizeof(buff), "%s", "NOOP");
+				goto result;
+			}
 			ts->touch_functions &= ~SEC_TS_BIT_SETFUNC_GLOVE;
-
+		}
+		glove_mode_enabled = sec->cmd_param[0];
 		ret = sec_ts_set_touch_function(ts);
 		if (ret < 0) {
 			input_err(true, &ts->client->dev, "%s: failed, retval = %d\n", __func__, ret);
@@ -3004,7 +3014,7 @@ static void glove_mode(void *device_data)
 			sec->cmd_state = SEC_CMD_STATUS_OK;
 		}
 	}
-
+result:
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 	sec_cmd_set_cmd_exit(sec);

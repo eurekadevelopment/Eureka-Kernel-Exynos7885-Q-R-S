@@ -4148,6 +4148,7 @@ END_OUPUT:
 static void glove_mode(void *dev_data)
 {
 	char buf[LEN_RSLT] = { 0 };
+	static bool glove_mode_enabled = false;
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)dev_data;
 	struct himax_ts_data *data =
 		container_of(sec, struct himax_ts_data, sec);
@@ -4168,18 +4169,28 @@ static void glove_mode(void *dev_data)
 
 	switch (sec->cmd_param[0]) {
 	case 0:
+		if (!glove_mode_enabled) {
+			sec->cmd_state = SEC_CMD_STATUS_ALREADY;
+			goto print;
+		}
 		sec->cmd_state = SEC_CMD_STATUS_OK;
 		input_info(true, &data->client->dev,
 				"%s %s(), Unset Glove Mode\n", HIMAX_LOG_TAG,
 				__func__);
 		g_core_fp.fp_set_HSEN_enable(0, false);
+		glove_mode_enabled = 0;
 		break;
 	case 1:
+		if (glove_mode_enabled) {
+			sec->cmd_state = SEC_CMD_STATUS_ALREADY;
+			goto print;
+		}
 		sec->cmd_state = SEC_CMD_STATUS_OK;
 		input_info(true, &data->client->dev,
 				"%s %s(), Set Glove Mode\n", HIMAX_LOG_TAG,
 				__func__);
 		g_core_fp.fp_set_HSEN_enable(1, false);
+		glove_mode_enabled = 1;
 		break;
 	default:
 		sec->cmd_state = SEC_CMD_STATUS_FAIL;
@@ -4188,9 +4199,11 @@ static void glove_mode(void *dev_data)
 				__func__);
 		break;
 	}
-
+print:
 	if (sec->cmd_state == SEC_CMD_STATUS_OK)
 		snprintf(buf, sizeof(buf), "%s", "OK");
+	else if (sec->cmd_state == SEC_CMD_STATUS_ALREADY)
+		snprintf(buf, sizeof(buf), "%s", "NOOP");
 	else
 		snprintf(buf, sizeof(buf), "%s", "NG");
 out:

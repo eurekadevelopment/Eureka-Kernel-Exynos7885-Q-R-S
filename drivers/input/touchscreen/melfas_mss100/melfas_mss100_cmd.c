@@ -1319,6 +1319,11 @@ static void glove_mode(void *device_data)
 
 	sec_cmd_set_default_result(sec);
 
+	if (info->glove_mode == enable) {
+		snprintf(buff, sizeof(buff), "%s", "NOOP");
+		goto out_noop;
+	}
+
 	input_info(true, &info->client->dev, "%s %d\n", __func__, enable);
 
 	info->glove_mode = enable;
@@ -1340,6 +1345,7 @@ static void glove_mode(void *device_data)
 	input_dbg(true, &info->client->dev, "%s [DONE]\n", __func__);
 
 	snprintf(buff, sizeof(buff), "%s", "OK");
+out_noop:
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 	sec_cmd_set_cmd_exit(sec);

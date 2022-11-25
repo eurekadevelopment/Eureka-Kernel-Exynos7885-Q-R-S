@@ -8242,6 +8242,7 @@ static void glove_mode(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
+	static bool glove_mode_enabled = false;
 	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 
@@ -8251,15 +8252,29 @@ static void glove_mode(void *device_data)
 		snprintf(buff, sizeof(buff), "%s", "NG");
 		sec->cmd_state = SEC_CMD_STATUS_FAIL;
 	} else {
-		if (sec->cmd_param[0])
+		if (sec->cmd_param[0]) {
+			if (glove_mode_enabled) {
+				sec->cmd_state == SEC_CMD_STATUS_ALREADY;
+				goto result;
+			}
 			zinitix_bit_set(m_optional_mode.select_mode.flag, DEF_OPTIONAL_MODE_SENSITIVE_BIT);
-		else
+		} else {
+			if (!glove_mode_enabled) {
+				sec->cmd_state == SEC_CMD_STATUS_ALREADY;
+				goto result;
+			}
 			zinitix_bit_clr(m_optional_mode.select_mode.flag, DEF_OPTIONAL_MODE_SENSITIVE_BIT);
-
+		}
+		glove_mode_enabled = sec->cmd_param[0];
 		snprintf(buff, sizeof(buff), "%s", "OK");
 		sec->cmd_state = SEC_CMD_STATUS_OK;
 	}
 
+result:
+	if (sec->cmd_state == SEC_CMD_STATUS_ALREADY) {
+		snprintf(buff, sizeof(buff), "%s", "NOOP");
+		sec->cmd_state = SEC_CMD_STATUS_OK;
+	}
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 
 	mutex_lock(&sec->cmd_lock);
