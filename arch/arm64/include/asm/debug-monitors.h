@@ -123,6 +123,7 @@ void check_and_clear_os_lock(void);
 #ifdef CONFIG_SEC_KWATCHER
 void restore_debug_monitors(void);
 #endif
+void kernel_rewind_single_step(struct pt_regs *regs);
 
 #ifdef CONFIG_HAVE_HW_BREAKPOINT
 int reinstall_suspended_bps(struct pt_regs *regs);
