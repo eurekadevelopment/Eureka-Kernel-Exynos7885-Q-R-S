@@ -209,7 +209,8 @@ static int az6007_rc_query(struct dvb_usb_device *d)
 	struct az6007_device_state *st = d_to_priv(d);
 	unsigned code;
 
-	az6007_read(d, AZ6007_READ_IR, 0, 0, st->data, 10);
+	if (az6007_read(d, AZ6007_READ_IR, 0, 0, st->data, 10) < 0)
+		return -EIO;
 
 	if (st->data[1] == 0x44)
 		return 0;
