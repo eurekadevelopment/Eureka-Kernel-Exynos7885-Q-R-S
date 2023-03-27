@@ -6444,7 +6444,7 @@ static __init int selinux_init(void)
 		int enforcing;
 		ret = of_property_read_u32(selnode, "sel_boot_state", &enforcing);
 		if (!ret && (enforcing == 1 || enforcing == 0))
-			selinux_enforcing = !enforcing; // Enforcing 0, Permissive 1
+			selinux_enforcing = enforcing;
 		else
 			printk(KERN_DEBUG "SELinux: Ignore DTB supplied value: %d\n", enforcing);
 	}
