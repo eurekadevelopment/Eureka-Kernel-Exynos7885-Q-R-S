@@ -138,6 +138,9 @@ endif
 targets := $(fw-shipped-) $(patsubst $(obj)/%,%, \
 				$(shell find $(obj) -name \*.gen.S 2>/dev/null))
 
+# Prevent deleting of a30s' binaries
+targets := $(filter-out tsp_imagis/ist40xx_a30s.bin tsp_imagis/ist40xx_a30s_cmcs.bin, $(targets))
+
 # Without this, built-in.o won't be created when it's empty, and the
 # final vmlinux link will fail.
 obj- := dummy
