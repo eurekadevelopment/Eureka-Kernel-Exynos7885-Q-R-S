@@ -696,7 +696,7 @@ static enum ucode_state apply_microcode_amd(int cpu)
 		return UCODE_ERROR;
 
 	/* need to apply patch? */
-	if (rev >= mc_amd->hdr.patch_id) {
+	if (rev > mc_amd->hdr.patch_id) {
 		ret = UCODE_OK;
 		goto out;
 	}
