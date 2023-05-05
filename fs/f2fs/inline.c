@@ -391,22 +391,19 @@ static int f2fs_move_inline_dirents(struct inode *dir, struct page *ipage,
 
 	dentry_blk = page_address(page);
 
-	make_dentry_ptr_inline(dir, &src, inline_dentry);
-	make_dentry_ptr_block(dir, &dst, dentry_blk);
-
 	/*
 	 * Start by zeroing the full block, to ensure that all unused space is
 	 * zeroed and no uninitialized memory is leaked to disk.
 	 */
 	memset(dentry_blk, 0, F2FS_BLKSIZE);
 
+	make_dentry_ptr_inline(dir, &src, inline_dentry);
+	make_dentry_ptr_block(dir, &dst, dentry_blk);
+
 	/* copy data from inline dentry block to new dentry block */
-	memcpy(dentry_blk->dentry_bitmap, inline_dentry->dentry_bitmap,
-					INLINE_DENTRY_BITMAP_SIZE);
-	memcpy(dentry_blk->dentry, inline_dentry->dentry,
-			sizeof(struct f2fs_dir_entry) * NR_INLINE_DENTRY);
-	memcpy(dentry_blk->filename, inline_dentry->filename,
-					NR_INLINE_DENTRY * F2FS_SLOT_LEN);
+	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
+	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
+	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
 
 	if (!PageUptodate(page))
 		SetPageUptodate(page);
