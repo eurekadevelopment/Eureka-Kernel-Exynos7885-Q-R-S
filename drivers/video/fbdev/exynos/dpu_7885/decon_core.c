@@ -2771,6 +2771,8 @@ static void decon_destroy_update_thread(struct decon_device *decon)
 
 static int decon_create_update_thread(struct decon_device *decon, char *name)
 {
+	struct sched_param param;
+
 	INIT_LIST_HEAD(&decon->up.list);
 	atomic_set(&decon->up.remaining_frame, 0);
 	init_kthread_worker(&decon->up.worker);
@@ -2781,6 +2783,9 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 		decon_err("failed to run update_regs thread\n");
 		return PTR_ERR(decon->up.thread);
 	}
+
+	param.sched_priority = 2;
+	sched_setscheduler_nocheck(decon->up.thread, SCHED_FIFO, &param);
 	init_kthread_work(&decon->up.work, decon_update_regs_handler);
 
 	return 0;
