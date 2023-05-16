@@ -50,6 +50,14 @@ config IOSCHED_ZEN
 	  FCFS, dispatches are back-inserted, deadlines ensure fairness.
 	  Should work best with devices where there is no travel delay.
 
+config IOSCHED_FIOPS
+	tristate "IOPS based I/O scheduler"
+	default n
+	---help---
+	  This is an IOPS based I/O scheduler. It will try to distribute
+          IOPS equally among all processes in the system. It's mainly for
+          Flash based storage.
+
 config IOSCHED_BFQ
 	tristate "BFQ I/O scheduler"
 	default n
@@ -118,6 +126,8 @@ choice
 
 	config DEFAULT_SIO
 		bool "SIO" if IOSCHED_SIO=y
+	config DEFAULT_FIOPS
+		bool "FIOPS" if IOSCHED_FIOPS=y
 
 	config DEFAULT_NOOP
 		bool "No-op"
@@ -134,6 +144,7 @@ config DEFAULT_IOSCHED
 	default "maple" if DEFAULT_MAPLE
 	default "anxiety" if DEFAULT_ANXIETY
 	default "sio" if DEFAULT_SIO
+	default "fiops" if DEFAULT_FIOPS
 	default "noop" if DEFAULT_NOOP
 	default "zen" if DEFAULT_ZEN
 
