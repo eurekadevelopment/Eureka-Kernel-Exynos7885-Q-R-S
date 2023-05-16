@@ -53,6 +53,7 @@ extern int nr_cpu_ids;
  *     cpu_present_mask - has bit 'cpu' set iff cpu is populated
  *     cpu_online_mask  - has bit 'cpu' set iff cpu available to scheduler
  *     cpu_active_mask  - has bit 'cpu' set iff cpu available to migration
+ *     cpu_isolated_mask- has bit 'cpu' set iff cpu isolated
  *     cpu_lp_mask      - has bit 'cpu' set iff cpu is part of little cluster
  *     cpu_perf_mask    - has bit 'cpu' set iff cpu is part of big cluster
  *
@@ -91,6 +92,7 @@ extern const struct cpumask *const cpu_possible_mask;
 extern const struct cpumask *const cpu_online_mask;
 extern const struct cpumask *const cpu_present_mask;
 extern const struct cpumask *const cpu_active_mask;
+extern const struct cpumask *const cpu_isolated_mask;
 extern const struct cpumask *const cpu_lp_mask;
 extern const struct cpumask *const cpu_perf_mask;
 
@@ -99,10 +101,12 @@ extern const struct cpumask *const cpu_perf_mask;
 #define num_possible_cpus()	cpumask_weight(cpu_possible_mask)
 #define num_present_cpus()	cpumask_weight(cpu_present_mask)
 #define num_active_cpus()	cpumask_weight(cpu_active_mask)
+#define num_isolated_cpus()	cpumask_weight(cpu_isolated_mask)
 #define cpu_online(cpu)		cpumask_test_cpu((cpu), cpu_online_mask)
 #define cpu_possible(cpu)	cpumask_test_cpu((cpu), cpu_possible_mask)
 #define cpu_present(cpu)	cpumask_test_cpu((cpu), cpu_present_mask)
 #define cpu_active(cpu)		cpumask_test_cpu((cpu), cpu_active_mask)
+#define cpu_isolated(cpu)	cpumask_test_cpu((cpu), cpu_isolated_mask)
 #ifdef CONFIG_SCHED_HMP
 extern struct cpumask hmp_slow_cpu_mask;
 extern struct cpumask hmp_fast_cpu_mask;
@@ -118,6 +122,7 @@ extern struct cpumask hmp_fast_cpu_mask;
 #define cpu_possible(cpu)	((cpu) == 0)
 #define cpu_present(cpu)	((cpu) == 0)
 #define cpu_active(cpu)		((cpu) == 0)
+#define cpu_isolated(cpu)	((cpu) == 0)
 #endif
 
 /* verify cpu argument to cpumask_* operators */
@@ -759,6 +764,7 @@ void set_cpu_possible(unsigned int cpu, bool possible);
 void set_cpu_present(unsigned int cpu, bool present);
 void set_cpu_online(unsigned int cpu, bool online);
 void set_cpu_active(unsigned int cpu, bool active);
+void set_cpu_isolated(unsigned int cpu, bool isolated);
 void init_cpu_present(const struct cpumask *src);
 void init_cpu_possible(const struct cpumask *src);
 void init_cpu_online(const struct cpumask *src);
