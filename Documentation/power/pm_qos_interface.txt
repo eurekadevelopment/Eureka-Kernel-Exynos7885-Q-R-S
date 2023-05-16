@@ -56,6 +56,9 @@ the request.
 int pm_qos_request(param_class):
 Returns the aggregated value for a given PM QoS class.
 
+int pm_qos_request_for_cpu(param_class, cpu):
+Returns the aggregated value for a given PM QoS class for the specified cpu.
+
 int pm_qos_request_active(handle):
 Returns if the request is still active, i.e. it has not been removed from a
 PM QoS class constraints list.
