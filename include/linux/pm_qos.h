@@ -99,6 +99,7 @@ enum pm_qos_flags_status {
 } while(0)
 
 struct pm_qos_request {
+	struct cpumask cpus_affine;
 	struct plist_node node;
 	int pm_qos_class;
 	struct delayed_work work; /* for pm_qos_update_request_timeout */
@@ -142,6 +143,7 @@ enum pm_qos_type {
 struct pm_qos_constraints {
 	struct plist_head list;
 	s32 target_value;	/* Do not change to 64 bit */
+	s32 target_per_cpu[NR_CPUS];
 	s32 default_value;
 	s32 no_constraint_value;
 	enum pm_qos_type type;
@@ -194,6 +196,7 @@ void pm_qos_remove_request(struct pm_qos_request *req);
 
 int pm_qos_read_req_value(int pm_qos_class, struct pm_qos_request *req);
 int pm_qos_request(int pm_qos_class);
+int pm_qos_request_for_cpu(int pm_qos_class, int cpu);
 int pm_qos_add_notifier(int pm_qos_class, struct notifier_block *notifier);
 int pm_qos_remove_notifier(int pm_qos_class, struct notifier_block *notifier);
 int pm_qos_request_active(struct pm_qos_request *req);
