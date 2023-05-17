@@ -40,6 +40,8 @@
 #include "dpp.h"
 #include "displayport.h"
 
+extern void set_gpu_policy(bool is_suspend);
+
 int decon_log_level = 6;
 module_param(decon_log_level, int, 0644);
 struct decon_device *decon_drvdata[MAX_DECON_CNT];
@@ -544,6 +546,9 @@ static int decon_blank(int blank_mode, struct fb_info *info)
 blank_exit:
 	decon_hiber_unblock(decon);
 	decon_info("%s -\n", __func__);
+
+	set_gpu_policy(is_suspend);
+
 	return ret;
 }
 
