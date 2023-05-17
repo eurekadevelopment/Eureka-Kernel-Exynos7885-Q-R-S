@@ -9047,13 +9047,13 @@ static int should_we_balance(struct lb_env *env)
 	 * to do the newly idle load balance.
 	 */
 	if (env->idle == CPU_NEWLY_IDLE) {
-#if SCHED_FEAT_TTWU_QUEUE
-		if (env->dst_rq->nr_running > 0 || !llist_empty(&env->dst_rq->wake_list))
+		if (env->dst_rq->nr_running > 0 || !llist_empty(&env->dst_rq->wake_list)) {
 			return 0;
-#else
+		}
+		else {
 		if (env->dst_rq->nr_running > 0)
 			return 0;
-#endif
+		}
 		return 1;
 	}
 

@@ -308,12 +308,6 @@ static void fiops_add_rq_rb(struct request *rq)
 		fiops_add_ioc_rr(fiopsd, ioc);
 }
 
-static void fiops_reposition_rq_rb(struct fiops_ioc *ioc, struct request *rq)
-{
-	elv_rb_del(&ioc->sort_list, rq);
-	fiops_add_rq_rb(rq);
-}
-
 static void fiops_remove_request(struct request *rq)
 {
 	list_del_init(&rq->queuelist);
@@ -519,31 +513,6 @@ static void fiops_completed_request(struct request_queue *q, struct request *rq)
 		fiops_schedule_dispatch(fiopsd);
 }
 
-static struct request *
-fiops_find_rq_fmerge(struct fiops_data *fiopsd, struct bio *bio)
-{
-	struct task_struct *tsk = current;
-	struct fiops_ioc *cic;
-
-	cic = fiops_cic_lookup(fiopsd, tsk->io_context);
-
-	if (cic) {
-		return elv_rb_find(&cic->sort_list, bio_end_sector(bio));
-	}
-
-	return NULL;
-}
-
-static void fiops_merged_request(struct request_queue *q, struct request *req,
-				int type)
-{
-	if (type == ELEVATOR_FRONT_MERGE) {
-		struct fiops_ioc *ioc = RQ_CIC(req);
-
-		fiops_reposition_rq_rb(ioc, req);
-	}
-}
-
 static void
 fiops_merged_requests(struct request_queue *q, struct request *rq,
 		    struct request *next)
@@ -560,27 +529,6 @@ fiops_merged_requests(struct request_queue *q, struct request *rq,
 	 */
 	if (fiops_ioc_on_rr(ioc) && RB_EMPTY_ROOT(&ioc->sort_list))
 		fiops_del_ioc_rr(fiopsd, ioc);
-}
-
-static int fiops_allow_bio_merge(struct request_queue *q, struct request *rq,
-			   struct bio *bio)
-{
-	struct fiops_data *fiopsd = q->elevator->elevator_data;
-	struct fiops_ioc *cic;
-
-	/*
-	 * Lookup the ioc that this bio will be queued with. Allow
-	 * merge only if rq is queued there.
-	 */
-	cic = fiops_cic_lookup(fiopsd, current->io_context);
-
-	return cic == RQ_CIC(rq);
-}
-
-static int fiops_allow_rq_merge(struct request_queue *q, struct request *rq,
-			      struct request *next)
-{
-	return RQ_CIC(rq) == RQ_CIC(next);
 }
 
 static void fiops_exit_queue(struct elevator_queue *e)
