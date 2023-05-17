@@ -405,6 +405,8 @@ static void kbase_file_delete(struct kbase_file *const kfile)
 	kfree(kfile);
 }
 
+bool gpu_always_on = false;
+
 static int kbase_api_handshake(struct kbase_file *kfile,
 			       struct kbase_ioctl_version_check *version)
 {
@@ -2006,6 +2008,11 @@ static ssize_t set_policy(struct device *dev, struct device_attribute *attr, con
 		dev_err(dev, "power_policy: policy not found\n");
 		return -EINVAL;
 	}
+
+	if (sysfs_streq(buf, "always_on"))
+		gpu_always_on = true;
+	else
+		gpu_always_on = false;
 
 	kbase_pm_set_policy(kbdev, new_policy);
 
