@@ -590,7 +590,7 @@ static ssize_t firmware_version_show(struct device *dev,
 				struct device_attribute
 				*attr, char *buf)
 {
-	struct hid_device *hdev = to_hid_device(dev);
+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
 	struct ps_device *ps_dev = hid_get_drvdata(hdev);
 
 	return snprintf(buf, PAGE_SIZE, "0x%08x\n", ps_dev->fw_version);
@@ -602,7 +602,7 @@ static ssize_t hardware_version_show(struct device *dev,
 				struct device_attribute
 				*attr, char *buf)
 {
-	struct hid_device *hdev = to_hid_device(dev);
+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
 	struct ps_device *ps_dev = hid_get_drvdata(hdev);
 
 	return snprintf(buf, PAGE_SIZE, "0x%08x\n", ps_dev->hw_version);
@@ -1286,7 +1286,7 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		}
 	}
 
-	ret = devm_device_add_group(&hdev->dev, &ps_device_attribute_group);
+	ret = device_add_groups(&hdev->dev, (const struct attribute_group **)&ps_device_attribute_group);
 	if (ret) {
 		hid_err(hdev, "Failed to register sysfs nodes.\n");
 		goto err_close;

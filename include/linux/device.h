@@ -1065,12 +1065,24 @@ struct device *device_create_with_groups(struct class *cls,
 			     const char *fmt, ...);
 extern void device_destroy(struct class *cls, dev_t devt);
 
+extern int __must_check device_add_groups(struct device *dev,
+					const struct attribute_group **groups);
+
 /*
  * Platform "fixup" functions - allow the platform to have their say
  * about devices and actions that the general device layer doesn't
  * know about.
  */
 /* Notify platform of device discovery */
+
+static inline int __must_check device_add_group(struct device *dev,
+					const struct attribute_group *grp)
+{
+	const struct attribute_group *groups[] = { grp, NULL };
+
+	return device_add_groups(dev, groups);
+}
+
 extern int (*platform_notify)(struct device *dev);
 
 extern int (*platform_notify_remove)(struct device *dev);
