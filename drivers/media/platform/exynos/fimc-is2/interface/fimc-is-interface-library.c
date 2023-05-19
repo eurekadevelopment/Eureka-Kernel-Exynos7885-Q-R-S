@@ -1484,7 +1484,7 @@ bool lib_task_trigger(struct fimc_is_lib_support *this,
 	index = (lib_task->work_index - 1) % LIB_MAX_TASK;
 	spin_unlock(&lib_task->work_lock);
 
-	return queue_kthread_work(&lib_task->worker, &lib_task->work[index].work);
+	return kthread_queue_work(&lib_task->worker, &lib_task->work[index].work);
 }
 
 int fimc_is_lib_check_priority(u32 type, int priority)
@@ -1620,7 +1620,7 @@ int fimc_is_init_ddk_thread(void)
 
 	for (i = 0 ; i < TASK_INDEX_MAX; i++) {
 		spin_lock_init(&lib->task_taaisp[i].work_lock);
-		init_kthread_worker(&lib->task_taaisp[i].worker);
+		kthread_init_worker(&lib->task_taaisp[i].worker);
 		snprintf(name, sizeof(name), "lib_%d_worker", i);
 		lib->task_taaisp[i].task = kthread_run(kthread_worker_fn,
 							&lib->task_taaisp[i].worker,
@@ -1645,7 +1645,7 @@ int fimc_is_init_ddk_thread(void)
 		for (j = 0; j < LIB_MAX_TASK; j++) {
 			lib->task_taaisp[i].work[j].func = NULL;
 			lib->task_taaisp[i].work[j].params = NULL;
-			init_kthread_work(&lib->task_taaisp[i].work[j].work,
+			kthread_init_work(&lib->task_taaisp[i].work[j].work,
 					lib_task_work);
 		}
 
@@ -1671,8 +1671,8 @@ void fimc_is_flush_ddk_thread(void)
 
 	for (i = 0; i < TASK_INDEX_MAX; i++) {
 		if (lib->task_taaisp[i].task) {
-			dbg_lib(3, "flush_ddk_thread: flush_kthread_worker (%d)\n", i);
-			flush_kthread_worker(&lib->task_taaisp[i].worker);
+			dbg_lib(3, "flush_ddk_thread: kthread_flush_worker (%d)\n", i);
+			kthread_flush_worker(&lib->task_taaisp[i].worker);
 
 			ret = kthread_stop(lib->task_taaisp[i].task);
 			if (ret) {
@@ -1697,7 +1697,7 @@ void fimc_is_lib_flush_task_handler(int priority)
 
 	dbg_lib(0, "%s: task_index(%d), priority(%d)\n", __func__, task_index, priority);
 
-	flush_kthread_worker(&lib->task_taaisp[task_index].worker);
+	kthread_flush_worker(&lib->task_taaisp[task_index].worker);
 }
 
 void fimc_is_load_clear(void)

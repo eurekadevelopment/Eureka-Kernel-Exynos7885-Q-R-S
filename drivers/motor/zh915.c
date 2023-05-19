@@ -342,7 +342,7 @@ static void vibrator_enable( struct timed_output_dev *dev, int value)
 	
 	pr_info("[VIB] %s %dms\n", __func__, value);
 
-	flush_kthread_worker(&zh915data->kworker);
+	kthread_flush_worker(&zh915data->kworker);
 	hrtimer_cancel(&zh915data->timer);
 
 	mutex_lock(&zh915data->lock);
@@ -425,7 +425,7 @@ static enum hrtimer_restart vibrator_timer_func(struct hrtimer *timer)
 		container_of(timer, struct zh915_data, timer);
 	pr_info("[VIB] %s\n", __func__);
 	
-	queue_kthread_work(&zh915data->kworker, &zh915data->vibrator_work);
+	kthread_queue_work(&zh915data->kworker, &zh915data->vibrator_work);
 
 	return HRTIMER_NORESTART;
 }
@@ -485,13 +485,13 @@ static int Haptics_init(struct zh915_data *zh915data)
 	hrtimer_init(&zh915data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	zh915data->timer.function = vibrator_timer_func;
 
-	init_kthread_worker(&zh915data->kworker);
+	kthread_init_worker(&zh915data->kworker);
 	kworker_task = kthread_run(kthread_worker_fn,
 			&zh915data->kworker, "zh915_haptic");
 	if (IS_ERR(kworker_task)) {
 		pr_err("Failed to create message pump task\n");
 	}
-	init_kthread_work(&zh915data->vibrator_work, vibrator_work_routine);
+	kthread_init_work(&zh915data->vibrator_work, vibrator_work_routine);
 
 	wake_lock_init(&zh915data->wklock, WAKE_LOCK_SUSPEND, "vibrator");
 	mutex_init(&zh915data->lock);

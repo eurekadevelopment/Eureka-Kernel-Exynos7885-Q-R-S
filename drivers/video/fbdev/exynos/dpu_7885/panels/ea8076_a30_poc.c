@@ -95,7 +95,7 @@ static int do_poc_tx_cmd(struct panel_poc_device *poc_dev, u32 cmd)
 	case POC_ERASE_ENTER_SEQ:
 		decon->partial_force_disable = 1;
 		decon->ignore_vsync = true;
-		flush_kthread_worker(&decon->up.worker);
+		kthread_flush_worker(&decon->up.worker);
 		msleep(33);
 
 		DSI_WRITE(KEY1_ENABLE, ARRAY_SIZE(KEY1_ENABLE));
@@ -223,7 +223,7 @@ static int poc_write_data(struct panel_poc_device *poc_dev)
 
 	decon->partial_force_disable = 1;
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 	msleep(33);
 
 	cnt = poc_info->wsize / 256 + ((poc_info->wsize % 256) ? 1 : 0);

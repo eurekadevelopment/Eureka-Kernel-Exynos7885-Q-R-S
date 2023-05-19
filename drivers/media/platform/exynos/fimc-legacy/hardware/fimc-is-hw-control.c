@@ -445,7 +445,7 @@ static inline void mshot_schedule(struct fimc_is_hw_ip *hw_ip)
 #if defined(MULTI_SHOT_TASKLET)
 	tasklet_schedule(&hw_ip->tasklet_mshot);
 #elif defined(MULTI_SHOT_KTHREAD)
-	queue_kthread_work(&hw_ip->mshot_worker, &hw_ip->mshot_work);
+	kthread_queue_work(&hw_ip->mshot_worker, &hw_ip->mshot_work);
 #endif
 }
 
@@ -539,7 +539,7 @@ static int fimc_is_hardware_init_mshot_thread(struct fimc_is_hw_ip *hw_ip)
 	struct sched_param param = {.sched_priority = FIMC_IS_MAX_PRIO - 1};
 
 	if (hw_ip->mshot_task == NULL) {
-		init_kthread_worker(&hw_ip->mshot_worker);
+		kthread_init_worker(&hw_ip->mshot_worker);
 		hw_ip->mshot_task = kthread_run(kthread_worker_fn,
 						&hw_ip->mshot_worker,
 						"mshot_work");
@@ -555,7 +555,7 @@ static int fimc_is_hardware_init_mshot_thread(struct fimc_is_hw_ip *hw_ip)
 			return ret;
 		}
 
-		init_kthread_work(&hw_ip->mshot_work, fimc_is_hardware_mshot_work_fn);
+		kthread_init_work(&hw_ip->mshot_work, fimc_is_hardware_mshot_work_fn);
 	}
 
 	return ret;

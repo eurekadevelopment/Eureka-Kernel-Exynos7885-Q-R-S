@@ -438,11 +438,11 @@ static bool mc_fastcall(void *data)
 		.data = data,
 	};
 
-	if (!queue_kthread_work(&fastcall_worker, &fc_work.work))
+	if (!kthread_queue_work(&fastcall_worker, &fc_work.work))
 		return false;
 
 	/* If work is queued or executing, wait for it to finish execution */
-	flush_kthread_work(&fc_work.work);
+	kthread_flush_work(&fc_work.work);
 #else
 	struct fastcall_work fc_work = {
 		.data = data,

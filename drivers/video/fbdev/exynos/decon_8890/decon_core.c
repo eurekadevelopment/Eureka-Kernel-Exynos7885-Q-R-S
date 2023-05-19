@@ -906,7 +906,7 @@ int decon_tui_protection(struct decon_device *decon, bool tui_en)
 			mutex_unlock(&decon->output_lock);
 			goto exit;
 		}
-		flush_kthread_worker(&decon->update_regs_worker);
+		kthread_flush_worker(&decon->update_regs_worker);
 
 #ifdef CONFIG_FB_WINDOW_UPDATE
 		if (decon->need_update) {
@@ -1152,7 +1152,7 @@ int decon_disable(struct decon_device *decon)
 		goto err;
 	}
 
-	flush_kthread_worker(&decon->update_regs_worker);
+	kthread_flush_worker(&decon->update_regs_worker);
 
 	decon_to_psr_info(decon, &psr);
 	decon_reg_set_int(decon->id, &psr, 0);
@@ -2808,7 +2808,7 @@ static int decon_set_win_config(struct decon_device *decon,
 		mutex_lock(&decon->update_regs_list_lock);
 		list_add_tail(&regs->list, &decon->update_regs_list);
 		mutex_unlock(&decon->update_regs_list_lock);
-		queue_kthread_work(&decon->update_regs_worker,
+		kthread_queue_work(&decon->update_regs_worker,
 				&decon->update_regs_work);
 	}
 err:
@@ -3838,7 +3838,7 @@ static int decon_probe(struct platform_device *pdev)
 	mutex_init(&decon->update_regs_list_lock);
 	INIT_LIST_HEAD(&decon->update_regs_list);
 	INIT_LIST_HEAD(&decon->sbuf_active_list);
-	init_kthread_worker(&decon->update_regs_worker);
+	kthread_init_worker(&decon->update_regs_worker);
 
 	decon->update_regs_thread = kthread_run(kthread_worker_fn,
 			&decon->update_regs_worker, device_name);
@@ -3848,7 +3848,7 @@ static int decon_probe(struct platform_device *pdev)
 		decon_err("failed to run update_regs thread\n");
 		goto fail_update_thread;
 	}
-	init_kthread_work(&decon->update_regs_work, decon_update_regs_handler);
+	kthread_init_work(&decon->update_regs_work, decon_update_regs_handler);
 
 	snprintf(device_name, MAX_NAME_SIZE, "decon%d-wb", decon->id);
 

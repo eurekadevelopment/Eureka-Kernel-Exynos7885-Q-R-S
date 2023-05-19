@@ -1269,9 +1269,9 @@ int score_vertexmgr_grp_register(struct score_vertexmgr *vertexmgr, struct score
 		goto p_err;
 	}
 
-	init_kthread_work(&vctx->control.work, score_vertex_thread);
+	kthread_init_work(&vctx->control.work, score_vertex_thread);
 	for (index = 0; index < SCORE_MAX_FRAME; ++index)
-		init_kthread_work(&vctx->framemgr.frame[index].work, score_vertex_thread);
+		kthread_init_work(&vctx->framemgr.frame[index].work, score_vertex_thread);
 
 p_err:
 	return ret;
@@ -1349,7 +1349,7 @@ int score_vertexmgr_itf_register(struct score_vertexmgr *vertexmgr, struct score
 	vertexmgr->interface = interface;
 
 	for (index = 0; index < SCORE_MAX_FRAME; ++index)
-		init_kthread_work(&interface->framemgr.frame[index].work, score_interface_thread);
+		kthread_init_work(&interface->framemgr.frame[index].work, score_interface_thread);
 
 	return ret;
 }
@@ -1404,7 +1404,7 @@ void score_vertexmgr_queue(struct score_vertexmgr *vertexmgr, struct score_frame
 			readl(system->regs + SCORE_VERIFY_RESULT));
 	} while (0);
 #else
-	queue_kthread_work(&vertexmgr->worker, &frame->work);
+	kthread_queue_work(&vertexmgr->worker, &frame->work);
 #endif
 }
 
@@ -1466,7 +1466,7 @@ int score_vertexmgr_open(struct score_vertexmgr *vertexmgr)
 	SCORE_TP();
 	BUG_ON(!vertexmgr);
 
-	init_kthread_worker(&vertexmgr->worker);
+	kthread_init_worker(&vertexmgr->worker);
 	snprintf(name, sizeof(name), "score_vertex");
 	vertexmgr->task_vertex = kthread_run(kthread_worker_fn, &vertexmgr->worker, name);
 	if (IS_ERR_OR_NULL(vertexmgr->task_vertex)) {

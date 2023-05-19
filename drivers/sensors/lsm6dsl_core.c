@@ -597,7 +597,7 @@ static enum hrtimer_restart lsm6dsl_gyro_timer_func(struct hrtimer *timer)
 					struct lsm6dsl_data, gyro_timer);
 
 #ifdef CONFIG_SENSORS_LSM6DSL_SUPPORT_VDIS
-	queue_kthread_work(&cdata->gyro_worker, &cdata->gyro_work);
+	kthread_queue_work(&cdata->gyro_worker, &cdata->gyro_work);
 #else
 	if (!work_pending(&cdata->gyro_work))
 		queue_work(cdata->gyro_wq, &cdata->gyro_work);
@@ -1099,7 +1099,7 @@ static int lsm6dsl_disable_sensors(struct lsm6dsl_data *cdata, int sindex)
 	case LSM6DSL_GYRO:
 		hrtimer_cancel(&cdata->gyro_timer);
 #ifdef CONFIG_SENSORS_LSM6DSL_SUPPORT_VDIS
-		flush_kthread_work(&cdata->gyro_work);
+		kthread_flush_work(&cdata->gyro_work);
 #else
 		cancel_work_sync(&cdata->gyro_work);
 #endif
@@ -3736,7 +3736,7 @@ int lsm6dsl_common_probe(struct lsm6dsl_data *cdata, int irq, u16 bustype)
 
 #ifdef CONFIG_SENSORS_LSM6DSL_SUPPORT_VDIS
 	/* gyro sensor thread create */
-	init_kthread_worker(&cdata->gyro_worker);
+	kthread_init_worker(&cdata->gyro_worker);
 	cdata->gyro_task = kthread_run(kthread_worker_fn, &cdata->gyro_worker, "gyro_work");
 	if (IS_ERR(cdata->gyro_task)) {
 		err = PTR_ERR(cdata->gyro_task);
@@ -3750,7 +3750,7 @@ int lsm6dsl_common_probe(struct lsm6dsl_data *cdata, int irq, u16 bustype)
 		SENSOR_ERR("sched_setscheduler_nocheck is fail(%d)", err);
 		goto exit_create_workqueue_irq;
 	}
-	init_kthread_work(&cdata->gyro_work, lsm6dsl_gyro_work_func);
+	kthread_init_work(&cdata->gyro_work, lsm6dsl_gyro_work_func);
 
 	/* this is the thread function we run on the work queue */
 	INIT_WORK(&cdata->acc_work, lsm6dsl_acc_work_func);

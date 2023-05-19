@@ -455,7 +455,7 @@ int fimc_is_sensor_init_sensor_thread(struct fimc_is_device_sensor_peri *sensor_
 
 	if (sensor_peri->sensor_task == NULL) {
 		spin_lock_init(&sensor_peri->sensor_work_lock);
-		init_kthread_worker(&sensor_peri->sensor_worker);
+		kthread_init_worker(&sensor_peri->sensor_worker);
 		sensor_peri->sensor_task = kthread_run(kthread_worker_fn,
 						&sensor_peri->sensor_worker,
 						"fimc_is_sen_sensor_work");
@@ -473,7 +473,7 @@ int fimc_is_sensor_init_sensor_thread(struct fimc_is_device_sensor_peri *sensor_
 			return ret;
 		}
 
-		init_kthread_work(&sensor_peri->sensor_work, fimc_is_sensor_sensor_work_fn);
+		kthread_init_work(&sensor_peri->sensor_work, fimc_is_sensor_sensor_work_fn);
 	}
 
 	return ret;
@@ -499,7 +499,7 @@ int fimc_is_sensor_init_mode_change_thread(struct fimc_is_device_sensor_peri *se
 	/* Always first applyed to mode change when camera on */
 	sensor_peri->mode_change_first = true;
 
-	init_kthread_worker(&sensor_peri->mode_change_worker);
+	kthread_init_worker(&sensor_peri->mode_change_worker);
 	sensor_peri->mode_change_task = kthread_run(kthread_worker_fn,
 						&sensor_peri->mode_change_worker,
 						"fimc_is_sensor_mode_change");
@@ -517,7 +517,7 @@ int fimc_is_sensor_init_mode_change_thread(struct fimc_is_device_sensor_peri *se
 		return ret;
 	}
 
-	init_kthread_work(&sensor_peri->mode_change_work, fimc_is_sensor_mode_change_work_fn);
+	kthread_init_work(&sensor_peri->mode_change_work, fimc_is_sensor_mode_change_work_fn);
 
 	return ret;
 }
@@ -617,7 +617,7 @@ int fimc_is_sensor_mode_change(struct fimc_is_cis *cis, u32 mode)
 	sensor_peri = container_of(cis, struct fimc_is_device_sensor_peri, cis);
 
 	CALL_CISOPS(cis, cis_data_calculation, cis->subdev, cis->cis_data->sens_config_index_cur);
-	queue_kthread_work(&sensor_peri->mode_change_worker, &sensor_peri->mode_change_work);
+	kthread_queue_work(&sensor_peri->mode_change_worker, &sensor_peri->mode_change_work);
 
 	return ret;
 }
@@ -1212,7 +1212,7 @@ int fimc_is_sensor_peri_notify_vsync(struct v4l2_subdev *subdev, void *arg)
 			|| (cis->cis_data->video_mode == true &&
 			cis->cis_data->max_fps >= 60)) {
 		/* run sensor setting thread */
-		queue_kthread_work(&sensor_peri->sensor_worker, &sensor_peri->sensor_work);
+		kthread_queue_work(&sensor_peri->sensor_worker, &sensor_peri->sensor_work);
 	}
 
 	if (sensor_peri->subdev_flash != NULL) {
@@ -1765,7 +1765,7 @@ int fimc_is_sensor_peri_s_stream(struct fimc_is_device_sensor *device,
 
 		/* If sensor setting @work is queued or executing,
 		   wait for it to finish execution when working s_format */
-		flush_kthread_work(&sensor_peri->mode_change_work);
+		kthread_flush_work(&sensor_peri->mode_change_work);
 
 		/* stream on sequence */
 		if (cis->need_mode_change == false && cis->use_initial_ae == false)
