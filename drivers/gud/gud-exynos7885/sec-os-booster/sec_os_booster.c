@@ -112,10 +112,10 @@ int mc_timer(void)
 		KTHREAD_WORK_INIT(t_work.work, mc_timer_work_func),
 	};
 
-	if (!queue_kthread_work(&mc_timer_worker, &t_work.work))
+	if (!kthread_queue_work(&mc_timer_worker, &t_work.work))
 		return false;
 
-	flush_kthread_work(&t_work.work);
+	kthread_flush_work(&t_work.work);
 	return true;
 }
 

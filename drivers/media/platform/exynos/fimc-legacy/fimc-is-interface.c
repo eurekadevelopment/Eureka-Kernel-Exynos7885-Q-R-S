@@ -639,7 +639,7 @@ static inline void fimc_is_sync_reprocessing_queue(struct fimc_is_groupmgr *grou
 		framemgr_x_barrier_irqr(rframemgr, 0, flags);
 
 		if (rframe)
-			queue_kthread_work(&gtask->worker, &rframe->work);
+			kthread_queue_work(&gtask->worker, &rframe->work);
 	} else {
 		mgerr("failed to get reprocessing frame manager", group, group);
 	}

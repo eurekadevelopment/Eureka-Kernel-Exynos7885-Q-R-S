@@ -131,7 +131,7 @@ void hfi1_cq_enter(struct hfi1_cq *cq, struct ib_wc *entry, int solicited)
 		if (likely(worker)) {
 			cq->notify = IB_CQ_NONE;
 			cq->triggered++;
-			queue_kthread_work(worker, &cq->comptask);
+			kthread_queue_work(worker, &cq->comptask);
 		}
 	}
 
@@ -318,7 +318,7 @@ struct ib_cq *hfi1_create_cq(
 	cq->notify = IB_CQ_NONE;
 	cq->triggered = 0;
 	spin_lock_init(&cq->lock);
-	init_kthread_work(&cq->comptask, send_complete);
+	kthread_init_work(&cq->comptask, send_complete);
 	wc->head = 0;
 	wc->tail = 0;
 	cq->queue = wc;
@@ -350,7 +350,7 @@ int hfi1_destroy_cq(struct ib_cq *ibcq)
 	struct hfi1_ibdev *dev = to_idev(ibcq->device);
 	struct hfi1_cq *cq = to_icq(ibcq);
 
-	flush_kthread_work(&cq->comptask);
+	kthread_flush_work(&cq->comptask);
 	spin_lock(&dev->n_cqs_lock);
 	dev->n_cqs_allocated--;
 	spin_unlock(&dev->n_cqs_lock);
@@ -522,7 +522,7 @@ int hfi1_cq_init(struct hfi1_devdata *dd)
 	dd->worker = kzalloc(sizeof(*dd->worker), GFP_KERNEL);
 	if (!dd->worker)
 		return -ENOMEM;
-	init_kthread_worker(dd->worker);
+	kthread_init_worker(dd->worker);
 	task = kthread_create_on_node(
 		kthread_worker_fn,
 		dd->worker,
@@ -552,7 +552,7 @@ void hfi1_cq_exit(struct hfi1_devdata *dd)
 	/* blocks future queuing from send_complete() */
 	dd->worker = NULL;
 	smp_wmb(); /* See hfi1_cq_enter */
-	flush_kthread_worker(worker);
+	kthread_flush_worker(worker);
 	kthread_stop(worker->task);
 	kfree(worker);
 }

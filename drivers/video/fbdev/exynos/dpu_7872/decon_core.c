@@ -409,7 +409,7 @@ static int decon_disable(struct decon_device *decon)
 		goto err;
 	}
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 
 	decon_to_psr_info(decon, &psr);
 	decon_reg_set_int(decon->id, &psr, 0);
@@ -1406,7 +1406,7 @@ static int decon_set_win_config(struct decon_device *decon,
 	mutex_lock(&decon->up.lock);
 	list_add_tail(&regs->list, &decon->up.list);
 	mutex_unlock(&decon->up.lock);
-	queue_kthread_work(&decon->up.worker, &decon->up.work);
+	kthread_queue_work(&decon->up.worker, &decon->up.work);
 
 	mutex_unlock(&decon->lock);
 
@@ -2129,7 +2129,7 @@ static void decon_destroy_update_thread(struct decon_device *decon)
 static int decon_create_update_thread(struct decon_device *decon, char *name)
 {
 	INIT_LIST_HEAD(&decon->up.list);
-	init_kthread_worker(&decon->up.worker);
+	kthread_init_worker(&decon->up.worker);
 	decon->up.thread = kthread_run(kthread_worker_fn,
 			&decon->up.worker, name);
 	if (IS_ERR(decon->up.thread)) {
@@ -2137,7 +2137,7 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 		decon_err("failed to run update_regs thread\n");
 		return PTR_ERR(decon->up.thread);
 	}
-	init_kthread_work(&decon->up.work, decon_update_regs_handler);
+	kthread_init_work(&decon->up.work, decon_update_regs_handler);
 
 	return 0;
 }

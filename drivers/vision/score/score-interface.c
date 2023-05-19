@@ -106,7 +106,7 @@ int score_interface_open(struct score_interface *interface)
 	SCORE_TP();
 	BUG_ON(!interface);
 
-	init_kthread_worker(&interface->worker);
+	kthread_init_worker(&interface->worker);
 	snprintf(name, sizeof(name), "score_interface");
 	interface->task_itf = kthread_run(kthread_worker_fn, &interface->worker, name);
 	if (IS_ERR_OR_NULL(interface->task_itf)) {
@@ -387,7 +387,7 @@ static irqreturn_t interface_isr(int irq, void *data)
 			framemgr_x_barrier_irqr(iframemgr, 0, flag);
 		}
 
-		queue_kthread_work(&interface->worker, &iframe->work);
+		kthread_queue_work(&interface->worker, &iframe->work);
 	}
 p_next:
 	writel(0x0, interface->regs + SCORE_SCORE2HOST);

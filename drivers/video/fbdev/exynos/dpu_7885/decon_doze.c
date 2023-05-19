@@ -152,7 +152,7 @@ static int decon_set_doze_suspend(struct decon_device *decon)
 		goto err;
 	}
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 
 	decon_to_psr_info(decon, &psr);
 	decon_reg_set_int(decon->id, &psr, 0);

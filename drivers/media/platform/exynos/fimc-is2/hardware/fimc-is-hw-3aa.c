@@ -271,7 +271,7 @@ static int fimc_is_hw_3aa_disable(struct fimc_is_hw_ip *hw_ip, u32 instance, ulo
 			if (hw_3aa->lib_support->task_taaisp[i].task == NULL)
 				serr_hw("task is null", hw_ip);
 			else
-				flush_kthread_worker(&hw_3aa->lib_support->task_taaisp[i].worker);
+				kthread_flush_worker(&hw_3aa->lib_support->task_taaisp[i].worker);
 		}
 
 		fimc_is_lib_isp_stop(hw_ip, &hw_3aa->lib[instance], instance);

@@ -174,7 +174,7 @@ int poc_erase(struct panel_poc_device *poc_dev, int addr, int len)
 
 	decon->partial_force_disable = 1;
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 	msleep(33);
 
 	mutex_lock(poc_dev->lock);
@@ -248,7 +248,7 @@ static int poc_write_data(struct panel_poc_device *poc_dev)
 
 	decon->partial_force_disable = 1;
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 	msleep(33);
 
 

@@ -268,7 +268,7 @@ int frame_manager_open(struct fimc_is_framemgr *this, u32 buffers)
 	for (i = 0; i < buffers; ++i) {
 		this->frames[i].index = i;
 		put_frame(this, &this->frames[i], FS_FREE);
-		init_kthread_work(&this->frames[i].work, default_frame_work_fn);
+		kthread_init_work(&this->frames[i].work, default_frame_work_fn);
 	}
 
 	spin_unlock_irqrestore(&this->slock, flag);
