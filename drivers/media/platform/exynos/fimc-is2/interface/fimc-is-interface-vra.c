@@ -252,7 +252,7 @@ void fimc_is_lib_vra_task_trigger(struct fimc_is_lib_vra *lib_vra,
 
 	spin_unlock(&task_vra->work_lock);
 
-	queue_kthread_work(&task_vra->worker, &task_vra->work[work_index].work);
+	kthread_queue_work(&task_vra->worker, &task_vra->work[work_index].work);
 }
 
 int fimc_is_lib_vra_invoke_contol_event(struct fimc_is_lib_vra *lib_vra)
@@ -353,7 +353,7 @@ int fimc_is_lib_vra_init_task(struct fimc_is_lib_vra *lib_vra)
 	}
 
 	spin_lock_init(&lib_vra->task_vra.work_lock);
-	init_kthread_worker(&lib_vra->task_vra.worker);
+	kthread_init_worker(&lib_vra->task_vra.worker);
 
 	lib_vra->task_vra.task = kthread_run(kthread_worker_fn,
 		&lib_vra->task_vra.worker, "fimc_is_lib_vra");
@@ -377,7 +377,7 @@ int fimc_is_lib_vra_init_task(struct fimc_is_lib_vra *lib_vra)
 	for (j = 0; j < LIB_MAX_TASK; j++) {
 		lib_vra->task_vra.work[j].func = NULL;
 		lib_vra->task_vra.work[j].params = NULL;
-		init_kthread_work(&lib_vra->task_vra.work[j].work,
+		kthread_init_work(&lib_vra->task_vra.work[j].work,
 			fimc_is_lib_vra_task_work);
 	}
 

@@ -177,7 +177,7 @@ static void haptic_enable(struct timed_output_dev *tout_dev, int value)
 	struct s2mu106_haptic_platform_data *pdata = hap_data->pdata;
 	struct hrtimer *timer = &hap_data->timer;
 
-	flush_kthread_worker(&hap_data->kworker);
+	kthread_flush_worker(&hap_data->kworker);
 	hrtimer_cancel(timer);
 
 	value = min_t(int, value, (int)pdata->max_timeout);
@@ -218,7 +218,7 @@ static enum hrtimer_restart haptic_timer_func(struct hrtimer *timer)
 	pr_info("%s\n", __func__);
 
 	hap_data->timeout = 0;
-	queue_kthread_work(&hap_data->kworker, &hap_data->kwork);
+	kthread_queue_work(&hap_data->kworker, &hap_data->kwork);
 	return HRTIMER_NORESTART;
 }
 
@@ -550,7 +550,7 @@ static int s2mu106_haptic_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, haptic);
 
-	init_kthread_worker(&haptic->kworker);
+	kthread_init_worker(&haptic->kworker);
 	kworker_task = kthread_run(kthread_worker_fn, &haptic->kworker, "s2mu106_haptic");
 	if (IS_ERR(kworker_task)) {
 		pr_err("Failed to create message pump task\n");
@@ -558,7 +558,7 @@ static int s2mu106_haptic_probe(struct platform_device *pdev)
 		goto err_kthread;
 	}
 
-	init_kthread_work(&haptic->kwork, haptic_work);
+	kthread_init_work(&haptic->kwork, haptic_work);
 	spin_lock_init(&(haptic->lock));
 	mutex_init(&haptic->mutex);
 
@@ -631,7 +631,7 @@ static int s2mu106_haptic_suspend(struct device *dev)
 	struct s2mu106_haptic_data *haptic = platform_get_drvdata(pdev);
 
 	pr_info("%s\n", __func__);
-	flush_kthread_worker(&haptic->kworker);
+	kthread_flush_worker(&haptic->kworker);
 	hrtimer_cancel(&haptic->timer);
 	s2mu106_haptic_onoff(haptic, false);
 	return 0;

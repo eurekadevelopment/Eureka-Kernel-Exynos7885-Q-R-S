@@ -1105,9 +1105,9 @@ int vpu_graphmgr_grp_register(struct vpu_graphmgr *graphmgr, struct vpu_graph *g
 		goto p_err;
 	}
 
-	init_kthread_work(&graph->control.work, vpu_graph_thread);
+	kthread_init_work(&graph->control.work, vpu_graph_thread);
 	for (index = 0; index < VPU_MAX_FRAME; ++index)
-		init_kthread_work(&graph->framemgr.frame[index].work, vpu_graph_thread);
+		kthread_init_work(&graph->framemgr.frame[index].work, vpu_graph_thread);
 
 	graph->global_lock = &graphmgr->mlock;
 
@@ -1196,7 +1196,7 @@ int vpu_graphmgr_itf_register(struct vpu_graphmgr *graphmgr, struct vpu_interfac
 
 	graphmgr->interface = interface;
 	for (index = 0; index < VPU_MAX_FRAME; ++index)
-		init_kthread_work(&interface->framemgr.frame[index].work, vpu_interface_thread);
+		kthread_init_work(&interface->framemgr.frame[index].work, vpu_interface_thread);
 
 	return ret;
 }
@@ -1218,7 +1218,7 @@ void vpu_graphmgr_queue(struct vpu_graphmgr *graphmgr, struct vpu_frame *frame)
 	BUG_ON(!graphmgr);
 	BUG_ON(!frame);
 
-	queue_kthread_work(&graphmgr->worker, &frame->work);
+	kthread_queue_work(&graphmgr->worker, &frame->work);
 }
 
 int vpu_graphmgr_probe(struct vpu_graphmgr *graphmgr,
@@ -1281,7 +1281,7 @@ int vpu_graphmgr_open(struct vpu_graphmgr *graphmgr)
 
 	BUG_ON(!graphmgr);
 
-	init_kthread_worker(&graphmgr->worker);
+	kthread_init_worker(&graphmgr->worker);
 	snprintf(name, sizeof(name), "vpu_graph");
 	graphmgr->task_graph = kthread_run(kthread_worker_fn, &graphmgr->worker, name);
 	if (IS_ERR_OR_NULL(graphmgr->task_graph)) {

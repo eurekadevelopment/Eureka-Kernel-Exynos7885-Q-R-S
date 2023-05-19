@@ -331,7 +331,7 @@ int decon_tui_protection(bool tui_en)
 		mutex_lock(&decon->lock);
 		decon_hiber_block_exit(decon);
 		/* 2.Finish frmame update of normal OS */
-		flush_kthread_worker(&decon->up.worker);
+		kthread_flush_worker(&decon->up.worker);
 
 		if (decon->dt.psr_mode == DECON_VIDEO_MODE) {
 			struct decon_window_regs win_regs = {0, };
@@ -464,7 +464,7 @@ static int decon_enable(struct decon_device *decon)
 		goto err;
 	}
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 
 #if defined(CONFIG_SEC_INCELL)
 	if (decon->esd_recovery == 1) {
@@ -596,7 +596,7 @@ static int decon_disable(struct decon_device *decon)
 		goto err;
 	}
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 
 #if defined(CONFIG_SEC_INCELL)
 	if (decon->esd_recovery) {
@@ -1907,7 +1907,7 @@ static int decon_set_win_config(struct decon_device *decon,
 	win_data->extra.remained_frames =
 		atomic_read(&decon->up.remaining_frame);
 	mutex_unlock(&decon->up.lock);
-	queue_kthread_work(&decon->up.worker, &decon->up.work);
+	kthread_queue_work(&decon->up.worker, &decon->up.work);
 
 	/**
 	 * The code is moved here because the DPU driver may get a wrong fd
@@ -2775,7 +2775,7 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 
 	INIT_LIST_HEAD(&decon->up.list);
 	atomic_set(&decon->up.remaining_frame, 0);
-	init_kthread_worker(&decon->up.worker);
+	kthread_init_worker(&decon->up.worker);
 	decon->up.thread = kthread_run_perf_critical(kthread_worker_fn,
 			&decon->up.worker, name);
 	if (IS_ERR(decon->up.thread)) {
@@ -2786,7 +2786,7 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 
 	param.sched_priority = 2;
 	sched_setscheduler_nocheck(decon->up.thread, SCHED_FIFO, &param);
-	init_kthread_work(&decon->up.work, decon_update_regs_handler);
+	kthread_init_work(&decon->up.work, decon_update_regs_handler);
 
 	return 0;
 }

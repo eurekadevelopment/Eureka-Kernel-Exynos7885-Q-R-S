@@ -878,12 +878,12 @@ static void fimc_is_group_start_trigger(struct fimc_is_groupmgr *groupmgr,
 #endif
 
 	TIME_SHOT(TMS_Q);
-	queue_kthread_work(&gtask->worker, &frame->work);
+	kthread_queue_work(&gtask->worker, &frame->work);
 
 #ifdef ENABLE_SYNC_REPROCESSING
 	if (rframe) {
 		mgrinfo("SYNC REP(%d)\n", group, group, rframe, rframe->index);
-		queue_kthread_work(&gtask->worker, &rframe->work);
+		kthread_queue_work(&gtask->worker, &rframe->work);
 	}
 #endif
 }
@@ -920,7 +920,7 @@ static int fimc_is_group_task_start(struct fimc_is_groupmgr *groupmgr,
 
 	sema_init(&gtask->smp_resource, 0);
 
-	init_kthread_worker(&gtask->worker);
+	kthread_init_worker(&gtask->worker);
 	snprintf(name, sizeof(name), "fimc_is_gw%d", gtask->id);
 	gtask->task = kthread_run(kthread_worker_fn, &gtask->worker, name);
 	if (IS_ERR(gtask->task)) {
@@ -1004,7 +1004,7 @@ static int fimc_is_group_task_stop(struct fimc_is_groupmgr *groupmgr,
 	 * flush kthread wait until all work is complete
 	 * it's dangerous if all is not finished
 	 * so it's commented currently
-	 * flush_kthread_worker(&groupmgr->group_worker[slot]);
+	 * kthread_flush_worker(&groupmgr->group_worker[slot]);
 	 */
 	kthread_stop(gtask->task);
 
@@ -2181,7 +2181,7 @@ int fimc_is_group_stop(struct fimc_is_groupmgr *groupmgr,
 				rframe = list_first_entry(&gtask->sync_list, struct fimc_is_frame, sync_list);
 				list_del(&rframe->sync_list);
 				mgrinfo("flush SYNC REP(%d)\n", group, group, rframe, rframe->index);
-				queue_kthread_work(&gtask->worker, &rframe->work);
+				kthread_queue_work(&gtask->worker, &rframe->work);
 			}
 #endif
 		}

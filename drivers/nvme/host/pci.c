@@ -351,7 +351,7 @@ static void async_completion(struct nvme_queue *nvmeq, void *ctx,
 	cmdinfo->result = le32_to_cpup(&cqe->result);
 	cmdinfo->status = le16_to_cpup(&cqe->status) >> 1;
 	blk_mq_free_request(cmdinfo->req);
-	queue_kthread_work(cmdinfo->worker, &cmdinfo->work);
+	kthread_queue_work(cmdinfo->worker, &cmdinfo->work);
 }
 
 static inline struct nvme_cmd_info *get_cmd_from_tag(struct nvme_queue *nvmeq,
@@ -2788,7 +2788,7 @@ static void nvme_wait_dq(struct nvme_delq_ctx *dq, struct nvme_dev *dev)
 			set_current_state(TASK_RUNNING);
 			nvme_disable_ctrl(dev, lo_hi_readq(&dev->bar->cap));
 			nvme_clear_queue(dev->queues[0]);
-			flush_kthread_worker(dq->worker);
+			kthread_flush_worker(dq->worker);
 			nvme_disable_queue(dev, 0);
 			return;
 		}
@@ -2828,7 +2828,7 @@ static int adapter_async_del_queue(struct nvme_queue *nvmeq, u8 opcode,
 	c.delete_queue.opcode = opcode;
 	c.delete_queue.qid = cpu_to_le16(nvmeq->qid);
 
-	init_kthread_work(&nvmeq->cmdinfo.work, fn);
+	kthread_init_work(&nvmeq->cmdinfo.work, fn);
 	return nvme_submit_admin_async_cmd(nvmeq->dev, &c, &nvmeq->cmdinfo,
 								ADMIN_TIMEOUT);
 }
@@ -2898,8 +2898,8 @@ static void nvme_disable_io_queues(struct nvme_dev *dev)
 			continue;
 		nvmeq->cmdinfo.ctx = nvme_get_dq(&dq);
 		nvmeq->cmdinfo.worker = dq.worker;
-		init_kthread_work(&nvmeq->cmdinfo.work, nvme_del_queue_start);
-		queue_kthread_work(dq.worker, &nvmeq->cmdinfo.work);
+		kthread_init_work(&nvmeq->cmdinfo.work, nvme_del_queue_start);
+		kthread_queue_work(dq.worker, &nvmeq->cmdinfo.work);
 	}
 	nvme_wait_dq(&dq, dev);
 	kthread_stop(kworker_task);

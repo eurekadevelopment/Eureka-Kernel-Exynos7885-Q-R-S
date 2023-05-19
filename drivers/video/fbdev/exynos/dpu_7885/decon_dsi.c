@@ -856,7 +856,7 @@ int decon_enter_hiber(struct decon_device *decon)
 
 	decon_hiber_trig_reset(decon);
 
-	flush_kthread_worker(&decon->up.worker);
+	kthread_flush_worker(&decon->up.worker);
 
 	decon_to_psr_info(decon, &psr);
 	decon_reg_set_int(decon->id, &psr, 0);

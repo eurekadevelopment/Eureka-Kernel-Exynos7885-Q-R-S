@@ -150,7 +150,7 @@ static void haptic_enable(struct timed_output_dev *tout_dev, int value)
 	struct hrtimer *timer = &hap_data->timer;
 	int ret;
 
-	flush_kthread_worker(&hap_data->kworker);
+	kthread_flush_worker(&hap_data->kworker);
 	hrtimer_cancel(timer);
 
 	value = min_t(int, value, (int)pdata->max_timeout);
@@ -203,7 +203,7 @@ static enum hrtimer_restart haptic_timer_func(struct hrtimer *timer)
 	pr_info("[VIB] : %s\n", __func__);
 
 	hap_data->timeout = 0;
-	queue_kthread_work(&hap_data->kworker, &hap_data->kwork);
+	kthread_queue_work(&hap_data->kworker, &hap_data->kwork);
 	return HRTIMER_NORESTART;
 }
 
@@ -442,7 +442,7 @@ static int s2mu004_haptic_probe(struct i2c_client *client,
 
 	i2c_set_clientdata(client, haptic);
 	
-	init_kthread_worker(&haptic->kworker);
+	kthread_init_worker(&haptic->kworker);
 	kworker_task = kthread_run(kthread_worker_fn,
 		   &haptic->kworker, "s2mu004_haptic");
 
@@ -451,7 +451,7 @@ static int s2mu004_haptic_probe(struct i2c_client *client,
 		error = -ENOMEM;
 		goto err_kthread;
 	}
-	init_kthread_work(&haptic->kwork, haptic_work);
+	kthread_init_work(&haptic->kwork, haptic_work);
 
 	spin_lock_init(&(haptic->lock));
 	mutex_init(&haptic->mutex);
@@ -539,7 +539,7 @@ static int s2mu004_haptic_suspend(struct device *dev)
 	struct s2mu004_haptic_data *haptic = i2c_get_clientdata(client);
 
 	pr_debug("[VIB] %s\n", __func__);
-	flush_kthread_worker(&haptic->kworker);
+	kthread_flush_worker(&haptic->kworker);
 	hrtimer_cancel(&haptic->timer);
 	s2mu004_haptic_i2c(haptic, false);
 	return 0;
