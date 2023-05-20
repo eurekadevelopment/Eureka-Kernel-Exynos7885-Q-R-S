@@ -27,6 +27,7 @@ static DEFINE_IDA(ps_player_id_allocator);
 
 /* Base class for playstation devices. */
 struct ps_device {
+	struct list_head list;
 	struct hid_device *hdev;
 	spinlock_t lock;
 
@@ -281,8 +282,6 @@ static const struct {int x; int y; } ps_gamepad_hat_mapping[] = {
 	{0, 0},
 };
 
-<<<<<<< HEAD
-=======
 /*
  * Add a new ps_device to ps_devices if it doesn't exist.
  * Return error on duplicate device, which can happen if the same
@@ -333,7 +332,6 @@ static void ps_device_release_player_id(struct ps_device *dev)
 	dev->player_id = U32_MAX;
 }
 
->>>>>>> 7d10a4cac (BACKPORT: HID: playstation: add DualSense player LED support.)
 static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const char *name_suffix)
 {
 	struct input_dev *input_dev;
@@ -1240,6 +1238,7 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
 	return &ds->base;
 
 err:
+	ps_devices_list_remove(ps_dev);
 	return ERR_PTR(ret);
 }
 
@@ -1303,14 +1302,11 @@ err_stop:
 
 static void ps_remove(struct hid_device *hdev)
 {
-<<<<<<< HEAD
-=======
 	struct ps_device *dev = hid_get_drvdata(hdev);
 
 	ps_devices_list_remove(dev);
 	ps_device_release_player_id(dev);
 
->>>>>>> 7d10a4cac (BACKPORT: HID: playstation: add DualSense player LED support.)
 	hid_hw_close(hdev);
 	hid_hw_stop(hdev);
 }
