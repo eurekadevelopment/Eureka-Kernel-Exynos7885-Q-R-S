@@ -24,8 +24,8 @@
 #define BTS_DBG(x...)		if (exynos_bts_log) pr_info(x)
 
 #define NUM_CHANNEL		4
-#define MIF_UTIL		65
-#define INT_UTIL		70
+#define MIF_UTIL		80
+#define INT_UTIL		80
 
 static int exynos_bts_log;
 static unsigned int exynos_mif_util = MIF_UTIL;
