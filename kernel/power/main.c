@@ -778,7 +778,7 @@ static int __init pm_init(void)
 	power_kobj = kobject_create_and_add("power", NULL);
 	if (!power_kobj)
 		return -ENOMEM;
-	error = sysfs_create_groups(power_kobj, attr_group);
+	error = sysfs_create_groups(power_kobj, attr_groups);
 	if (error)
 		return error;
 	pm_print_times_init();
