@@ -1509,7 +1509,7 @@ unsigned long arch_scale_freq_capacity(struct sched_domain *sd, int cpu)
 #ifdef CONFIG_HMP_FREQUENCY_INVARIANT_SCALE
 	return exynos_scale_freq_capacity(sd, cpu);
 #else
-	return SCHED_CAPACITY_SCALE;
+	return capacity_orig_of(cpu);
 #endif
 }
 #define arch_scale_freq_invariant()    (true)
