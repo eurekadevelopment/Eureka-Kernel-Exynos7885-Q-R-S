@@ -927,7 +927,7 @@ static int __init cpufreq_ondemandplus_init(void)
 }
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMANDPLUS
-fs_initcall(cpufreq_ondemandplus_init);
+core_initcall(cpufreq_ondemandplus_init);
 #else
 module_init(cpufreq_ondemandplus_init);
 #endif
