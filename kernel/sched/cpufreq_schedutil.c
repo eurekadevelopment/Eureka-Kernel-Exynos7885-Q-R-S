@@ -675,7 +675,7 @@ struct cpufreq_governor *cpufreq_default_governor(void)
 	return &schedutil_gov;
 }
 
-fs_initcall(sugov_module_init);
+core_initcall(sugov_module_init);
 #else
 module_init(sugov_module_init);
 #endif
