@@ -13,7 +13,6 @@
 #include <linux/rwsem.h>
 #include <linux/llist.h>
 
-#include <linux/kthread.h>
 
 /*
  * Lock subclasses for tty locks
@@ -83,7 +82,7 @@ static inline char *flag_buf_ptr(struct tty_buffer *b, int ofs)
 
 struct tty_bufhead {
 	struct tty_buffer *head;	/* Queue head */
-	struct kthread_work work;
+	struct work_struct work;
 	struct mutex	   lock;
 	atomic_t	   priority;
 	struct tty_buffer sentinel;
@@ -241,8 +240,6 @@ struct tty_port {
 						   based drain is needed else
 						   set to size of fifo */
 	struct kref		kref;		/* Ref counter */
-	struct kthread_worker   worker;		/* worker thread */
-	struct task_struct      *worker_thread;	/* worker thread */
 };
 
 /*
