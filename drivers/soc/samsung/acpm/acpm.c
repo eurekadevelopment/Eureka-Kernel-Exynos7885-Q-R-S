@@ -384,8 +384,9 @@ static int acpm_probe(struct platform_device *pdev)
 
 	exynos_acpm = acpm;
 
+#ifdef CONFIG_DEBUG_FS
 	acpm_debugfs_init(acpm);
-
+#endif
 	return ret;
 }
 
