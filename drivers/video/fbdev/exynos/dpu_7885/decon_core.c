@@ -516,8 +516,8 @@ static int decon_enable(struct decon_device *decon)
 	if (decon->dt.disp_freq)
 		decon->bts.ops->bts_update_qos_disp(decon, decon->dt.disp_freq);
 
-	pm_stay_awake(decon->dev);
-	dev_warn(decon->dev, "pm_stay_awake");
+	pm_wakeup_event(decon->dev, 500);
+	dev_warn(decon->dev, "wakelock held for 500ms");
 	ret = v4l2_subdev_call(decon->out_sd[0], video, s_stream, 1);
 	if (ret) {
 		decon_err("starting stream failed for %s\n",
@@ -666,8 +666,6 @@ static int decon_disable(struct decon_device *decon)
 		decon->bts.ops->bts_update_qos_disp(decon, 0);
 
 	if (decon->dt.out_type == DECON_OUT_DSI) {
-		pm_relax(decon->dev);
-		dev_warn(decon->dev, "pm_relax");
 	}
 
 	if (decon->dt.psr_mode != DECON_VIDEO_MODE) {
@@ -3074,8 +3072,8 @@ static int decon_probe(struct platform_device *pdev)
 			goto err_display;
 		}
 
-		pm_stay_awake(decon->dev);
-		dev_warn(decon->dev, "pm_stay_awake");
+	pm_wakeup_event(decon->dev, 500);
+	dev_warn(decon->dev, "wakelock held for 500ms");
 	}
 
 #ifndef CONFIG_EXYNOS_SUPPORT_FB_HANDOVER
