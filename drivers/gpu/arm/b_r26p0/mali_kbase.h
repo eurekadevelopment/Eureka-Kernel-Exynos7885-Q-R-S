@@ -47,6 +47,9 @@
 #include <linux/wait.h>
 #include <linux/workqueue.h>
 
+#include <linux/sched/rt.h>
+#include <linux/types.h>
+
 #include "mali_base_kernel.h"
 #include <mali_kbase_linux.h>
 
@@ -575,6 +578,22 @@ void kbase_disjoint_state_down(struct kbase_device *kbdev);
  * it is reported as a disjoint event
  */
 #define KBASE_DISJOINT_STATE_INTERLEAVED_CONTEXT_COUNT_THRESHOLD 2
+
+/**
+ * kbase_create_realtime_thread - Create a realtime thread with an appropriate coremask
+ *
+ * @kbdev:    the kbase device
+ * @threadfn: the function the realtime thread will execute
+ * @data:     pointer to the thread's data
+ * @namefmt:  a name for the thread.
+ *
+ * Creates a realtime kthread with priority &KBASE_RT_THREAD_PRIO and restricted
+ * to cores defined by &KBASE_RT_THREAD_CPUMASK_MIN and &KBASE_RT_THREAD_CPUMASK_MAX.
+ *
+ * Return: A valid &struct task_struct pointer on success, or an ERR_PTR on failure.
+ */
+struct task_struct * kbase_create_realtime_thread(struct kbase_device *kbdev,
+	int (*threadfn)(void *data), void *data, const char namefmt[]);
 
 #if !defined(UINT64_MAX)
 	#define UINT64_MAX ((uint64_t)0xFFFFFFFFFFFFFFFFULL)
