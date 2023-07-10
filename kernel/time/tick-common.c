@@ -15,6 +15,7 @@
 #include <linux/err.h>
 #include <linux/hrtimer.h>
 #include <linux/interrupt.h>
+#include <linux/nmi.h>
 #include <linux/percpu.h>
 #include <linux/profile.h>
 #include <linux/sched.h>
@@ -492,6 +493,7 @@ void tick_freeze(void)
 				     smp_processor_id(), true);
 		timekeeping_suspend();
 	} else {
+		touch_softlockup_watchdog();
 		tick_suspend_local();
 	}
 
