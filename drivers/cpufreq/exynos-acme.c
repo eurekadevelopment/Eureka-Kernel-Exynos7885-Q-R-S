@@ -255,7 +255,7 @@ static int update_freq(struct exynos_cpufreq_domain *domain,
 		return 0;
 	}
 
-	ret = __cpufreq_driver_target(policy, freq, CPUFREQ_RELATION_H);
+	ret = __cpufreq_driver_target(policy, freq, CPUFREQ_RELATION_L); // default H
 	cpufreq_cpu_put(policy);
 
 	return ret;
