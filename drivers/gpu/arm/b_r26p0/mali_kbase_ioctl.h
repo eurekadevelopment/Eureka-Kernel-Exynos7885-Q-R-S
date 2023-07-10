@@ -720,6 +720,17 @@ union kbase_ioctl_get_cpu_gpu_timeinfo {
 #define KBASE_IOCTL_GET_CPU_GPU_TIMEINFO \
 	_IOWR(KBASE_IOCTL_TYPE, 50, union kbase_ioctl_get_cpu_gpu_timeinfo)
 
+/**
+ * struct kbase_ioctl_apc_request - GPU asynchronous power control (APC) request
+ *
+ * @dur_usec: Duration for GPU to stay awake.
+ */
+struct kbase_ioctl_apc_request {
+    __u32 dur_usec;
+};
+
+#define KBASE_IOCTL_APC_REQUEST \
+    _IOW(KBASE_IOCTL_TYPE, 66, struct kbase_ioctl_apc_request)
 /***************
  * test ioctls *
  ***************/
