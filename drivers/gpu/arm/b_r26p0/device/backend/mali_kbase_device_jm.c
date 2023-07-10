@@ -264,11 +264,6 @@ int kbase_device_init(struct kbase_device *kbdev)
 	}
 
 	kthread_init_worker(&kbdev->job_done_worker);
-	kbdev->job_done_worker_thread = kthread_run(kthread_worker_fn,
-		&kbdev->job_done_worker, "mali_jd_thread");
-	if (IS_ERR(kbdev->job_done_worker_thread)) {
-		err = -ENOMEM;
-	}
 
 	err = kbase_pm_apc_init(kbdev);
 	if (err)
@@ -280,6 +275,11 @@ int kbase_device_init(struct kbase_device *kbdev)
 	if (IS_ERR(kbdev->event_worker_thread)) {
 		err = -ENOMEM;
 	}
+
+	kbdev->job_done_worker_thread = kbase_create_realtime_thread(kbdev,
+		kthread_worker_fn, &kbdev->job_done_worker, "mali_jd_thread");
+	if (IS_ERR(kbdev->job_done_worker_thread))
+		return PTR_ERR(kbdev->job_done_worker_thread);
 
 	return err;
 }
