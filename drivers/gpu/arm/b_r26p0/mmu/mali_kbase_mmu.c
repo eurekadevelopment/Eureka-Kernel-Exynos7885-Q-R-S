@@ -1212,7 +1212,7 @@ int kbase_mmu_insert_single_page(struct kbase_context *kctx, u64 vpfn,
 	if (nr == 0)
 		return 0;
 
-	if (!mutex_trylock(&mmut->mmu_lock)) {
+	if (!mutex_trylock(&kctx->mmu.mmu_lock)) {
 		/*
 		 * Sometimes, mmu_lock takes long time to be released.
 		 * In that case, kswapd is stuck until it can hold
@@ -1221,7 +1221,7 @@ int kbase_mmu_insert_single_page(struct kbase_context *kctx, u64 vpfn,
 		 */
 		if (current_is_kswapd())
 			return -EBUSY;
-		mutex_lock(&mmut->mmu_lock);
+		mutex_lock(&kctx->mmu.mmu_lock);
 	}
 
 	while (remain) {
