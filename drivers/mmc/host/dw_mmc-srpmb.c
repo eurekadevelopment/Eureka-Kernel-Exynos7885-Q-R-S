@@ -112,7 +112,7 @@ static int mmc_rpmb_access(struct _mmc_rpmb_ctx *ctx, struct _mmc_rpmb_req *req)
 		}
 	}
 
-	wake_lock(&ctx->wakelock);
+	wake_lock_stock(&ctx->wakelock);
 	fops->get_card(bdev, 1);
 
 	/* Initialize mmc ioc command */
