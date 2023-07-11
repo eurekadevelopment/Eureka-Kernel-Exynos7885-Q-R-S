@@ -63,6 +63,7 @@
 #ifdef CONFIG_MALI_ARBITER_SUPPORT
 #include "arbiter/mali_kbase_arbiter_pm.h"
 #endif
+#include <linux/pm_qos.h>
 
 #include "mali_kbase_cs_experimental.h"
 
