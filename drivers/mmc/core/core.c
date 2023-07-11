@@ -2114,7 +2114,7 @@ int mmc_resume_bus(struct mmc_host *host)
 		return -EINVAL;
 
 	printk("%s: Starting deferred resume\n", mmc_hostname(host));
-	wake_lock_stock(&host->detect_wake_lock);
+	wake_lock(&host->detect_wake_lock);
 	spin_lock_irqsave(&host->lock, flags);
 	host->bus_resume_flags &= ~MMC_BUSRESUME_NEEDS_RESUME;
 	host->rescan_disable = 0;
