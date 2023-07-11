@@ -5,6 +5,8 @@ config ARCH_INTEGRATOR
 	select AUTO_ZRELADDR
 	select COMMON_CLK
 	select COMMON_CLK_VERSATILE
+	select CMA
+	select DMA_CMA
 	select GENERIC_CLOCKEVENTS
 	select HAVE_TCM
 	select ICST
@@ -55,13 +57,12 @@ config INTEGRATOR_IMPD1
 	select ARCH_REQUIRE_GPIOLIB
 	select ARM_VIC
 	select GPIO_PL061 if GPIOLIB
+	select REGULATOR
+	select REGULATOR_FIXED_VOLTAGE
 	help
 	  The IM-PD1 is an add-on logic module for the Integrator which
 	  allows ARM(R) Ltd PrimeCells to be developed and evaluated.
 	  The IM-PD1 can be found on the Integrator/PP2 platform.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called impd1.
 
 endmenu
 
