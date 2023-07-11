@@ -1643,7 +1643,8 @@ static void zram_handle_remain(struct zram *zram, struct page *page,
 				__GFP_KSWAPD_RECLAIM |
 				__GFP_NOWARN |
 				__GFP_HIGHMEM |
-				__GFP_MOVABLE);
+				__GFP_MOVABLE |
+				__GFP_CMA);
 		if (!handle) {
 			zram_slot_unlock(zram, index);
 			break;
