@@ -31,6 +31,7 @@
 #include <linux/module.h>
 #include <linux/of_gpio.h>
 #include <linux/platform_device.h>
+#include <linux/pm_qos.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <linux/time.h>
@@ -681,6 +682,8 @@ struct sec_ts_data {
 	struct mutex i2c_mutex;
 	struct mutex eventlock;
 	struct mutex modechange;
+
+	struct pm_qos_request pm_qos_req;
 
 	struct delayed_work work_read_info;
 #ifdef USE_POWER_RESET_WORK
