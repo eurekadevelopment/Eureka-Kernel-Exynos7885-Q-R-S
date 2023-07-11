@@ -268,7 +268,7 @@ static int alarmtimer_suspend(struct device *dev)
 	/* Set alarm, if in the past reject suspend briefly to handle */
 	ret = rtc_timer_start(rtc, &rtctimer, now, ktime_set(0, 0));
 	if (ret < 0)
-		__pm_wakeup_event(ws, MSEC_PER_SEC);
+		__pm_wakeup_event(ws, MSEC_PER_SEC / 2);
 	return ret;
 }
 #else
