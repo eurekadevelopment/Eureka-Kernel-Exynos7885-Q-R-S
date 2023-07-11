@@ -298,6 +298,7 @@ struct proc_maps_private {
 #ifdef CONFIG_NUMA
 	struct mempolicy *task_mempolicy;
 #endif
+	unsigned long old_cpus_allowed;
 };
 
 struct mm_struct *proc_mem_open(struct inode *inode, unsigned int mode);
