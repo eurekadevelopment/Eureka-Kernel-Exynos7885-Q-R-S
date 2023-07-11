@@ -4743,8 +4743,11 @@ STORE_FUNCTION(cfq_max_async_dispatch_store, &cfqd->cfq_max_async_dispatch, 1, U
 #define CFQ_ATTR(name) \
 	__ATTR(name, S_IRUGO|S_IWUSR, cfq_##name##_show, cfq_##name##_store)
 
+#define CFQ_RO_ATTR(name) \
+	__ATTR(name, S_IRUGO, cfq_##name##_show, cfq_##name##_store)
+
 static struct elv_fs_entry cfq_attrs[] = {
-	CFQ_ATTR(quantum),
+	CFQ_RO_ATTR(quantum),
 	CFQ_ATTR(fifo_expire_sync),
 	CFQ_ATTR(fifo_expire_async),
 	CFQ_ATTR(back_seek_max),
@@ -4754,7 +4757,7 @@ static struct elv_fs_entry cfq_attrs[] = {
 	CFQ_ATTR(slice_async_rq),
 	CFQ_ATTR(slice_idle),
 	CFQ_ATTR(rt_idle_only),
-	CFQ_ATTR(group_idle),
+	CFQ_RO_ATTR(group_idle),
 	CFQ_ATTR(low_latency),
 	CFQ_ATTR(target_latency),
 	CFQ_ATTR(max_async_dispatch),
