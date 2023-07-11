@@ -8,6 +8,7 @@
 #include <linux/notifier.h>
 #include <linux/miscdevice.h>
 #include <linux/device.h>
+#include <linux/workqueue.h>
 
 enum {
 	PM_QOS_RESERVED = 0,
@@ -101,6 +102,7 @@ struct pm_qos_request {
 	struct cpumask cpus_affine;
 	struct plist_node node;
 	int pm_qos_class;
+	struct delayed_work work; /* for pm_qos_update_request_timeout */
 	char *func;
 	unsigned int line;
 };
@@ -188,6 +190,8 @@ void pm_qos_update_request(struct pm_qos_request *req,
 			   s32 new_value);
 void pm_qos_update_request_param(struct pm_qos_request *req,
 			   s32 new_value, void *notify_param);
+void pm_qos_update_request_timeout(struct pm_qos_request *req,
+				   s32 new_value, unsigned long timeout_us);
 void pm_qos_remove_request(struct pm_qos_request *req);
 
 int pm_qos_read_req_value(int pm_qos_class, struct pm_qos_request *req);
