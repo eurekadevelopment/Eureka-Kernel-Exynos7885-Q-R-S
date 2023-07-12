@@ -1215,11 +1215,11 @@ repeat:
 		mem_cgroup_commit_charge(page, memcg, false);
 		lru_cache_add_anon(page);
 
-		spin_lock(&info->lock);
+		spin_lock_irq(&info->lock);
 		info->alloced++;
 		inode->i_blocks += BLOCKS_PER_PAGE;
 		shmem_recalc_inode(inode);
-		spin_unlock(&info->lock);
+		spin_unlock_irq(&info->lock);
 		alloced = true;
 
 		/*
