@@ -1452,7 +1452,7 @@ static bool need_update(int cpu)
 
 void quiet_vmstat(void)
 {
-	if (system_state != SYSTEM_RUNNING)
+	if (unlikely(system_state != SYSTEM_RUNNING))
 		return;
 
 	/*
@@ -1462,7 +1462,7 @@ void quiet_vmstat(void)
 	if (cpumask_test_and_set_cpu(smp_processor_id(), cpu_stat_off))
 		return;
 
-	if (!need_update(smp_processor_id()))
+	if (likely(!need_update(smp_processor_id())))
 		return;
 
 	/*
