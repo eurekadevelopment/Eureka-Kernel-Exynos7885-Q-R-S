@@ -310,7 +310,7 @@ do {									\
 
 #define __wait_event_freezable(wq, condition)				\
 	___wait_event(wq, condition, TASK_INTERRUPTIBLE, 0, 0,		\
-			    schedule(); try_to_freeze())
+			    freezable_schedule(); try_to_freeze())
 
 /**
  * wait_event - sleep (or freeze) until a condition gets true
@@ -369,7 +369,7 @@ do {									\
 #define __wait_event_freezable_timeout(wq, condition, timeout)		\
 	___wait_event(wq, ___wait_cond_timeout(condition),		\
 		      TASK_INTERRUPTIBLE, 0, timeout,			\
-		      __ret = schedule_timeout(__ret); try_to_freeze())
+		      __ret = freezable_schedule_timeout(__ret))
 
 /*
  * like wait_event_timeout() -- except it uses TASK_INTERRUPTIBLE to avoid
@@ -578,7 +578,7 @@ do {									\
 
 #define __wait_event_freezable_exclusive(wq, condition)			\
 	___wait_event(wq, condition, TASK_INTERRUPTIBLE, 1, 0,		\
-			schedule(); try_to_freeze())
+			freezable_schedule())
 
 #define wait_event_freezable_exclusive(wq, condition)			\
 ({									\
