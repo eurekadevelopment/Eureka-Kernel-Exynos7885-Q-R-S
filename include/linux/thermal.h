@@ -145,6 +145,7 @@ struct thermal_zone_device_ops {
 			  enum thermal_trend *);
 	int (*notify) (struct thermal_zone_device *, int,
 		       enum thermal_trip_type);
+	bool (*is_wakeable)(struct thermal_zone_device *);
 	int (*throttle_hotplug) (struct thermal_zone_device *);
 };
 
