@@ -58,12 +58,12 @@
 /*#define BRINGUP_DECON_BIST*/
 #define DECON_DEBUG_SFR 0x14860400
 
-int decon_log_level = 6;
+int decon_log_level = 0;
 module_param(decon_log_level, int, 0644);
 
-int dpu_bts_log_level = 6;
+int dpu_bts_log_level = 0;
 module_param(dpu_bts_log_level, int, 0644);
-int win_update_log_level = 6;
+int win_update_log_level = 0;
 module_param(win_update_log_level, int, 0644);
 
 struct decon_device *decon_drvdata[MAX_DECON_CNT] = {NULL, NULL, NULL};
