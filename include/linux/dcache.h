@@ -94,8 +94,12 @@ extern unsigned int full_name_hash(const unsigned char *, unsigned int);
  * large memory footprint increase).
  */
 #ifdef CONFIG_64BIT
-# define DNAME_INLINE_LEN 32 /* 192 bytes */
+#ifdef CONFIG_ARM64
+# define DNAME_INLINE_LEN 96 /* 256 bytes */
 #else
+# define DNAME_INLINE_LEN 32 /* 192 bytes */
+#endif
+#else /* CONFIG_64BIT */
 # ifdef CONFIG_SMP
 #  define DNAME_INLINE_LEN 36 /* 128 bytes */
 # else
