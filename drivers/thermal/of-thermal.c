@@ -66,6 +66,7 @@ struct __thermal_bind_params {
  * @slope: slope of the temperature adjustment curve
  * @offset: offset of the temperature adjustment curve
  * @ntrips: number of trip points
+ * @is_wakeable: Ignore post suspend thermal zone re-evaluation
  * @trips: an array of trip points (0..ntrips - 1)
  * @num_tbps: number of thermal bind params
  * @tbps: an array of thermal bind params (0..num_tbps - 1)
@@ -79,6 +80,7 @@ struct __thermal_zone {
 	int polling_delay;
 	int slope;
 	int offset;
+	bool is_wakeable;
 
 	/* trip data */
 	int ntrips;
@@ -403,6 +405,13 @@ static int of_thermal_get_crit_temp(struct thermal_zone_device *tz,
 	return -EINVAL;
 }
 
+static bool of_thermal_is_wakeable(struct thermal_zone_device *tz)
+{
+	struct __thermal_zone *data = tz->devdata;
+
+	return data->is_wakeable;
+}
+
 static struct thermal_zone_device_ops of_thermal_ops = {
 	.get_mode = of_thermal_get_mode,
 	.set_mode = of_thermal_set_mode,
@@ -416,6 +425,8 @@ static struct thermal_zone_device_ops of_thermal_ops = {
 
 	.bind = of_thermal_bind,
 	.unbind = of_thermal_unbind,
+
+	.is_wakeable = of_thermal_is_wakeable,
 };
 
 /***   sensor API   ***/
