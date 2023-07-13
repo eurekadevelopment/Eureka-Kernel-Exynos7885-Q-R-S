@@ -295,9 +295,11 @@ static void mxlog_message_handler(u8 phase, const void *message,
 		if (mxlog->logstrings)
 			mxlog_phase5_message_handler(message, length,
 						     level, data);
+#ifdef CONFIG_SCSC_MXLOGGER
 		else
 			SCSC_TAG_ERR(MX_FW,
 				     "Missing LogStrings...dropping incoming PHASE5 message !\n");
+#endif
 		break;
 	default:
 		SCSC_TAG_ERR(MX_FW,
