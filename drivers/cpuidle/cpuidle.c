@@ -207,7 +207,6 @@ int cpuidle_enter_freeze(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 
 	return index;
 }
-#endif /* CONFIG_SUSPEND */
 
 /**
  * cpuidle_enter_state - enter the state and update stats
