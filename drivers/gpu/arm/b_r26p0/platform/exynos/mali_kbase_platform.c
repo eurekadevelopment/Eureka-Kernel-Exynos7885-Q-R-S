@@ -443,7 +443,7 @@ static int gpu_dvfs_update_asv_table(struct kbase_device *kbdev)
 					if (!cal_vol)
 						cal_vol = platform->gpu_default_vol;
 					dvfs_table[j].clock = cal_freq;
-					dvfs_table[j].voltage = cal_vol;
+					dvfs_table[j].voltage = cal_vol +25000;
 					dvfs_table[j].min_threshold = of_data_int_array[table_idx+1];
 					dvfs_table[j].max_threshold = of_data_int_array[table_idx+2];
 					dvfs_table[j].down_staycount = of_data_int_array[table_idx+3];
