@@ -644,8 +644,7 @@ all: vmlinux
 
 ifeq ($(cc-name),clang)
 ifeq ($(CONFIG_SOC_EXYNOS7885), y)
-KBUILD_CFLAGS	+= -march=armv8-a+crypto+crc+sha2+aes -mtune=cortex-a53 \
-		   -mcpu=cortex-a53+crypto+crc+sha2+aes
+KBUILD_CFLAGS	+= -mcpu=cortex-a53 -mtune=cortex-a53
 endif
 ifdef CONFIG_LLVM_POLLY
 KBUILD_CFLAGS	+= -mllvm -polly \
