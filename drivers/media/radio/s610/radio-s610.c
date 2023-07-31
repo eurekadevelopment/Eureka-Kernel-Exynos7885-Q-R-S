@@ -60,9 +60,6 @@ struct s610_radio;
 /* global variable for radio structure */
 struct s610_radio *gradio;
 
-static struct class *s610_radio_class;
-struct device *s610_radio_dev;
-
 #define	FAC_VALUE	16000
 
 static int s610_radio_g_volatile_ctrl(struct v4l2_ctrl *ctrl);
@@ -2156,26 +2153,32 @@ static struct attribute *s610_radio_attrs[] = {
 	&dev_attr_radio_freq_seek.attr,
 	NULL,
 };
-ATTRIBUTE_GROUPS(s610_radio);
 
-int create_s610_radio_sysfs(void)
+static const struct attribute_group s610_radio_group = {
+	.attrs = s610_radio_attrs,
+};
+
+static int create_radio_sysfs(void)
 {
-	if (IS_ERR_OR_NULL(s610_radio_class)) {
-		s610_radio_class = class_create(THIS_MODULE, "s610_radio");
-		if (IS_ERR_OR_NULL(s610_radio_class)) {
-			pr_err("s610_sysfs: error, s610_radio class not exist");
-			return -EINVAL;
-		}
-		s610_radio_class->dev_groups = s610_radio_groups;
-	}
+	static struct class *fmradio_class;
+	static struct device *s610_radio_dev;
+	int ret = -ENODEV;
 
-	s610_radio_dev = device_create(s610_radio_class, NULL, 0, NULL, "s610_radio");
+	fmradio_class = class_create(THIS_MODULE, "fmradio");
+	if (IS_ERR_OR_NULL(fmradio_class)) {
+		pr_err("%s: Failed to create fmradio class: %ld", __func__, PTR_ERR(fmradio_class));
+		return ret;
+	}
+	s610_radio_dev = device_create(fmradio_class, NULL, 0, NULL, "s610_radio");
 	if (IS_ERR_OR_NULL(s610_radio_dev)) {
-		pr_err("s610_sysfs: failed to create device(s610_radio)\n");
-		return -EINVAL;
+		pr_err("%s: failed to create device (s610_radio): %ld\n", __func__, PTR_ERR(s610_radio_dev));
+		return ret;
 	}
-
-	return 1;
+	ret = sysfs_create_group(&s610_radio_dev->kobj, &s610_radio_group);
+	if (ret) {
+		pr_err("%s: failed to create sysfs\n");
+	}
+	return ret;
 }
 
 static int s610_radio_probe(struct platform_device *pdev)
@@ -2317,7 +2320,10 @@ static int s610_radio_probe(struct platform_device *pdev)
 	}
 #endif /* USE_AUDIO_PM */
 
-	create_s610_radio_sysfs();
+	ret = create_radio_sysfs();
+	if (ret) {
+		goto alloc_err4;
+	}
 	gradio->custom_radio_freq_ctrl = 87500;	// Radio set at 87.5 MHz by default
 
 	memcpy(&radio->videodev, &s610_viddev_template,
