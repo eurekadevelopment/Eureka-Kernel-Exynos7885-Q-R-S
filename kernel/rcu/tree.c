@@ -2428,10 +2428,11 @@ rcu_report_qs_rdp(int cpu, struct rcu_state *rsp, struct rcu_data *rdp)
 		return;
 	}
 	mask = rdp->grpmask;
+	rdp->core_needs_qs = false;
 	if ((rnp->qsmask & mask) == 0) {
+		rdp->core_needs_qs = false;
 		raw_spin_unlock_irqrestore(&rnp->lock, flags);
 	} else {
-		rdp->core_needs_qs = 0;
 
 		/*
 		 * This GP can't end until cpu checks in, so all of our
