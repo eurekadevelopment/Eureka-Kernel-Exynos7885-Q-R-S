@@ -266,6 +266,9 @@ static inline void smpboot_thread_init(void)
 extern struct bus_type cpu_subsys;
 extern struct cpumask early_cpu_mask;
 
+static inline void pin_current_cpu(void) { }
+static inline void unpin_current_cpu(void) { }
+
 #ifdef CONFIG_HOTPLUG_CPU
 /* Stop CPUs going up and down. */
 
