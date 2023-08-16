@@ -1566,11 +1566,13 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
 
 	flags &= gfp_allowed_mask;
 
+	if (gfpflags_allow_blocking(flags))
+		enableirqs = true;
 #ifdef CONFIG_PREEMPT_RT_FULL
 	if (system_state == SYSTEM_RUNNING)
-#else
-	if (gfpflags_allow_blocking(flags))
+		enableirqs = true;
 #endif
+	if (enableirqs)
 		local_irq_enable();
 
 	flags |= s->allocflags;
@@ -1694,11 +1696,7 @@ def_alloc:
 	page->frozen = 1;
 
 out:
-#ifdef CONFIG_PREEMPT_RT_FULL
-	if (system_state == SYSTEM_RUNNING)
-#else
-	if (gfpflags_allow_blocking(flags))
-#endif
+	if (enableirqs)
 		local_irq_disable();
 	if (!page)
 		return NULL;
