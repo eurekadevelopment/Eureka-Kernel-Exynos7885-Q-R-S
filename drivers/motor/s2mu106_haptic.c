@@ -273,7 +273,7 @@ static ssize_t intensity_show(struct device *dev,
         struct timed_output_dev *tdev = dev_get_drvdata(dev);
 	struct s2mu106_haptic_data *haptic = container_of(tdev, struct s2mu106_haptic_data, tout_dev);
 
-        return sprintf(buf, "intensity: %u\n", haptic->intensity);
+        return sprintf(buf, "%u\n", haptic->intensity);
 }
 
 static DEVICE_ATTR(intensity, 0660, intensity_show, intensity_store);
