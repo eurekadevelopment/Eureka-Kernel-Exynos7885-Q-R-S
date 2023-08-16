@@ -471,6 +471,8 @@ struct sec_battery_info {
 	unsigned long cal_safety_time;
 	int fg_reset;
 
+	bool usb_slow_chg;
+
 	bool block_water_event;
 
 #if defined(CONFIG_FG_FULLCAP_FROM_BATTERY)
