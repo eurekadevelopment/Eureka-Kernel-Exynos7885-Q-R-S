@@ -109,8 +109,10 @@ const struct kbase_pm_policy kbase_pm_adaptive_policy_ops = {
 	adaptive_shaders_needed,	/* shaders_needed */
 	adaptive_get_core_active,	/* get_core_active */
 	adaptive_handle_event,		/* handle_event */
-	0u,							/* flags */
 	KBASE_PM_POLICY_ID_ADAPTIVE,	/* id */
+#if MALI_USE_CSF
+	0u,				/* flags */
+#endif
 };
 
 KBASE_EXPORT_TEST_API(kbase_pm_adaptive_policy_ops);
