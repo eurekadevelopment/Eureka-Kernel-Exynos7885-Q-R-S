@@ -1552,6 +1552,7 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
 	gfp_t alloc_gfp;
 	void *start, *p;
 	int idx, order;
+	bool enableirqs = false;
 
 #ifdef CONFIG_RKP_KDP
 	void *virt_page = NULL;
@@ -1560,6 +1561,11 @@ static struct page *allocate_slab(struct kmem_cache *s, gfp_t flags, int node)
 	flags &= gfp_allowed_mask;
 
 	if (gfpflags_allow_blocking(flags))
+		enableirqs = true;
+#ifdef CONFIG_PREEMPT_RT_FULL
+		enableirqs = true;
+#endif
+	if (enableirqs)
 		local_irq_enable();
 
 	flags |= s->allocflags;
@@ -1683,7 +1689,7 @@ def_alloc:
 	page->frozen = 1;
 
 out:
-	if (gfpflags_allow_blocking(flags))
+	if (enableirqs)
 		local_irq_disable();
 	if (!page)
 		return NULL;
@@ -1703,7 +1709,7 @@ int rkp_from_vfsmnt_cache(unsigned long addr)
 	static void *objp;
 	static struct kmem_cache *s;
 	static struct page *page;
-	
+
 	objp = (void *)addr;
 
 	if(!objp)
@@ -1790,8 +1796,8 @@ static void __free_slab(struct kmem_cache *s, struct page *page)
 		current->reclaim_state->reclaimed_slab += pages;
 #ifdef CONFIG_RKP_KDP
 	/* We free the protected pages here. */
-	if (s->name && (!strcmp(s->name, CRED_JAR_RO) || 
-		!strcmp(s->name, TSEC_JAR) || 
+	if (s->name && (!strcmp(s->name, CRED_JAR_RO) ||
+		!strcmp(s->name, TSEC_JAR) ||
 		!strcmp(s->name, VFSMNT_JAR))){
 		free_ro_pages(s,page, order);
 		return;
