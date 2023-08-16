@@ -23,6 +23,7 @@
 #include <linux/delay.h>
 #include <linux/platform_device.h>
 #include <linux/input.h>
+#include <linux/input/keypad.h>
 #include <linux/gpio_keys.h>
 #include <linux/workqueue.h>
 #include <linux/gpio.h>
@@ -60,6 +61,7 @@ struct gpio_button_data {
 	bool key_pressed;
 	bool key_state;
 	int key_press_count;
+	int key_code;
 };
 
 struct gpio_keys_drvdata {
@@ -225,7 +227,7 @@ static ssize_t gpio_keys_attr_show_helper(struct gpio_keys_drvdata *ddata,
 		if (only_disabled && !bdata->disabled)
 			continue;
 
-		__set_bit(bdata->button->code, bits);
+		__set_bit(bdata->key_code, bits);
 	}
 
 	ret = scnprintf(buf, PAGE_SIZE - 1, "%*pbl", n_events, bits);
@@ -276,7 +278,7 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
 		if (bdata->button->type != type)
 			continue;
 
-		if (test_bit(bdata->button->code, bits) &&
+		if (test_bit(bdata->key_code, bits) &&
 		    !bdata->button->can_disable) {
 			error = -EINVAL;
 			goto out;
@@ -291,7 +293,7 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
 		if (bdata->button->type != type)
 			continue;
 
-		if (test_bit(bdata->button->code, bits))
+		if (test_bit(bdata->key_code, bits))
 			gpio_keys_disable_button(bdata);
 		else
 			gpio_keys_enable_button(bdata);
@@ -374,6 +376,45 @@ static struct attribute *gpio_keys_attrs[] = {
 static struct attribute_group gpio_keys_attr_group = {
 	.attrs = gpio_keys_attrs,
 };
+
+static int gpio_keys_keypad_read(u32 *code, void *data)
+{
+	struct gpio_button_data *bdata = (struct gpio_button_data *) data;
+
+	if (!bdata) {
+		return -ENODEV;
+	}
+
+	*code = bdata->key_code;
+
+	return 0;
+}
+
+static int gpio_keys_keypad_write(u32 code, void *data)
+{
+	struct gpio_button_data *bdata = (struct gpio_button_data *) data;
+
+	if (!bdata) {
+		return -ENODEV;
+	}
+
+	if (code >= 0) {
+		input_set_capability(
+			bdata->input,
+			bdata->button->type ?: EV_KEY,
+			code);
+	}
+
+	if (!bdata->key_code && code) {
+		gpio_keys_enable_button(bdata);
+	} else if (bdata->key_code && !code) {
+		gpio_keys_disable_button(bdata);
+	}
+
+	bdata->key_code = code;
+
+	return 0;
+}
 
 static ssize_t key_pressed_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
@@ -610,10 +651,10 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 
 	if (type == EV_ABS) {
 		if (state)
-			input_event(input, type, button->code, button->value);
+			input_event(input, type, bdata->key_code, button->value);
 	} else {
 		bdata->key_state = !!state;
-		input_event(input, type, button->code, !!state);
+		input_event(input, type, bdata->key_code, !!state);
 	}
 
 	if (state)
@@ -686,7 +727,7 @@ static void gpio_keys_irq_timer(unsigned long _data)
 
 	spin_lock_irqsave(&bdata->lock, flags);
 	if (bdata->key_pressed) {
-		input_event(input, EV_KEY, bdata->button->code, 0);
+		input_event(input, EV_KEY, bdata->key_code, 0);
 		input_sync(input);
 		bdata->key_pressed = false;
 	}
@@ -696,7 +737,6 @@ static void gpio_keys_irq_timer(unsigned long _data)
 static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
 {
 	struct gpio_button_data *bdata = dev_id;
-	const struct gpio_keys_button *button = bdata->button;
 	struct input_dev *input = bdata->input;
 	unsigned long flags;
 
@@ -708,11 +748,11 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
 		if (bdata->button->wakeup)
 			pm_wakeup_event(bdata->input->dev.parent, 0);
 
-		input_event(input, EV_KEY, button->code, 1);
+		input_event(input, EV_KEY, bdata->key_code, 1);
 		input_sync(input);
 
 		if (!bdata->release_delay) {
-			input_event(input, EV_KEY, button->code, 0);
+			input_event(input, EV_KEY, bdata->key_code, 0);
 			input_sync(input);
 			goto out;
 		}
@@ -758,6 +798,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
 
 	bdata->input = input;
 	bdata->button = button;
+	bdata->key_code = button->code;
 	spin_lock_init(&bdata->lock);
 
 	if (gpio_is_valid(button->gpio)) {
@@ -806,6 +847,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
 		isr = gpio_keys_gpio_isr;
 		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
 
+		keypad_register(button->desc, bdata,
+			gpio_keys_keypad_read,
+			gpio_keys_keypad_write);
 	} else {
 		if (!button->irq) {
 			dev_err(dev, "No IRQ specified\n");
