@@ -278,6 +278,7 @@ DTC ?= $(objtree)/scripts/dtc/dtc
 
 # Overlay support
 DTC_FLAGS += -@
+DTC_FLAGS += -q
 
 # Disable noisy checks by default
 ifeq ($(KBUILD_ENABLE_EXTRA_GCC_CHECKS),)
