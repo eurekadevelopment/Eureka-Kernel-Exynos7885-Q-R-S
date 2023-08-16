@@ -72,7 +72,6 @@ enum {
 #define MC_FC_FP_PM_SUSPEND_CS_HIGH ((uint32_t)(0x83000028))
 
 extern int fpsensor_goto_suspend;
-EXPORT_SYMBOL(fpsensor_goto_suspend);
 #endif
 
 #endif
