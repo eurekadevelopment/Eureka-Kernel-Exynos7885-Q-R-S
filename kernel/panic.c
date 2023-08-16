@@ -484,9 +484,11 @@ static u64 oops_id;
 
 static int init_oops_id(void)
 {
+#ifndef CONFIG_PREEMPT_RT_FULL
 	if (!oops_id)
 		get_random_bytes(&oops_id, sizeof(oops_id));
 	else
+#endif
 		oops_id++;
 #ifdef CONFIG_ARM_CCI550_DEBUG_MODE
 	cci_virt_base = ioremap(CCI_BASE, SZ_4K);
