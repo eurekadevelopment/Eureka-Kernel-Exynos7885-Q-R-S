@@ -1756,7 +1756,8 @@ struct task_struct {
 #endif
 	struct prev_cputime prev_cputime;
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
-	seqlock_t vtime_seqlock;
+	raw_spinlock_t vtime_lock;
+	seqcount_t vtime_seq;
 	unsigned long long vtime_snap;
 	enum {
 		VTIME_SLEEPING = 0,
