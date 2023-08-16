@@ -48,7 +48,7 @@
 #define GF_CLASS_NAME "goodix_fp"
 #define GF_NETLINK_ROUTE 25
 #define MAX_NL_MSG_LEN 16
-#define WAKELOCK_HOLD_TIME 500 /* in ms */
+#define WAKELOCK_HOLD_TIME 400 /* in ms */
 
 static LIST_HEAD(device_list);
 static DEFINE_MUTEX(device_list_lock);
