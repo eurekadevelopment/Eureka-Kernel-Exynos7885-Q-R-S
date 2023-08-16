@@ -103,6 +103,9 @@ struct hrtimer {
 	enum hrtimer_restart		(*function)(struct hrtimer *);
 	struct hrtimer_clock_base	*base;
 	u8				state;
+#ifdef CONFIG_MISSED_TIMER_OFFSETS_HIST
+	ktime_t				praecox;
+#endif
 	u8				is_rel;
 #ifdef CONFIG_TIMER_STATS
 	int				start_pid;
