@@ -72,6 +72,7 @@ enum irqchip_irq_state;
  * IRQ_IS_POLLED		- Always polled by another interrupt. Exclude
  *				  it from the spurious interrupt detection
  *				  mechanism and from core side polling.
+ * IRQ_NO_SOFTIRQ_CALL		- No softirq processing in the irq thread context (RT)
  * IRQ_DISABLE_UNLAZY		- Disable lazy irq disable
  * IRQ_AFFINITY_MANAGED		- Affinity is auto-managed by the kernel
  */
@@ -100,6 +101,7 @@ enum {
 	IRQ_PER_CPU_DEVID	= (1 << 17),
 	IRQ_IS_POLLED		= (1 << 18),
 	IRQ_DISABLE_UNLAZY	= (1 << 19),
+	IRQ_NO_SOFTIRQ_CALL	= (1 << 20),
 	IRQ_AFFINITY_MANAGED	= (1 << 21),
 };
 
@@ -107,7 +109,8 @@ enum {
 	(IRQ_TYPE_SENSE_MASK | IRQ_NOPROBE | IRQ_NOREQUEST | \
 	 IRQ_NOAUTOEN | IRQ_MOVE_PCNTXT | IRQ_LEVEL | IRQ_NO_BALANCING | \
 	 IRQ_PER_CPU | IRQ_NESTED_THREAD | IRQ_NOTHREAD | IRQ_PER_CPU_DEVID | \
-	 IRQ_IS_POLLED | IRQ_DISABLE_UNLAZY | IRQ_AFFINITY_MANAGED)
+	 IRQ_IS_POLLED | IRQ_DISABLE_UNLAZY | IRQ_NO_SOFTIRQ_CALL | \
+	 IRQ_AFFINITY_MANAGED)
 
 #define IRQ_NO_BALANCING_MASK	(IRQ_PER_CPU | IRQ_NO_BALANCING)
 
