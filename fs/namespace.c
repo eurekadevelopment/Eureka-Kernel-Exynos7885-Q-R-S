@@ -14,6 +14,7 @@
 #include <linux/mnt_namespace.h>
 #include <linux/user_namespace.h>
 #include <linux/namei.h>
+#include <linux/delay.h>
 #include <linux/security.h>
 #include <linux/idr.h>
 #include <linux/init.h>		/* init_rootfs */
