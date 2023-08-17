@@ -3056,6 +3056,8 @@ static inline void xmit_rec_dec(void)
 }
 #endif
 
+#define RECURSION_LIMIT 8
+
 /**
  *	dev_loopback_xmit - loop back @skb
  *	@net: network namespace this loopback is happening in
