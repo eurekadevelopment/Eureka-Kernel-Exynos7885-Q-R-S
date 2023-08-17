@@ -2404,7 +2404,7 @@ static void put_cpu_partial(struct kmem_cache *s, struct page *page, int drain)
 				list_splice_init(&f->list, &tofree);
 				raw_spin_unlock(&f->lock);
 				local_irq_restore(flags);
-				free_delayed(&tofree)
+				free_delayed(&tofree);
 				oldpage = NULL;
 				pobjects = 0;
 				pages = 0;
