@@ -571,9 +571,13 @@ int __mnt_want_write(struct vfsmount *m)
 #ifdef CONFIG_RKP_NS_PROT
 	while (ACCESS_ONCE(mnt->mnt->mnt_flags) & MNT_WRITE_HOLD)
 #else
-	while (ACCESS_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD)
+	while (ACCESS_ONCE(mnt->mnt.mnt_flags) & MNT_WRITE_HOLD) {
+		preempt_enable();
+ 		cpu_relax();
+		preempt_disable();
+	}
 #endif
-		cpu_relax();
+
 	/*
 	 * After the slowpath clears MNT_WRITE_HOLD, mnt_is_readonly will
 	 * be set to match its requirements. So we must not load that until
