@@ -27,6 +27,7 @@ struct rt_mutex_waiter {
 	struct rb_node          pi_tree_entry;
 	struct task_struct	*task;
 	struct rt_mutex		*lock;
+	bool			savestate;
 #ifdef CONFIG_DEBUG_RT_MUTEXES
 	unsigned long		ip;
 	struct pid		*deadlock_task_pid;
@@ -105,7 +106,7 @@ extern struct task_struct *rt_mutex_next_owner(struct rt_mutex *lock);
 extern void rt_mutex_init_proxy_locked(struct rt_mutex *lock,
 				       struct task_struct *proxy_owner);
 extern void rt_mutex_proxy_unlock(struct rt_mutex *lock);
-extern void rt_mutex_init_waiter(struct rt_mutex_waiter *waiter);
+extern void rt_mutex_init_waiter(struct rt_mutex_waiter *waiter, bool savestate);
 extern int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
 				     struct rt_mutex_waiter *waiter,
 				     struct task_struct *task);
@@ -119,7 +120,8 @@ extern int __rt_mutex_futex_trylock(struct rt_mutex *l);
 
 extern void rt_mutex_futex_unlock(struct rt_mutex *lock);
 extern bool __rt_mutex_futex_unlock(struct rt_mutex *lock,
-				 struct wake_q_head *wqh);
+				    struct wake_q_head *wqh,
+				    struct wake_q_head *wq_sleeper);
 
 extern void rt_mutex_adjust_prio(struct task_struct *task);
 
