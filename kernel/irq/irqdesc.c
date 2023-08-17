@@ -31,13 +31,29 @@ static struct lock_class_key irq_desc_lock_class;
 extern struct cpumask hmp_slow_cpu_mask;
 #endif
 #if defined(CONFIG_SMP)
+static int __init irq_affinity_setup(char *str)
+{
+	zalloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
+	cpulist_parse(str, irq_default_affinity);
+	/*
+	 * Set at least the boot cpu. We don't want to end up with
+	 * bugreports caused by random comandline masks
+	 */
+	cpumask_set_cpu(smp_processor_id(), irq_default_affinity);
+	return 1;
+}
+__setup("irqaffinity=", irq_affinity_setup);
+
 static void __init init_irq_default_affinity(void)
 {
-	alloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
+#ifdef CONFIG_CPUMASK_OFFSTACK
 #ifdef CONFIG_SCHED_HMP
-	cpumask_copy(irq_default_affinity, &hmp_slow_cpu_mask);
+	if (!irq_default_affinity)
+		zalloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
 #else
-	cpumask_set_cpu(0, irq_default_affinity);
+	if (cpumask_empty(irq_default_affinity))
+		cpumask_setall(irq_default_affinity);
+#endif
 #endif
 }
 #else
