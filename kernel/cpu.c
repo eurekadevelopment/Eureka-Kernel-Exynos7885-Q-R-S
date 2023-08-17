@@ -278,6 +278,12 @@ static int sync_unplug_thread(void *data)
 	return 0;
 }
 
+static void __cpu_unplug_sync(struct hotplug_pcp *hp)
+{
+       wake_up_process(hp->sync_tsk);
+       wait_for_completion(&hp->synced);
+}
+
 static void __cpu_unplug_wait(unsigned int cpu)
 {
 	struct hotplug_pcp *hp = &per_cpu(hotplug_pcp, cpu);
