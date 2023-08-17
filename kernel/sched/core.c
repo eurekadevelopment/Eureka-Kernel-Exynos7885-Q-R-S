@@ -660,7 +660,11 @@ int get_nohz_timer_target(void)
 	preempt_disable_rt();
 	cpu = smp_processor_id();
 
+	if (is_housekeeping_cpu(cpu)) {
+		if (!idle_cpu(cpu))
 		goto preempt_en_rt;
+		default_cpu = cpu;
+	}
 
 	rcu_read_lock();
 	for_each_domain(cpu, sd) {
