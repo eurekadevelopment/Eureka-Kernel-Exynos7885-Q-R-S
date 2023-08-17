@@ -1555,6 +1555,7 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
 	struct task_struct *new_owner;
 	bool deboost = false;
 	WAKE_Q(wake_q);
+	WAKE_Q(wake_sleeper_q);
 	int ret = 0;
 
 	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
@@ -1604,7 +1605,8 @@ static int wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_
 		 * not fail.
 		 */
 		pi_state_update_owner(pi_state, new_owner);
-		deboost = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q);
+		deboost = __rt_mutex_futex_unlock(&pi_state->pi_mutex, &wake_q,
+						  &wake_sleeper_q);
 	}
 
 out_unlock:
@@ -1612,6 +1614,7 @@ out_unlock:
 
 	if (deboost) {
 		wake_up_q(&wake_q);
+		wake_up_q_sleeper(&wake_sleeper_q);
 		rt_mutex_adjust_prio(current);
 	}
 
@@ -2922,7 +2925,7 @@ retry_private:
 	 * We must add ourselves to the rt_mutex waitlist while holding hb->lock
 	 * such that the hb and rt_mutex wait lists match.
 	 */
-	rt_mutex_init_waiter(&rt_waiter);
+	rt_mutex_init_waiter(&rt_waiter, false);
 	ret = rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, current);
 	if (ret) {
 		if (ret == 1)
@@ -3238,7 +3241,7 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 	 * The waiter is allocated on our stack, manipulated by the requeue
 	 * code while we sleep on uaddr.
 	 */
-	rt_mutex_init_waiter(&rt_waiter);
+	rt_mutex_init_waiter(&rt_waiter, false);
 
 	ret = get_futex_key(uaddr2, flags & FLAGS_SHARED, &key2, VERIFY_WRITE);
 	if (unlikely(ret != 0))
