@@ -653,14 +653,13 @@ void resched_cpu(int cpu)
  */
 int get_nohz_timer_target(void)
 {
-	int i, cpu = smp_processor_id(), default_cpu = -1;
+	int i, cpu, default_cpu = -1;
 	struct sched_domain *sd;
 
-	if (is_housekeeping_cpu(cpu)) {
-		if (!idle_cpu(cpu))
-			return cpu;
-		default_cpu = cpu;
-	}
+	preempt_disable_rt();
+	cpu = smp_processor_id();
+
+		goto preempt_en_rt;
 
 	rcu_read_lock();
 	for_each_domain(cpu, sd) {
@@ -678,6 +677,8 @@ int get_nohz_timer_target(void)
 	cpu = default_cpu;
 unlock:
 	rcu_read_unlock();
+preempt_en_rt:
+	preempt_enable_rt();
 	return cpu;
 }
 /*
