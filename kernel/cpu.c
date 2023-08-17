@@ -532,10 +532,9 @@ static int _cpu_down(unsigned int cpu, int tasks_frozen)
 	mycpu = smp_processor_id();
 	if (mycpu == cpu) {
 		printk(KERN_ERR "Yuck! Still on unplug CPU\n!");
-		preempt_enable();
+		migrate_enable();
 		return -EBUSY;
 	}
-	preempt_enable();
 
 	cpu_hotplug_begin();
 	err = cpu_unplug_begin(cpu);
@@ -608,6 +607,7 @@ static int _cpu_down(unsigned int cpu, int tasks_frozen)
 out_release:
 	cpu_unplug_done(cpu);
 out_cancel:
+	migrate_enable();
 	cpu_hotplug_done();
 	trace_sched_cpu_hotplug(cpu, err, 0);
 	if (!err)
