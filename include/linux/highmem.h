@@ -126,12 +126,13 @@ static inline void kmap_atomic_idx_pop(void)
 	BUG_ON(idx < 0);
 # else
 	__this_cpu_dec(__kmap_atomic_idx);
-#endif
+# endif
 #else
 	current->kmap_idx--;
 # ifdef CONFIG_DEBUG_HIGHMEM
 	BUG_ON(current->kmap_idx < 0);
 # endif
+#endif
 }
 
 #endif
