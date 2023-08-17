@@ -40,14 +40,18 @@ static void blk_done_softirq(struct softirq_action *h)
 static void trigger_softirq(void *data)
 {
 	struct request *rq = data;
+	unsigned long flags;
 	struct list_head *list;
 
+	local_irq_save(flags);
 	list = this_cpu_ptr(&blk_cpu_done);
 	list_add_tail(&rq->ipi_list, list);
 
 	if (list->next == &rq->ipi_list)
 		raise_softirq_irqoff(BLOCK_SOFTIRQ);
 
+ 	local_irq_restore(flags);
+	preempt_check_resched_rt();
 }
 
 /*
@@ -90,8 +94,8 @@ static int blk_cpu_notify(struct notifier_block *self, unsigned long action,
 				 this_cpu_ptr(&blk_cpu_done));
 		raise_softirq_irqoff(BLOCK_SOFTIRQ);
 		local_irq_enable();
+		preempt_check_resched_rt();
 	}
-
 	return NOTIFY_OK;
 }
 
@@ -152,6 +156,7 @@ do_local:
 		goto do_local;
 
 	put_cpu();
+	preempt_check_resched_rt();
 	local_irq_restore(flags);
 }
 
