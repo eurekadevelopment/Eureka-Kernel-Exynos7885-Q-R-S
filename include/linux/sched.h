@@ -3347,12 +3347,16 @@ extern int __cond_resched_rwlock_write(rwlock_t *lock);
 	__cond_resched_rwlock_write(lock);			\
 })
 
+#ifndef CONFIG_PREEMPT_RT_FULL
 extern int __cond_resched_softirq(void);
 
 #define cond_resched_softirq() ({					\
 	___might_sleep(__FILE__, __LINE__, SOFTIRQ_DISABLE_OFFSET);	\
 	__cond_resched_softirq();					\
 })
+#else
+# define cond_resched_softirq()		cond_resched()
+#endif
 
 static inline void cond_resched_rcu(void)
 {
