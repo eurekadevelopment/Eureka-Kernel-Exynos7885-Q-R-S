@@ -468,21 +468,14 @@ extern atomic_t panic_cpu;
 
 /*
  * A variant of panic() called from NMI context. We return if we've already
- * panicked on this CPU. If another CPU already panicked, loop in
- * nmi_panic_self_stop() which can provide architecture dependent code such
- * as saving register state for crash dump.
+ * panicked on this CPU.
  */
-#define nmi_panic(regs, fmt, ...)					\
+#define nmi_panic(fmt, ...)						\
 do {									\
-	int old_cpu, cpu;						\
+	int cpu = raw_smp_processor_id();				\
 									\
-	cpu = raw_smp_processor_id();					\
-	old_cpu = atomic_cmpxchg(&panic_cpu, PANIC_CPU_INVALID, cpu);	\
-									\
-	if (old_cpu == PANIC_CPU_INVALID)				\
+	if (atomic_cmpxchg(&panic_cpu, PANIC_CPU_INVALID, cpu) != cpu)	\
 		panic(fmt, ##__VA_ARGS__);				\
-	else if (old_cpu != cpu)					\
-		nmi_panic_self_stop(regs);				\
 } while (0)
 
 /*
