@@ -232,7 +232,7 @@ pci_serr_error(unsigned char reason, struct pt_regs *regs)
 #endif
 
 	if (panic_on_unrecovered_nmi)
-		nmi_panic("NMI: Not continuing");
+		nmi_panic(regs, "NMI: Not continuing");
 
 	pr_emerg("Dazed and confused, but trying to continue\n");
 
@@ -257,7 +257,7 @@ io_check_error(unsigned char reason, struct pt_regs *regs)
 	show_regs(regs);
 
 	if (panic_on_io_nmi) {
-		nmi_panic("NMI IOCK error: Not continuing");
+		nmi_panic(regs, "NMI IOCK error: Not continuing");
 
 		/*
 		 * If we end up here, it means we have received an NMI while
@@ -306,7 +306,7 @@ unknown_nmi_error(unsigned char reason, struct pt_regs *regs)
 
 	pr_emerg("Do you have a strange power saving mode enabled?\n");
 	if (unknown_nmi_panic || panic_on_unrecovered_nmi)
-		nmi_panic("NMI: Not continuing");
+		nmi_panic(regs, "NMI: Not continuing");
 
 	pr_emerg("Dazed and confused, but trying to continue\n");
 }
