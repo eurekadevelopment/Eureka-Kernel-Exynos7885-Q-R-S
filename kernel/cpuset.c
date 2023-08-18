@@ -2094,7 +2094,7 @@ static int cpuset_css_online(struct cgroup_subsys_state *css)
 
 	cpuset_inc();
 
-	raw_spin_lock_irq(&callback_lock)
+	raw_spin_lock_irq(&callback_lock);
 	if (cgroup_subsys_on_dfl(cpuset_cgrp_subsys)) {
 		cpumask_copy(cs->effective_cpus, parent->effective_cpus);
 		cs->effective_mems = parent->effective_mems;
