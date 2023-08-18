@@ -266,7 +266,6 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
 	struct cpu_stop_done done;
 	struct cpu_stop_work work1, work2;
 
-	preempt_disable_nort();
 	struct multi_stop_data msdata = {
 		.fn = fn,
 		.data = arg,
@@ -279,6 +278,8 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
 		.arg = &msdata,
 		.done = &done
 	};
+
+        preempt_disable_nort();
 
 	cpu_stop_init_done(&done, 2);
 	set_state(&msdata, MULTI_STOP_PREPARE);

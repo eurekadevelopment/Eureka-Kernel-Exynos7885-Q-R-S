@@ -126,12 +126,10 @@ bool irq_work_queue_on(struct irq_work *work, int cpu)
 	if (cpu != smp_processor_id()) {
 		/* Arch remote IPI send/receive backend aren't NMI safe */
 		WARN_ON_ONCE(in_nmi());
-	if (use_lazy_list(work))
-	    || (work->flags & IRQ_WORK_LAZY))
-		list = &per_cpu(lazy_list, cpu);
+	if (use_lazy_list(work) || (work->flags & IRQ_WORK_LAZY))
+    		list = &per_cpu(lazy_list, cpu);
 	else
-		list = &per_cpu(raised_list, cpu);
-
+    		list = &per_cpu(raised_list, cpu);
 	if (llist_add(&work->llnode, list))
 			arch_send_call_function_single_ipi(cpu);
 	} else {
