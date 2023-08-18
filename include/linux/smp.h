@@ -201,4 +201,7 @@ extern void arch_enable_nonboot_cpus_end(void);
 
 void smp_setup_processor_id(void);
 
+int smp_call_on_cpu(unsigned int cpu, int (*func)(void *), void *par,
+		    bool phys);
+
 #endif /* __LINUX_SMP_H */
