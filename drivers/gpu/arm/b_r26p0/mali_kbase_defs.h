@@ -49,6 +49,8 @@
 #include <linux/file.h>
 #include <linux/sizes.h>
 
+#include <linux/rtmutex.h>
+
 #ifdef CONFIG_MALI_BUSLOG
 #include <linux/bus_logger.h>
 #endif
@@ -320,7 +322,7 @@ struct kbase_as {
  */
 struct kbase_mmu_table {
 	u64 *mmu_teardown_pages;
-	struct mutex mmu_lock;
+	struct rt_mutex mmu_lock;
 	phys_addr_t pgd;
 	u8 group_id;
 	struct kbase_context *kctx;
