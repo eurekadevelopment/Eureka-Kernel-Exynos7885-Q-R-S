@@ -5816,7 +5816,7 @@ static inline unsigned int hmp_select_faster_cpu(struct task_struct *tsk,
 		hmp = hmp_faster_domain(cpu);
 
 	*lowest_ratio = hmp_domain_min_load(hmp, &lowest_cpu,
-			tsk_cpus_allowed(tsk));
+			(struct cpumask *)tsk_cpus_allowed(tsk));
 
 	return lowest_cpu;
 }
@@ -5838,7 +5838,7 @@ static inline unsigned int hmp_select_slower_cpu(struct task_struct *tsk,
 		hmp = hmp_slower_domain(cpu);
 
 	lowest_ratio = hmp_domain_min_load(hmp, &lowest_cpu,
-			tsk_cpus_allowed(tsk));
+			(struct cpumask *)tsk_cpus_allowed(tsk));
 
 	return lowest_cpu;
 }
@@ -6762,7 +6762,7 @@ static inline unsigned int hmp_offload_down(int cpu, struct sched_entity *se)
 
 	/* Does the slower domain have any idle CPUs? */
 	min_usage = hmp_domain_min_load(hmp_slower_domain(cpu), &dest_cpu,
-			tsk_cpus_allowed(task_of(se)));
+			(struct cpumask *)tsk_cpus_allowed(task_of(se)));
 
 	if (min_usage == 0){
 		trace_sched_hmp_offload_succeed(cpu, dest_cpu);
@@ -10096,17 +10096,17 @@ static int hmp_selective_migration(int prev_cpu, struct sched_entity *se)
 	 */
 	if (is_boosted_task) {
 		if (p->prio <= 110 && cpuset_task_is_pinned(p)) {
-			min_load = hmp_domain_min_load(&firstboost,&min_cpu, tsk_cpus_allowed(p));
+			min_load = hmp_domain_min_load(&firstboost,&min_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 		} else {
-			min_load = hmp_domain_min_load(&firstboost,&min_cpu, tsk_cpus_allowed(p));
+			min_load = hmp_domain_min_load(&firstboost,&min_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 			if (min_load) {
-				min_load = hmp_domain_min_load(&secondboost,&min_cpu, tsk_cpus_allowed(p));
+				min_load = hmp_domain_min_load(&secondboost,&min_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 				if (min_load)
-					min_load = hmp_domain_min_load(&logical_nonboost,&min_cpu, tsk_cpus_allowed(p));
+					min_load = hmp_domain_min_load(&logical_nonboost,&min_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 			}
 		}
 	} else {
-		min_load = hmp_domain_min_load(&logical_nonboost,&min_cpu, tsk_cpus_allowed(p));
+		min_load = hmp_domain_min_load(&logical_nonboost,&min_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 	}
 	new_cpu = min_cpu;
 
@@ -10162,7 +10162,7 @@ static unsigned int hmp_up_migration(int cpu, int *target_cpu, struct sched_enti
 	 * return value is weighted_cpuload (runnable_load_avg of cfs_rq
 	 */
 	min_load = hmp_domain_min_load(hmp_faster_domain(cpu),
-			&temp_target_cpu, tsk_cpus_allowed(p));
+			&temp_target_cpu, (struct cpumask *)tsk_cpus_allowed(p));
 
 	if (temp_target_cpu != NR_CPUS) {
 		if (hmp_aggressive_up_migration) {
