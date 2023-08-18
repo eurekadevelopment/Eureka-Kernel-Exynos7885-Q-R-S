@@ -480,7 +480,7 @@ static void watchdog_overflow_callback(struct perf_event *event,
 		raw_spin_unlock(&watchdog_output_lock);
 		if (hardlockup_panic) {
 			exynos_ss_set_hardlockup(hardlockup_panic);
-			panic("Hard LOCKUP");
+			nmi_panic("Hard LOCKUP");
 		}
 
 		__this_cpu_write(hard_watchdog_warn, true);
