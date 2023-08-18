@@ -256,6 +256,7 @@ static void exynos_irq_release_resources(struct irq_data *irqd)
 static struct exynos_irq_chip exynos_gpio_irq_chip = {
 	.chip = {
 		.name = "exynos_gpio_irq_chip",
+		.flags = IRQCHIP_MASK_ON_SUSPEND,
 		.irq_unmask = exynos_irq_unmask,
 		.irq_mask = exynos_irq_mask,
 		.irq_ack = exynos_irq_ack,
