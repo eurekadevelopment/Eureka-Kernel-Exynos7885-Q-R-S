@@ -617,6 +617,9 @@ void __init smp_init(void)
 		clear_bit(cpu, &sec_cpumask);
 
 	cpumask_set_cpu(0, &early_cpu_mask);
+
+	pr_info("Bringing up secondary CPUs ...\n");
+
 	/* FIXME: This should be done in userspace --RR */
 	for_each_present_cpu(cpu) {
 		if (num_online_cpus() >= setup_max_cpus)
