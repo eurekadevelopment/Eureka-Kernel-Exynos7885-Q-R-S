@@ -150,7 +150,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(struct call_single_data, csd_data);
  * for execution on the given CPU. data must already have
  * ->func, ->info, and ->flags set.
  */
-int generic_exec_single(int cpu, call_single_data_t *csd, smp_call_func_t func,
+int generic_exec_single(int cpu, struct call_single_data *csd, smp_call_func_t func,
 			void *info)
 {
 	if (cpu == smp_processor_id()) {
@@ -858,11 +858,8 @@ static void smp_call_on_cpu_callback(struct work_struct *work)
 
 	sscs = container_of(work, struct smp_call_on_cpu_struct, work);
 	if (sscs->cpu >= 0)
-		hypervisor_pin_vcpu(sscs->cpu);
 	sscs->ret = sscs->func(sscs->data);
-	if (sscs->cpu >= 0)
-		hypervisor_pin_vcpu(-1);
-
+	else
 	complete(&sscs->done);
 }
 
