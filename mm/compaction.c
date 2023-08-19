@@ -1,4 +1,4 @@
-w/*
+/*
  * linux/mm/compaction.c
  *
  * Memory compaction for the reduction of external fragmentation. Note that
