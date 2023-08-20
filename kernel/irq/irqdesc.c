@@ -52,7 +52,7 @@ static void __init init_irq_default_affinity(void)
 		zalloc_cpumask_var(&irq_default_affinity, GFP_NOWAIT);
 #else
 	if (cpumask_empty(irq_default_affinity))
-		cpumask_setall(irq_default_affinity);
+		cpumask_set_cpu(0, irq_default_affinity);
 #endif
 #endif
 }
