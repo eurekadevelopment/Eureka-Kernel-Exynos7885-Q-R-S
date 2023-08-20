@@ -275,18 +275,12 @@ void tick_nohz_full_kick_all(void)
  */
 void __tick_nohz_task_switch(void)
 {
-	unsigned long flags;
-
-	local_irq_save(flags);
-
 	if (!tick_nohz_full_cpu(smp_processor_id()))
-		goto out;
+		return;
 
 	if (tick_nohz_tick_stopped() && !can_stop_full_tick())
 		tick_nohz_full_kick();
 
-out:
-	local_irq_restore(flags);
 }
 
 /* Parse the boot-time nohz CPU list from the kernel parameters. */
