@@ -134,34 +134,8 @@ static ssize_t store_kick_all_cpus(struct device *dev,
 }
 #endif /* CONFIG_SEC_PM */
 
-static ssize_t show_use_deepest_state(struct device *dev,
-				      struct device_attribute *attr,
-				      char *buf)
-{
-	struct cpuidle_device *idle_dev = cpuidle_get_device();
-
-	return sprintf(buf, "%u\n", idle_dev->use_deepest_state);
-}
-
-static ssize_t store_use_deepest_state(struct device *dev,
-				       struct device_attribute *attr,
-				       const char *buf, size_t count)
-{
-	unsigned int enable = 0;
-	int ret;
-
-	ret = sscanf(buf, "%u", &enable);
-	if (ret != 1 || enable > 1)
-		return -EINVAL;
-
-	cpuidle_use_deepest_state_mask(cpu_online_mask, enable);
-
-	return count;
-}
-
 static DEVICE_ATTR(current_driver, 0444, show_current_driver, NULL);
 static DEVICE_ATTR(current_governor_ro, 0444, show_current_governor, NULL);
-static DEVICE_ATTR(use_deepest_state_ro, 0444, show_use_deepest_state, NULL);
 #ifdef CONFIG_SEC_PM
 static DEVICE_ATTR(kick_all_cpus, 0220, NULL, store_kick_all_cpus);
 #endif
@@ -169,7 +143,6 @@ static DEVICE_ATTR(kick_all_cpus, 0220, NULL, store_kick_all_cpus);
 static struct attribute *cpuidle_default_attrs[] = {
 	&dev_attr_current_driver.attr,
 	&dev_attr_current_governor_ro.attr,
-	&dev_attr_use_deepest_state_ro.attr,
 #ifdef CONFIG_SEC_PM
 	&dev_attr_kick_all_cpus.attr,
 #endif
@@ -186,7 +159,6 @@ static struct attribute *cpuidle_switch_attrs[] = {
 	&dev_attr_available_governors.attr,
 	&dev_attr_current_driver.attr,
 	&dev_attr_current_governor.attr,
-	&dev_attr_use_deepest_state.attr,
 	NULL
 };
 
