@@ -419,6 +419,7 @@ void *dma_pool_alloc(struct dma_pool *pool, gfp_t mem_flags,
 		 */
 		spin_unlock_irqrestore(&pool->lock, flags);
 
+		page = pool_alloc_page(pool, mem_flags & (~__GFP_ZERO));
 		spin_lock_irqsave(&pool->lock, flags);
 		pool_initialise_page(pool, page);
 		block = pool_block_pop(pool);
