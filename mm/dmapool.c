@@ -135,6 +135,9 @@ struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 	size_t allocation;
 	bool empty = false;
 
+	if (!dev)
+		return NULL;
+
 	if (align == 0)
 		align = 1;
 	else if (align & (align - 1))
@@ -277,7 +280,7 @@ void dma_pool_destroy(struct dma_pool *pool)
 	mutex_lock(&pools_reg_lock);
 	mutex_lock(&pools_lock);
 	list_del(&pool->pools);
-	if (pool->dev && list_empty(&pool->dev->dma_pools))
+	if (list_empty(&pool->dev->dma_pools))
 		empty = true;
 	mutex_unlock(&pools_lock);
 	if (empty)
