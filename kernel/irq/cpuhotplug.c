@@ -42,7 +42,7 @@ static bool migrate_one_irq(struct irq_desc *desc)
 	} else {
 		int r = irq_do_set_affinity(d, affinity, false);
 		if (r)
-			pr_warn_ratelimited("IRQ%u: set affinity failed(%d).\n",
+			pr_debug_ratelimited("IRQ%u: set affinity failed(%d).\n",
 					    d->irq, r);
 	}
 
