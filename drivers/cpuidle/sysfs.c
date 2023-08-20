@@ -152,8 +152,6 @@ static struct attribute *cpuidle_default_attrs[] = {
 static DEVICE_ATTR(available_governors, 0444, show_available_governors, NULL);
 static DEVICE_ATTR(current_governor, 0644, show_current_governor,
 		   store_current_governor);
-static DEVICE_ATTR(use_deepest_state, 0644, show_use_deepest_state,
-		   store_use_deepest_state);
 
 static struct attribute *cpuidle_switch_attrs[] = {
 	&dev_attr_available_governors.attr,
