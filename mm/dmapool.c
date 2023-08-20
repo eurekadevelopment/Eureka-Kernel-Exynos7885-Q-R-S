@@ -197,7 +197,7 @@ struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 {
 	struct dma_pool *retval;
 	size_t allocation;
-	bool empty = false;
+	bool empty;
 
 	if (!dev)
 		return NULL;
@@ -247,8 +247,7 @@ struct dma_pool *dma_pool_create(const char *name, struct device *dev,
 	 */
 	mutex_lock(&pools_reg_lock);
 	mutex_lock(&pools_lock);
-	if (list_empty(&dev->dma_pools))
-		empty = true;
+	empty = list_empty(&dev->dma_pools);
 	list_add(&retval->pools, &dev->dma_pools);
 	mutex_unlock(&pools_lock);
 	if (empty) {
@@ -332,7 +331,7 @@ static void pool_free_page(struct dma_pool *pool, struct dma_page *page)
 void dma_pool_destroy(struct dma_pool *pool)
 {
 	struct dma_page *page, *tmp;
-	bool empty = false;
+	bool empty;
 
 	if (unlikely(!pool))
 		return;
@@ -340,8 +339,7 @@ void dma_pool_destroy(struct dma_pool *pool)
 	mutex_lock(&pools_reg_lock);
 	mutex_lock(&pools_lock);
 	list_del(&pool->pools);
-	if (list_empty(&pool->dev->dma_pools))
-		empty = true;
+	empty = list_empty(&pool->dev->dma_pools);
 	mutex_unlock(&pools_lock);
 	if (empty)
 		device_remove_file(pool->dev, &dev_attr_pools);
