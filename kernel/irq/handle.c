@@ -183,7 +183,7 @@ irqreturn_t handle_irq_event_percpu(struct irq_desc *desc)
 #ifdef CONFIG_PREEMPT_RT_FULL
 	desc->random_ip = ip;
 #else
-	add_interrupt_randomness(irq, flags, ip);
+	add_interrupt_randomness(irq, ip);
 #endif
 
 	if (!noirqdebug)
