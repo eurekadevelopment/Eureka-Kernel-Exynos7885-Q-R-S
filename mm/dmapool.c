@@ -163,6 +163,8 @@ static void pool_check_block(struct dma_pool *pool, void *retval,
 static bool pool_page_err(struct dma_pool *pool, struct dma_page *page,
 			  void *vaddr, dma_addr_t dma)
 {
+	if (want_init_on_free())
+		memset(vaddr, 0, pool->size);
 	return false;
 }
 
