@@ -786,6 +786,7 @@ static struct tvec_base *lock_timer_base(struct timer_list *timer,
 			spin_unlock_irqrestore(&base->lock, *flags);
 		}
 		cpu_relax();
+		ndelay(TIMER_LOCK_TIGHT_LOOP_DELAY_NS);
 	}
 }
 #ifdef CONFIG_PREEMPT_RT_FULL
@@ -1186,7 +1187,8 @@ int del_timer_sync(struct timer_list *timer)
 		int ret = try_to_del_timer_sync(timer);
 		if (ret >= 0)
 			return ret;
-		wait_for_running_timer(timer);
+		cpu_relax();
+		ndelay(TIMER_LOCK_TIGHT_LOOP_DELAY_NS);
 	}
 }
 EXPORT_SYMBOL(del_timer_sync);
