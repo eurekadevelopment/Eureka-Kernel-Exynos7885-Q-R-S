@@ -53,9 +53,6 @@ static suspend_state_t mem_sleep_default = PM_SUSPEND_MEM;
 suspend_state_t pm_suspend_target_state;
 EXPORT_SYMBOL_GPL(pm_suspend_target_state);
 
-suspend_state_t pm_suspend_target_state;
-EXPORT_SYMBOL_GPL(pm_suspend_target_state);
-
 unsigned int pm_suspend_global_flags;
 EXPORT_SYMBOL_GPL(pm_suspend_global_flags);
 
