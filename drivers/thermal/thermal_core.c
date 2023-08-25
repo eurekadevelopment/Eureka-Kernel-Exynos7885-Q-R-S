@@ -561,11 +561,6 @@ static void handle_thermal_trip(struct thermal_zone_device *tz, int trip)
 		handle_critical_trips(tz, trip, type);
 	else
 		handle_non_critical_trips(tz, trip, type);
-	/*
-	 * Alright, we handled this trip successfully.
-	 * So, start monitoring again.
-	 */
-	monitor_thermal_zone(tz);
 }
 
 /**
@@ -698,6 +693,8 @@ void thermal_zone_device_update(struct thermal_zone_device *tz)
 
 		if (tz->ops->throttle_hotplug)
 			tz->ops->throttle_hotplug(tz);
+
+	monitor_thermal_zone(tz);
 	}
 }
 EXPORT_SYMBOL_GPL(thermal_zone_device_update);
