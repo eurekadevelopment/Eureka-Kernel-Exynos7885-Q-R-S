@@ -462,6 +462,7 @@ EXPORT_SYMBOL(rb_erase_cached);
  */
 
 void __rb_insert_augmented(struct rb_node *node, struct rb_root *root,
+			   bool newleft, struct rb_node **leftmost,
 	void (*augment_rotate)(struct rb_node *old, struct rb_node *new))
 {
 	__rb_insert(node, root, newleft, leftmost, augment_rotate);
