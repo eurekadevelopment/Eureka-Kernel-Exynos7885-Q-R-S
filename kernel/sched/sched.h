@@ -715,6 +715,7 @@ struct rq {
 	struct call_single_data hrtick_csd;
 #endif
 	struct hrtimer hrtick_timer;
+	ktime_t hrtick_time;
 #endif
 
 #ifdef CONFIG_SCHEDSTATS
