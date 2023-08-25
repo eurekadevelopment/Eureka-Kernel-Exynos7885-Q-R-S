@@ -45,6 +45,7 @@ extern void __rb_insert_augmented(struct rb_node *node,
 				  struct rb_root *root,
 				  bool newleft, struct rb_node **leftmost,
 	void (*augment_rotate)(struct rb_node *old, struct rb_node *new));
+
 /*
  * Fixup the rbtree and update the augmented information when rebalancing.
  *
