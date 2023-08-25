@@ -395,7 +395,7 @@ void call_srcu(struct srcu_struct *sp, struct rcu_head *head,
 	rcu_batch_queue(&sp->batch_queue, head);
 	if (!sp->running) {
 		sp->running = true;
-		queue_delayed_work(system_power_efficient_wq, &sp->work, 0);
+		queue_delayed_work(system_wq, &sp->work, 0);
 	}
 	spin_unlock_irqrestore(&sp->queue_lock, flags);
 }
@@ -654,7 +654,7 @@ static void srcu_reschedule(struct srcu_struct *sp)
 	}
 
 	if (pending)
-		queue_delayed_work(system_power_efficient_wq,
+		queue_delayed_work(system_wq,
 				   &sp->work, SRCU_INTERVAL);
 }
 

@@ -1881,8 +1881,7 @@ static irqreturn_t s2mu106_fg_irq_thread(int irq, void *irq_data)
 	} else {
 		wake_lock(&fuelgauge->fuel_alert_wake_lock);
 		fuelgauge->is_fuel_alerted = true;
-		queue_delayed_work(system_power_efficient_wq,
-				   &fuelgauge->isr_work, 0);
+		schedule_delayed_work(&fuelgauge->isr_work, 0);
 	}
 
 	return IRQ_HANDLED;
