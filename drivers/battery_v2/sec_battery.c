@@ -3232,10 +3232,10 @@ static void sec_bat_set_polling(
 	case SEC_BATTERY_MONITOR_WORKQUEUE:
 		if (battery->pdata->monitor_initial_count) {
 			battery->pdata->monitor_initial_count--;
-			queue_delayed_work(system_power_efficient_wq,
+			queue_delayed_work(system_wq,
 					   &battery->polling_work, HZ);
 		} else {
-			queue_delayed_work(system_power_efficient_wq,
+			queue_delayed_work(system_wq,
 					   &battery->polling_work,
 					   polling_time_temp * HZ);
 		}
