@@ -440,12 +440,15 @@ int cpuidle_enable_device(struct cpuidle_device *dev)
 	if (!dev)
 		return -EINVAL;
 
+	if (!cpuidle_curr_governor)
+		return -EIO;
+
 	if (dev->enabled)
 		return 0;
 
 	drv = cpuidle_get_cpu_driver(dev);
 
-	if (!drv || !cpuidle_curr_governor)
+	if (!drv)
 		return -EIO;
 
 	if (!dev->registered)
