@@ -274,6 +274,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
 	cpuidle_clear_idle_cpu(dev->cpu);
 	start_critical_timings();
 
+	sched_clock_idle_wakeup_event();
 	time_end = ns_to_ktime(local_clock());
 	exynos_ss_cpuidle(drv->states[index].desc, entered_state,
 			(int)ktime_to_us(ktime_sub(time_end, time_start)), ESS_FLAG_OUT);
