@@ -687,6 +687,8 @@ static long sync_fence_ioctl_fence_info(struct sync_fence *fence,
 	if (data == NULL)
 		return -ENOMEM;
 
+	memset(data, 0, size);
+
 	strlcpy(data->name, fence->name, sizeof(data->name));
 	data->status = atomic_read(&fence->status);
 	if (data->status >= 0)
