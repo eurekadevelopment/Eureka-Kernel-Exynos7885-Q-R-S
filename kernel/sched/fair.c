@@ -9699,8 +9699,12 @@ static inline int find_new_ilb(int call_cpu)
 				&((struct hmp_domain *)hmp_cpu_domain(call_cpu))->cpus);
 	}
 
-	if (ilb < nr_cpu_ids && idle_cpu(ilb))
-		return ilb;
+	for_each_cpu_and(ilb, nohz.idle_cpus_mask,
+			      housekeeping_cpumask()) {
+		if (idle_cpu(ilb))
+			return ilb;
+	}
+
 #endif
 	return nr_cpu_ids;
 }
