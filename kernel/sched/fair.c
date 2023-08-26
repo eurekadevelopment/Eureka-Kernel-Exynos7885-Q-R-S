@@ -5326,6 +5326,9 @@ static inline unsigned long task_util(struct task_struct *p)
 
 #ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
 static unsigned int capacity_margin = 1280; /* ~20% margin */
+
+static unsigned int __maybe_unused sched_small_task_threshold = 102;
+
 static inline unsigned long boosted_task_util(struct task_struct *task);
 
 static inline bool __task_fits(struct task_struct *p, int cpu, int util)
@@ -8975,6 +8978,18 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 			continue;
 
 		capacity = capacity_of(i);
+
+		/*
+		 * For ASYM_CPUCAPACITY domains, don't pick a CPU that could
+		 * eventually lead to active_balancing high->low capacity.
+		 * Higher per-CPU capacity is considered better than balancing
+		 * average load.
+		 */
+		if (env->sd->flags & SD_ASYM_CPUCAPACITY &&
+		    capacity_of(env->dst_cpu) < capacity &&
+		    (rq->nr_running == 1 || (rq->nr_running == 2 &&
+		     task_util(rq->curr) < sched_small_task_threshold)))
+			continue;
 
 		wl = weighted_cpuload(i);
 
