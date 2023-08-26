@@ -118,6 +118,13 @@ config SAMSUNG_FREECESS
 	help
 	  thraw frozen process when recv sig.
 
+config SYNC_DEBUG
+	bool "Debug software synchronization"
+	default n
+	depends on SYNC
+	---help---
+	  This makes the sync driver keep track of fence names.
+
 source "drivers/staging/android/ion/Kconfig"
 
 
