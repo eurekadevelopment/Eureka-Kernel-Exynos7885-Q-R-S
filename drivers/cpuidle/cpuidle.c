@@ -128,6 +128,18 @@ static int find_deepest_state(struct cpuidle_driver *drv,
 	return ret;
 }
 
+/* Set the current cpu to use the deepest idle state, override governors */
+void cpuidle_use_deepest_state(bool enable)
+{
+	struct cpuidle_device *dev;
+
+	preempt_disable();
+	dev = cpuidle_get_device();
+	if (dev)
+		dev->use_deepest_state = enable;
+	preempt_enable();
+}
+
 static void set_uds_callback(void *info)
 {
 	bool enable = *(bool *)info;
@@ -153,17 +165,7 @@ int cpuidle_use_deepest_state_mask(const struct cpumask *target, bool enable)
 
 	return 0;
 }
-/* Set the current cpu to use the deepest idle state, override governors */
-void cpuidle_use_deepest_state(bool enable)
-{
-	struct cpuidle_device *dev;
 
-	preempt_disable();
-	dev = cpuidle_get_device();
-	if (dev)
-		dev->use_deepest_state = enable;
-	preempt_enable();
-}
 /**
  * cpuidle_find_deepest_state - Find the deepest available idle state.
  * @drv: cpuidle driver for the given CPU.
