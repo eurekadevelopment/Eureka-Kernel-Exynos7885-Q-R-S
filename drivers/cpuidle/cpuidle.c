@@ -242,7 +242,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
 
 	struct cpuidle_state *target_state = &drv->states[index];
 	bool broadcast = !!(target_state->flags & CPUIDLE_FLAG_TIMER_STOP);
-	u64 time_start, time_end;
+	ktime_t time_start, time_end;
 	s64 diff;
 
 	/*
@@ -266,7 +266,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
 
 	trace_cpu_idle_rcuidle(index, dev->cpu);
 	exynos_ss_cpuidle(drv->states[index].desc, index, 0, ESS_FLAG_IN);
-	time_start = local_clock();
+	time_start = ns_to_ktime(local_clock());
 
 	stop_critical_timings();
 	cpuidle_set_idle_cpu(dev->cpu);
@@ -274,7 +274,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
 	cpuidle_clear_idle_cpu(dev->cpu);
 	start_critical_timings();
 
-	time_end = local_clock();
+	time_end = ns_to_ktime(local_clock());
 	exynos_ss_cpuidle(drv->states[index].desc, entered_state,
 			(int)ktime_to_us(ktime_sub(time_end, time_start)), ESS_FLAG_OUT);
 	trace_cpu_idle_rcuidle(PWR_EVENT_EXIT, dev->cpu);
@@ -299,11 +299,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
 		 * but that results in multiple copies of same code.
 		 */
 
-		/*
-		 * local_clock() returns the time in nanosecond, let's shift
-		 * by 10 (divide by 1024) to have microsecond based time.
-		 */
-		diff = (time_end - time_start) >> 10;
+		diff = ktime_us_delta(time_end, time_start);
 		if (diff > INT_MAX)
 			diff = INT_MAX;
 
