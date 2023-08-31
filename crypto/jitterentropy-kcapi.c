@@ -45,22 +45,11 @@
 #include <linux/crypto.h>
 #include <crypto/internal/rng.h>
 
-struct rand_data;
-int jent_read_entropy(struct rand_data *ec, unsigned char *data,
-		      unsigned int len);
-int jent_entropy_init(void);
-struct rand_data *jent_entropy_collector_alloc(unsigned int osr,
-					       unsigned int flags);
-void jent_entropy_collector_free(struct rand_data *entropy_collector);
+#include "jitterentropy.h"
 
 /***************************************************************************
  * Helper function
  ***************************************************************************/
-
-__u64 jent_rol64(__u64 word, unsigned int shift)
-{
-	return rol64(word, shift);
-}
 
 void *jent_zalloc(unsigned int len)
 {
@@ -116,6 +105,7 @@ void jent_get_nstime(__u64 *out)
 struct jitterentropy {
 	spinlock_t jent_lock;
 	struct rand_data *entropy_collector;
+	unsigned int reset_cnt;
 };
 
 static int jent_kcapi_init(struct crypto_tfm *tfm)
@@ -150,8 +140,34 @@ static int jent_kcapi_random(struct crypto_rng *tfm,
 	int ret = 0;
 
 	spin_lock(&rng->jent_lock);
+
+	/* Return a permanent error in case we had too many resets in a row. */
+	if (rng->reset_cnt > (1<<10)) {
+		ret = -EFAULT;
+		goto out;
+	}
+
 	ret = jent_read_entropy(rng->entropy_collector, rdata, dlen);
 	spin_unlock(&rng->jent_lock);
+
+	/* Reset RNG in case of health failures */
+	if (ret < -1) {
+		pr_warn_ratelimited("Reset Jitter RNG due to health test failure: %s failure\n",
+				    (ret == -2) ? "Repetition Count Test" :
+						  "Adaptive Proportion Test");
+
+		rng->reset_cnt++;
+
+		ret = -EAGAIN;
+	} else {
+		rng->reset_cnt = 0;
+
+		/* Convert the Jitter RNG error into a usable error code */
+		if (ret == -1)
+			ret = -EINVAL;
+	}
+
+out:
 
 	return ret;
 }
