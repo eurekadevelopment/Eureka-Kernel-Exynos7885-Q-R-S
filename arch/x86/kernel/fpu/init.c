@@ -64,7 +64,7 @@ void fpu__init_cpu(void)
  * Set the X86_FEATURE_FPU CPU-capability bit based on
  * trying to execute an actual sequence of FPU instructions:
  */
-static void fpu__init_system_early_generic(struct cpuinfo_x86 *c)
+static void fpu__init_system_early_generic(void)
 {
 	unsigned long cr0;
 	u16 fsw, fcw;
@@ -282,10 +282,10 @@ static void __init fpu__init_parse_early_param(void)
  * Called on the boot CPU once per system bootup, to set up the initial
  * FPU state that is later cloned into all processes:
  */
-void __init fpu__init_system(struct cpuinfo_x86 *c)
+void __init fpu__init_system(void)
 {
 	fpu__init_parse_early_param();
-	fpu__init_system_early_generic(c);
+	fpu__init_system_early_generic();
 
 	/*
 	 * The FPU has to be operational for some of the
