@@ -1,5 +1,6 @@
 config SUPERH
 	def_bool y
+	select ARCH_HAS_CPU_FINALIZE_INIT
 	select ARCH_MIGHT_HAVE_PC_PARPORT
 	select HAVE_PATA_PLATFORM
 	select CLKDEV_LOOKUP
