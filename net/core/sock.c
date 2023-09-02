@@ -2124,7 +2124,7 @@ static long sock_wait_for_wmem(struct sock *sk, long timeo)
 			break;
 		if (sk->sk_shutdown & SEND_SHUTDOWN)
 			break;
-		if (sk->sk_err)
+		if (READ_ONCE(sk->sk_err))
 			break;
 		timeo = schedule_timeout(timeo);
 	}
