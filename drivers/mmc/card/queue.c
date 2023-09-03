@@ -92,7 +92,7 @@ static inline void mmc_cmdq_ready_wait(struct mmc_host *host,
 	 * 4. cmdq state shouldn't be in error state.
 	 * 5. free tag available to process the new request.
 	 */
-	wait_event(ctx->wait, kthread_should_stop()
+	wait_event_interruptible(ctx->wait, kthread_should_stop()
 		|| (mmc_peek_request(mq) &&
 		!((mq->cmdq_req_peeked->cmd_flags & (REQ_FLUSH | REQ_DISCARD))
 		  && test_bit(CMDQ_STATE_DCMD_ACTIVE, &ctx->curr_state))
