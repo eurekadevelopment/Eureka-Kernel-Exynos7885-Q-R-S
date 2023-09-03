@@ -50,6 +50,7 @@
 #include "decon_notify.h"
 #include "../../../../staging/android/sw_sync.h"
 #include "dpp.h"
+#include <linux/devfreq_boost.h>
 
 #ifdef CONFIG_SAMSUNG_TUI
 #include "stui_inf.h"
@@ -1877,6 +1878,7 @@ static int decon_set_win_config(struct decon_device *decon,
 
 	num_of_window = decon_get_active_win_count(decon, win_data);
 	if (num_of_window) {
+	    devfreq_boost_kick_max(DEVFREQ_EXYNOS_MIF, 70);
 		win_data->fence = decon_create_fence(decon, &fence, regs);
 		if (win_data->fence < 0)
 			goto err_prepare;
