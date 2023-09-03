@@ -2783,7 +2783,7 @@ static int decon_create_update_thread(struct decon_device *decon, char *name)
 	}
 
 	param.sched_priority = 2;
-	sched_setscheduler_nocheck(decon->up.thread, SCHED_FIFO, &param);
+	sched_setscheduler_nocheck(decon->up.thread, SCHED_NORMAL, &param);
 	kthread_init_work(&decon->up.work, decon_update_regs_handler);
 
 	return 0;
