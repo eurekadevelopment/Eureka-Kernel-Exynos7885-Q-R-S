@@ -7257,33 +7257,41 @@ static int sec_bat_get_property(struct power_supply *psy,
 		val->intval = battery->pdata->technology;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-#ifdef CONFIG_SEC_FACTORY
 		psy_do_property(battery->pdata->fuelgauge_name, get,
 				POWER_SUPPLY_PROP_VOLTAGE_NOW, value);
 		battery->voltage_now = value.intval;
 		dev_err(battery->dev,
 			"%s: voltage now(%d)\n", __func__, battery->voltage_now);
-#endif
 		/* voltage value should be in uV */
 		val->intval = battery->voltage_now * 1000;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_AVG:
-#ifdef CONFIG_SEC_FACTORY
 		value.intval = SEC_BATTERY_VOLTAGE_AVERAGE;
 		psy_do_property(battery->pdata->fuelgauge_name, get,
 				POWER_SUPPLY_PROP_VOLTAGE_AVG, value);
 		battery->voltage_avg = value.intval;
 		dev_err(battery->dev,
 			"%s: voltage avg(%d)\n", __func__, battery->voltage_avg);
-#endif
 		/* voltage value should be in uV */
 		val->intval = battery->voltage_avg * 1000;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-		val->intval = battery->current_now;
+		value.intval = SEC_BATTERY_CURRENT_UA;
+		psy_do_property(battery->pdata->fuelgauge_name, get,
+			POWER_SUPPLY_PROP_CURRENT_NOW, value);
+#if defined(CONFIG_SEC_FACTORY)
+		pr_err("%s: batt_current_ua_now (%d)\n",
+				__func__, value.intval);
+#endif
+		battery->current_now = value.intval;
+		val->intval = value.intval / 1000;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
-		val->intval = battery->current_avg;
+		value.intval = SEC_BATTERY_CURRENT_UA;
+		psy_do_property(battery->pdata->fuelgauge_name, get,
+			POWER_SUPPLY_PROP_CURRENT_AVG, value);
+		battery->current_avg = value.intval;
+		val->intval = value.intval / 1000;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_COUNTER:
 		psy_do_property(battery->pdata->fuelgauge_name, get,
