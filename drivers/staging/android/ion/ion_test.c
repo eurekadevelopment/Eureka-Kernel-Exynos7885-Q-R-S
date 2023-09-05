@@ -65,7 +65,7 @@ static int ion_handle_test_dma(struct device *dev, struct dma_buf *dma_buf,
 
 	for_each_sg_page(table->sgl, &sg_iter, table->nents, offset_page) {
 		struct page *page = sg_page_iter_page(&sg_iter);
-		void *vaddr = vmap(&page, 1, VM_MAP, pgprot);
+		void *vaddr = vm_map_ran(&page, 1, -1, pgprot);
 		size_t to_copy = PAGE_SIZE - offset;
 
 		to_copy = min(to_copy, size);
@@ -79,7 +79,7 @@ static int ion_handle_test_dma(struct device *dev, struct dma_buf *dma_buf,
 		else
 			ret = copy_to_user(ptr, vaddr + offset, to_copy);
 
-		vunmap(vaddr);
+		vm_unmap_ram(vaddr, 1);
 		if (ret) {
 			ret = -EFAULT;
 			goto err;
