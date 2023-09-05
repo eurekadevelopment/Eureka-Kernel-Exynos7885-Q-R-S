@@ -431,10 +431,22 @@ static struct platform_driver ion_test_platform_driver = {
 
 static int __init ion_test_init(void)
 {
-	ion_test_pdev = platform_device_register_simple("ion-test",
-							-1, NULL, 0);
+	struct platform_device_info pdevinfo = {
+		.parent = NULL,
+		.name = "ion-test",
+		.id = -1,
+		.res = NULL,
+		.num_res = 0,
+		.data = NULL,
+		.size_data = 0,
+		.dma_mask = DMA_BIT_MASK(36),
+	};
+
+	ion_test_pdev = platform_device_register_full(&pdevinfo);
 	if (IS_ERR(ion_test_pdev))
 		return PTR_ERR(ion_test_pdev);
+
+	arch_setup_dma_ops(&ion_test_pdev->dev, 0, 0x100000000ULL, NULL, false);
 
 	return platform_driver_probe(&ion_test_platform_driver, ion_test_probe);
 }
