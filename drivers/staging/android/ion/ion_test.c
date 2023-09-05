@@ -53,12 +53,18 @@ static int ion_handle_test_dma(struct device *dev, struct dma_buf *dma_buf,
 	unsigned long offset_page;
 
 	attach = dma_buf_attach(dma_buf, dev);
-	if (IS_ERR(attach))
+	if (IS_ERR(attach)) {
+		dev_err(dev, "%s: failed to attach dmabuf (err %ld)\n",
+			__func__, PTR_ERR(attach));
 		return PTR_ERR(attach);
+	}
 
 	table = dma_buf_map_attachment(attach, dir);
-	if (IS_ERR(table))
+	if (IS_ERR(table)) {
+		dev_err(dev, "%s: failed to map dmabuf (err %ld)\n",
+			__func__, PTR_ERR(table));
 		return PTR_ERR(table);
+	}
 
 	offset_page = offset >> PAGE_SHIFT;
 	offset %= PAGE_SIZE;
