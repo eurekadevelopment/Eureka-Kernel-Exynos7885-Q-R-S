@@ -322,9 +322,7 @@ enum decon_data_path {
 	DPATH_DSCC_DSCENC01_FF01_FORMATTER01_DSIMIF01	= 0x0B3,
 	/* WB_PRE */
 	DPATH_WBPRE_ONLY					= 0x100,
-};
 
-enum decon1_data_path {
 	/* No comp - FF0 - FORMATTER0 - DSIM_IF0 */
 	DECON1_NOCOMP_FF0_FORMATTER0_DSIMIF0	= 0x001,
 	/* No comp - FF0 - FORMATTER0 - WB_POST */
@@ -335,9 +333,7 @@ enum decon1_data_path {
 	DECON1_DSCENC1_FF0_FORMATTER0_WBPOST	= 0x014,
 	/* WB_PRE */
 	DECON1_WBPRE_ONLY				= 0x100,
-};
 
-enum decon2_data_path {
 	/* No comp - FF0 - FORMATTER0  - WB_POST */
 	DECON2_NOCOMP_FF0_FORMATTER0_WBPOST		= 0x004,
 	/* No comp - FF0 - FORMATTER0  - DISPIF */
