@@ -419,15 +419,18 @@ static void thermal_zone_device_set_polling(struct workqueue_struct *queue,
 #ifdef CONFIG_SCHED_HMP
 		start_poll_queue(tz, delay);
 #else
-		mod_delayed_work(queue, &tz->poll_queue,
+		mod_delayed_work(system_freezable_power_efficient_wq,
+				 &tz->poll_queue,
 				 round_jiffies(msecs_to_jiffies(delay)));
 #endif
 	else if (delay)
 #ifdef CONFIG_SCHED_HMP
 		start_poll_queue(tz, delay);
 #else
-		mod_delayed_work(queue, &tz->poll_queue,
-				 msecs_to_jiffies(delay));
+
+		mod_delayed_work(system_freezable_power_efficient_wq,
+				 &tz->poll_queue, msecs_to_jiffies(delay));
+
 #endif
 	else
 		cancel_delayed_work(&tz->poll_queue);
