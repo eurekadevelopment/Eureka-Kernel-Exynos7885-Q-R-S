@@ -22,7 +22,7 @@
 #include <linux/dyn_sync_cntrl.h>
 #endif
 
-bool fsync_enabled = false;
+bool fsync_enabled = true;
 module_param(fsync_enabled, bool, 0755);
 
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
