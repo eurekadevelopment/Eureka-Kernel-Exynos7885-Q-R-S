@@ -10,33 +10,6 @@
 #
 
 ifeq ($(CONFIG_MALI_TMIX),y)
-	ifeq ($(CONFIG_MALI_TMIX_R0P0),y)
-		obj-y += tMIx/r0p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R2P0),y)
-		obj-y += tMIx/r2p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R3P0),y)
-		obj-y += tMIx/r3p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R8P0),y)
-		obj-y += tMIx/r8p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R9P0),y)
-		obj-y += tMIx/r9p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R10P0),y)
-		obj-y += tMIx/r10p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R16P0),y)
-		obj-y += tMIx/b_r16p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R19P0),y)
-		obj-y += b_r19p0/
-	endif
-	ifeq ($(CONFIG_MALI_TMIX_R25P1),y)
-		obj-y += b_r25p1/
-	endif
 	ifeq ($(CONFIG_MALI_TMIX_R26P0),y)
 		obj-y += b_r26p0/
 	endif
