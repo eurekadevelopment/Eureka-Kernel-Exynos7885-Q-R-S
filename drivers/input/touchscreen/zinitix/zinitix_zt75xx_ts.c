@@ -10345,7 +10345,7 @@ static int bt532_ts_probe(struct i2c_client *client,
 
 	/* ret = request_threaded_irq(info->irq, ts_int_handler, bt532_touch_work,*/
 	ret = request_threaded_irq(info->irq, NULL, bt532_touch_work,
-		IRQF_TRIGGER_FALLING | IRQF_ONESHOT , BT532_TS_DEVICE, info);
+		IRQF_TRIGGER_FALLING | IRQF_ONESHOT | IRQF_PERF_CRITICAL, BT532_TS_DEVICE, info);
 
 	if (ret) {
 		input_info(true, &client->dev, "unable to register irq.(%s)\r\n",
