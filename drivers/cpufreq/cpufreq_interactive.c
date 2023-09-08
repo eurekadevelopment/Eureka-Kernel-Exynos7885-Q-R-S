@@ -1296,9 +1296,6 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 
 		freq_table = cpufreq_frequency_get_table(policy->cpu);
 
-		if (!tunables->freq_max)
-			tunables->freq_max = policy->max;
-
 		if (!tunables->freq_min)
 			tunables->freq_min = policy->min;
 
