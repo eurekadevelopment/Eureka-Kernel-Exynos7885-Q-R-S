@@ -221,7 +221,7 @@ static void exynos4_frc_resume(struct clocksource *cs)
 
 static struct clocksource mct_frc = {
 	.name		= "mct-frc",
-	.rating		= 400,
+	.rating		= 450,	/* use value higher than ARM arch timer */
 	.read		= exynos4_frc_read,
 	.mask		= CLOCKSOURCE_MASK(32),
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
@@ -499,7 +499,7 @@ static int exynos4_local_timer_setup(struct mct_clock_event_device *mevt)
 		evt->set_state_oneshot = set_state_shutdown;
 		evt->tick_resume = set_state_resume;
 		evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
-		evt->rating = 450;
+		evt->rating = 500;
 
 		if (mct_int_type == MCT_INT_SPI) {
 			/* fill irq_action structure */
