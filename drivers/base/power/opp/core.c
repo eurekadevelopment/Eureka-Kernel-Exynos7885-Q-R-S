@@ -277,7 +277,7 @@ int dev_pm_opp_get_opp_count(struct device *dev)
 	dev_opp = _find_device_opp(dev);
 	if (IS_ERR(dev_opp)) {
 		count = PTR_ERR(dev_opp);
-		dev_err(dev, "%s: device OPP not found (%d)\n",
+		dev_dbg(dev, "%s: device OPP not found (%d)\n",
 			__func__, count);
 		goto out_unlock;
 	}
