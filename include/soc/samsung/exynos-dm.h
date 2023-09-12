@@ -86,6 +86,7 @@ struct exynos_dm_constraint {
 	struct exynos_dm_freq		*freq_table;
 	u32				min_freq;
 	u32				max_freq;
+	u32				master_freq;
 
 	struct exynos_dm_constraint	*sub_constraint;
 };

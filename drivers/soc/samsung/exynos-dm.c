@@ -151,9 +151,13 @@ static ssize_t show_dm_policy_##type_name						\
 {											\
 	struct platform_device *pdev = container_of(dev, struct platform_device, dev);	\
 	struct exynos_dm_device *dm = platform_get_drvdata(pdev);			\
+	struct list_head *constraint_list;						\
+	struct exynos_dm_constraint *constraint;					\
 	ssize_t count = 0;								\
 	u32 gov_min_freq, min_freq, max_freq;						\
 	u32 policy_min_freq, policy_max_freq, cur_freq, target_freq;			\
+	u32 find;									\
+	int i;										\
 											\
 	if (!dm->dm_data[dm_type].available) {						\
 		count += snprintf(buf + count, PAGE_SIZE,				\
@@ -180,9 +184,80 @@ static ssize_t show_dm_policy_##type_name						\
 			"min_freq = %u, max_freq = %u\n", min_freq, max_freq);		\
 	count += snprintf(buf + count, PAGE_SIZE, "current_freq = %u\n", cur_freq);	\
 	count += snprintf(buf + count, PAGE_SIZE, "target_freq = %u\n", target_freq);	\
+	count += snprintf(buf + count, PAGE_SIZE,					\
+			"-------------------------------------------------\n");		\
+	count += snprintf(buf + count, PAGE_SIZE, "min constraint by\n");		\
+	find = 0;									\
 											\
+	for (i = 0; i < DM_TYPE_END; i++) {						\
+		if (!exynos_dm->dm_data[i].available)					\
+			continue;							\
+											\
+		constraint_list = get_min_constraint_list(&exynos_dm->dm_data[i]);	\
+		if (list_empty(constraint_list))					\
+			continue;							\
+		list_for_each_entry(constraint, constraint_list, node) {		\
+			if (constraint->constraint_dm_type == dm_type) {		\
+				count += snprintf(buf + count, PAGE_SIZE,		\
+					"%s : %u ---> %s : %u",				\
+					exynos_dm->dm_data[i].dm_type_name,		\
+					constraint->master_freq,			\
+					constraint->dm_type_name,			\
+					constraint->min_freq);				\
+				if (constraint->guidance)				\
+					count += snprintf(buf+count, PAGE_SIZE,		\
+						" [guidance]\n");			\
+				else							\
+					count += snprintf(buf+count, PAGE_SIZE, "\n");	\
+				find = max(find, constraint->min_freq);			\
+			}								\
+		}									\
+	}										\
+	if (find == 0)									\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"There is no min constraint\n\n");			\
+	else										\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"min constraint freq = %u\n", find);			\
+	count += snprintf(buf + count, PAGE_SIZE,					\
+			"-------------------------------------------------\n");		\
+	count += snprintf(buf + count, PAGE_SIZE, "max constraint by\n");		\
+	find = INT_MAX;									\
+											\
+	for (i = 0; i < DM_TYPE_END; i++) {						\
+		if (!exynos_dm->dm_data[i].available)					\
+			continue;							\
+											\
+		constraint_list = get_max_constraint_list(&exynos_dm->dm_data[i]);	\
+		if (list_empty(constraint_list))					\
+			continue;							\
+		list_for_each_entry(constraint, constraint_list, node) {		\
+			if (constraint->constraint_dm_type == dm_type) {		\
+				count += snprintf(buf + count, PAGE_SIZE,		\
+					"%s : %u ---> %s : %u",				\
+					exynos_dm->dm_data[i].dm_type_name,		\
+					constraint->master_freq,			\
+					constraint->dm_type_name,			\
+					constraint->max_freq);				\
+				if (constraint->guidance)				\
+					count += snprintf(buf+count, PAGE_SIZE,		\
+						" [guidance]\n");			\
+				else							\
+					count += snprintf(buf+count, PAGE_SIZE, "\n");	\
+				find = min(find, constraint->max_freq);			\
+			}								\
+		}									\
+	}										\
+	if (find == INT_MAX)								\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"There is no max constraint\n\n");			\
+	else										\
+		count += snprintf(buf + count, PAGE_SIZE,				\
+				"max constraint freq = %u\n", find);			\
+	count += snprintf(buf + count, PAGE_SIZE,					\
+			"-------------------------------------------------\n");		\
 	return count;									\
-}
+}											\
 
 #define show_voltage_table(dm_type, type_name)						\
 static ssize_t show_voltage_table_##type_name						\
@@ -833,6 +908,7 @@ static int constraint_checker_min(struct list_head *head, u32 freq)
 			for (i = constraint->table_length - 1; i >= 0; i--) {
 				if (freq <= constraint->freq_table[i].master_freq) {
 					constraint->min_freq = constraint->freq_table[i].constraint_freq;
+					constraint->master_freq = freq;
 					break;
 				}
 			}
