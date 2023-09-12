@@ -846,6 +846,7 @@ static struct platform_driver samsung_acpm_ipc_driver = {
 		.name = "exynos-acpm-ipc",
 		.owner	= THIS_MODULE,
 		.of_match_table	= acpm_ipc_match,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},
 };
 
