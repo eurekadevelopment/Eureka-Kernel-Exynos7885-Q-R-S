@@ -11,10 +11,7 @@
 #include "cal_bts7885.h"
 #include <linux/soc/samsung/exynos-soc.h>
 
-#define LOG(x, ...)					\
-({							\
-	seq_printf(buf, x, ##__VA_ARGS__);		\
-})
+#define LOG(x, ...)
 
 #define TREX_CON				0x000
 #define TREX_TIMEOUT				0x010
