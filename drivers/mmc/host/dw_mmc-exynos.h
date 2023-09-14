@@ -99,7 +99,7 @@ struct dw_mci_exynos_priv_data {
 #define phase7_en	BIT(7)
 
 extern int dw_mci_exynos_request_status(void);
-extern void dw_mci_reg_dump(struct dw_mci *host);
+static inline void dw_mci_reg_dump(struct dw_mci *host) {}
 
 /*****************/
 /* SFR addresses */
