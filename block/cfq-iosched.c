@@ -4810,11 +4810,6 @@ static ssize_t __FUNC(struct elevator_queue *e, const char *page, size_t count)	
 	*(__PTR) = (u64)__data * NSEC_PER_USEC;				\
 	return count;							\
 }
-USEC_STORE_FUNCTION(cfq_slice_idle_us_store, &cfqd->cfq_slice_idle, 0, UINT_MAX);
-USEC_STORE_FUNCTION(cfq_group_idle_us_store, &cfqd->cfq_group_idle, 0, UINT_MAX);
-USEC_STORE_FUNCTION(cfq_slice_sync_us_store, &cfqd->cfq_slice[1], 1, UINT_MAX);
-USEC_STORE_FUNCTION(cfq_slice_async_us_store, &cfqd->cfq_slice[0], 1, UINT_MAX);
-USEC_STORE_FUNCTION(cfq_target_latency_us_store, &cfqd->cfq_target_latency, 1, UINT_MAX);
 #undef USEC_STORE_FUNCTION
 
 #define CFQ_ATTR(name) \

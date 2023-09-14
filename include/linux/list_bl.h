@@ -38,9 +38,6 @@ struct hlist_bl_node {
 	struct hlist_bl_node *next, **pprev;
 };
 
-#define INIT_HLIST_BL_HEAD(ptr) \
-	((ptr)->first = NULL)
-
 #ifdef CONFIG_PREEMPT_RT_BASE
 #define INIT_HLIST_BL_HEAD(h)		\
 do {					\
