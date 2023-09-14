@@ -176,7 +176,6 @@ static int do_cpu_hotplug(bool fast_hotplug)
 {
 	int ret = 0;
 	struct cpumask disable_cpus, enable_cpus;
-	char cpus_buf[10];
 	int (*func_cpu_down)(const struct cpumask *);
 	int (*func_cpu_up)(const struct cpumask *);
 
@@ -223,11 +222,6 @@ static int do_cpu_hotplug(bool fast_hotplug)
 		}
 	}
 #endif
-
-	scnprintf(cpus_buf, sizeof(cpus_buf), "%*pbl", cpumask_pr_args(&enable_cpus));
-	pr_debug("%s: enable_cpus=%s\n", __func__, cpus_buf);
-	scnprintf(cpus_buf, sizeof(cpus_buf), "%*pbl", cpumask_pr_args(&disable_cpus));
-	pr_debug("%s: disable_cpus=%s\n", __func__, cpus_buf);
 
 	/* select function of cpu hotplug */
 	if (fast_hotplug) {
