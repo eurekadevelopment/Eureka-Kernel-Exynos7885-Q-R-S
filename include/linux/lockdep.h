@@ -547,6 +547,12 @@ do {									\
 			  "IRQs not enabled as expected\n");		\
 	} while (0)
 
+#define lockdep_assert_irqs_disabled()	do {				\
+		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
+			  current->hardirqs_enabled,			\
+			  "IRQs not disabled as expected\n");		\
+	} while (0)
+
 #define lockdep_assert_in_irq() do {					\
 		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
 			  !current->hardirq_context,			\
@@ -563,6 +569,7 @@ do {									\
 # define might_lock(lock) do { } while (0)
 # define might_lock_read(lock) do { } while (0)
 # define lockdep_assert_irqs_enabled() do { } while (0)
+# define lockdep_assert_irqs_disabled() do { } while (0)
 # define lockdep_assert_in_irq() do { } while (0)
 #endif
 
