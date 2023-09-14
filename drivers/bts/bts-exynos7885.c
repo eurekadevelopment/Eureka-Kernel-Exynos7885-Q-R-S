@@ -21,7 +21,7 @@
 #include <soc/samsung/bts.h>
 #include "cal_bts7885.h"
 
-#define BTS_DBG(x...)		if (exynos_bts_log) pr_info(x)
+#define BTS_DBG(x...)
 
 #define NUM_CHANNEL		4
 #define MIF_UTIL		80
