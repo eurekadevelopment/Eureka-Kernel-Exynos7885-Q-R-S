@@ -1957,6 +1957,62 @@ err:
 	return ret;
 }
 
+static int decon_get_color_mode(struct decon_device *decon,
+		struct decon_color_mode_info *color_mode)
+{
+	int ret = 0;
+
+	decon_dbg("%s +\n", __func__);
+	mutex_lock(&decon->lock);
+
+	switch (color_mode->index) {
+	case 0:
+		color_mode->color_mode = HAL_COLOR_MODE_NATIVE;
+		break;
+
+	/* TODO: add supporting color mode if necessary */
+
+	default:
+		decon_err("%s: queried color mode index is wrong!(%d)\n",
+			__func__, color_mode->index);
+		ret = -EINVAL;
+		break;
+	}
+
+	mutex_unlock(&decon->lock);
+	decon_dbg("%s -\n", __func__);
+
+	return ret;
+}
+
+static int decon_set_color_mode(struct decon_device *decon,
+		struct decon_color_mode_info *color_mode)
+{
+	int ret = 0;
+
+	decon_dbg("%s +\n", __func__);
+	mutex_lock(&decon->lock);
+
+	switch (color_mode->index) {
+	case 0:
+		color_mode->color_mode = HAL_COLOR_MODE_NATIVE;
+		break;
+
+	/* TODO: add supporting color mode if necessary */
+
+	default:
+		decon_err("%s: color mode index is out of range!(%d)\n",
+			__func__, color_mode->index);
+		ret = -EINVAL;
+		break;
+	}
+
+	mutex_unlock(&decon->lock);
+	decon_dbg("%s -\n", __func__);
+
+	return ret;
+}
+
 static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 			unsigned long arg)
 {
@@ -1970,6 +2026,7 @@ static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 	struct decon_disp_info __user *argp_info;
 	struct decon_hdr_capabilities hdr_capa;
 	struct decon_hdr_capabilities_info hdr_capa_info;
+	struct decon_color_mode_info cm_info;
 #endif
 	int ret = 0;
 	u32 crtc;
@@ -1979,6 +2036,7 @@ static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 #if defined(CONFIG_EXYNOS_DOZE)
 	u32 doze;
 #endif
+	u32 cm_num;
 	decon_hiber_block_exit(decon);
 	switch (cmd) {
 	case FBIO_WAITFORVSYNC:
@@ -2160,6 +2218,47 @@ static int decon_ioctl(struct fb_info *info, unsigned int cmd,
 			decon_err("DECON:ERR:%s:failed to set doze mode\n", __func__);
 		break;
 #endif
+
+	case EXYNOS_GET_COLOR_MODE_NUM:
+		cm_num = HAL_COLOR_MODE_NUM_MAX;
+		if (copy_to_user((u32 __user *)arg, &cm_num, sizeof(u32)))
+			ret = -EFAULT;
+		break;
+
+	case EXYNOS_GET_COLOR_MODE:
+		if (copy_from_user(&cm_info,
+				   (struct decon_color_mode_info __user *)arg,
+				   sizeof(struct decon_color_mode_info))) {
+			ret = -EFAULT;
+			break;
+		}
+
+		ret = decon_get_color_mode(decon, &cm_info);
+		if (ret)
+			break;
+
+		if (copy_to_user((struct decon_color_mode_info __user *)arg,
+				&cm_info,
+				sizeof(struct decon_color_mode_info))) {
+			ret = -EFAULT;
+			break;
+		}
+		break;
+
+	case EXYNOS_SET_COLOR_MODE:
+		if (get_user(cm_info.index, (int __user *)arg)) {
+			ret = -EFAULT;
+			break;
+		}
+
+		ret = decon_set_color_mode(decon, &cm_info);
+		if (ret)
+			break;
+
+		/* ADD additional action if necessary */
+
+		break;
+
 	default:
 		ret = -ENOTTY;
 	}
