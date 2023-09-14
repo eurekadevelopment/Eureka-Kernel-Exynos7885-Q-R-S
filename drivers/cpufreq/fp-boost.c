@@ -402,6 +402,7 @@ static int __init cpu_fp_init(void)
 
 	cpufreq_register_notifier(&do_cpu_boost_nb, CPUFREQ_POLICY_NOTIFIER);
 
+	set_boost_bit(b, DRIVER_ENABLED);
 	return 0;
 
 input_unregister:
