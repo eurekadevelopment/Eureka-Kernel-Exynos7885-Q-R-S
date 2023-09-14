@@ -542,6 +542,16 @@ enum dpu_frm_status {
 	DPU_FRM_SW_RECOVERY = (1 << 31),
 };
 
+enum decon_color_mode {
+	HAL_COLOR_MODE_NATIVE = 0,
+	HAL_COLOR_MODE_NUM_MAX,
+};
+
+struct decon_color_mode_info {
+	int index;
+	u32 color_mode;
+};
+
 struct decon_clocks {
 	unsigned long decon[CLK_ID_DPLL + 1];
 };
@@ -1538,4 +1548,10 @@ enum doze_mode {
 	DECON_PWR_DOZE_SUSPEND,
 	DECON_PWR_MAX,
 };
+
+/* COLOR Mode */
+#define EXYNOS_GET_COLOR_MODE_NUM	_IOW('F', 600, __u32)
+#define EXYNOS_GET_COLOR_MODE		_IOW('F', 601, struct decon_color_mode_info)
+#define EXYNOS_SET_COLOR_MODE		_IOW('F', 602, __u32)
+
 #endif /* ___SAMSUNG_DECON_H__ */
