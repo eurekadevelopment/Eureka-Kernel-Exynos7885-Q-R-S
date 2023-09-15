@@ -335,7 +335,7 @@ static void queue_stop_cpus_work(const struct cpumask *cpumask,
 	if (!inactive)
 		lg_global_lock(&stop_cpus_lock);
 	else
-		lg_global_trylock_relax(&stop_cpus_lock);
+		lg_global_unlock(&stop_cpus_lock);
 
 	for_each_cpu(cpu, cpumask) {
 		work = &per_cpu(cpu_stopper.stop_work, cpu);

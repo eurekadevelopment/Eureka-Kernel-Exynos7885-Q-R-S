@@ -55,6 +55,7 @@ struct dma_pool {		/* the pool */
 	size_t nr_active;
 	size_t nr_pages;
 	struct device *dev;
+	unsigned int size;
 	size_t allocation;
 	size_t boundary;
 	char name[32];
@@ -168,8 +169,6 @@ static void pool_check_block(struct dma_pool *pool, struct dma_block *block,
 
 static bool pool_block_err(struct dma_pool *pool, void *vaddr, dma_addr_t dma)
 {
-	if (want_init_on_free())
-		memset(vaddr, 0, pool->size);
 	return false;
 }
 
