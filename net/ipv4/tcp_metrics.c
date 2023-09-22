@@ -518,7 +518,7 @@ void tcp_init_metrics(struct sock *sk)
 	dst_confirm(dst);
 
 	rcu_read_lock();
-	tm = tcp_get_metrics(sk, dst, true);
+	tm = tcp_get_metrics(sk, dst, false);
 	if (!tm) {
 		rcu_read_unlock();
 		goto reset;
