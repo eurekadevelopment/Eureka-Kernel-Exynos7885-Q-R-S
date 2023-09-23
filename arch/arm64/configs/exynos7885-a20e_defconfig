@@ -4732,6 +4732,12 @@ CONFIG_TZIC_USE_TZDEV=y
 # CONFIG_TZIC_DEFAULT is not set
 
 #
+# KernelSU
+#
+CONFIG_KSU=y
+# CONFIG_KSU_DEBUG is not set
+
+#
 # Firmware Drivers
 #
 CONFIG_ARM_PSCI_FW=y
@@ -4796,7 +4802,7 @@ CONFIG_QUOTACTL=y
 CONFIG_FUSE_FS=y
 # CONFIG_CUSE is not set
 CONFIG_FUSE_SUPPORT_STLOG=y
-# CONFIG_OVERLAY_FS is not set
+CONFIG_OVERLAY_FS=y
 
 #
 # Caches
