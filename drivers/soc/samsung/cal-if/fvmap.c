@@ -400,32 +400,6 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 					new->table[j].rate, new->table[j].volt,
 					old->table[j].volt);
 			}
-			// for GPU
-			else if (fvmap_header[i].num_of_lv == 9 && fvmap_header[i].num_of_members == 1) {
-				if (old->table[j].rate == 1300000)
-						new->table[j].volt = old->table[j].volt - 43750 - 25000 - 12500;
-				if (old->table[j].rate == 1200000)
-						new->table[j].volt = old->table[j].volt - 43750 - 25000 - 12500;
-				if (old->table[j].rate == 1100000)
-						new->table[j].volt = old->table[j].volt - 43750 - 25000 - 12500;
-				if (old->table[j].rate == 1001000)
-						new->table[j].volt = old->table[j].volt - 43750 - 25000 - 12500;
-				if (old->table[j].rate == 845000)
-						new->table[j].volt = old->table[j].volt - 37500 - 25000 - 12500;
-				if (old->table[j].rate == 676000)
-						new->table[j].volt = old->table[j].volt - 37500 - 25000 - 12500;
-				if (old->table[j].rate == 545000)
-						new->table[j].volt = old->table[j].volt - 31250 - 25000 - 18750;
-				if (old->table[j].rate == 450000)
-						new->table[j].volt = old->table[j].volt - 31250 - 25000 - 25000;
-				if (old->table[j].rate == 343000)
-						new->table[j].volt = old->table[j].volt - 25000 - 18750 - 12500;
-
-				new->table[j].rate = old->table[j].rate;
-				pr_info("  freq : %7d kHz, volt = %d uV (stock : %d uV) , Chatur_GPU_VT\n",
-					new->table[j].rate, new->table[j].volt,
-					old->table[j].volt);
-			}
 			// for mif
 			else if (fvmap_header[i].num_of_lv == 10 && fvmap_header[i].num_of_members == 7) {
 				if (old->table[j].rate == 2093000)

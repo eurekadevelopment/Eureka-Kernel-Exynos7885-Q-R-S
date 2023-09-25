@@ -273,8 +273,6 @@ static int gpu_dvfs_update_config_data_from_dt(struct kbase_device *kbdev)
 		platform->governor_type = G3D_DVFS_GOVERNOR_DEFAULT;
 	}
 
-	platform->governor_type = G3D_DVFS_GOVERNOR_BOOSTER;
-
 	gpu_update_config_data_int(np, "gpu_dvfs_start_clock", &platform->gpu_dvfs_start_clock);
 	gpu_update_config_data_int_array(np, "gpu_dvfs_table_size", of_data_int_array, 2);
 	for (i = 0; i < G3D_MAX_GOVERNOR_NUM; i++) {
