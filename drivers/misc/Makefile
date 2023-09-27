@@ -80,3 +80,4 @@ ccflags-$(CONFIG_TZDEV) += -I$(srctree)/drivers/misc/tzdev/include
 obj-$(CONFIG_TZDEV)	+= tzdev/
 endif
 obj-$(CONFIG_SAMSUNG_TUI)	+= tui/
+obj-$(CONFIG_USB_FAST_CHARGE) += fastchg.o
