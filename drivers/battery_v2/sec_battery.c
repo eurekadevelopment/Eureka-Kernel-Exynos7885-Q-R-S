@@ -5796,12 +5796,12 @@ ssize_t sec_bat_store_attrs(
 	case STORE_MODE:
 		if (sscanf(buf, "%10d\n", &x) == 1) {
 #if !defined(CONFIG_SEC_FACTORY)
-			if (x) {
-				battery->store_mode = true;
-				wake_lock(&battery->parse_mode_dt_wake_lock);
-				queue_delayed_work(battery->monitor_wqueue,
-					&battery->parse_mode_dt_work, 0);
-			}
+			battery->pdata->store_mode_charging_max = battery->capacity;
+			battery->pdata->store_mode_charging_min = battery->pdata->store_mode_charging_max - 5;
+			battery->store_mode = x ? true : false;
+			wake_lock(&battery->parse_mode_dt_wake_lock);
+			queue_delayed_work(battery->monitor_wqueue,
+				&battery->parse_mode_dt_work, 0);
 #endif
 			ret = count;
 		}
