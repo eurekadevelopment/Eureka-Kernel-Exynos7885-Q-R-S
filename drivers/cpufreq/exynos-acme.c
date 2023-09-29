@@ -1199,6 +1199,11 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 #endif
 	}
 
+	// Disable 1794000 as it's causing issues.
+	if (domain->max_freq == 1794000) {
+		domain->max_freq = 1690000;
+ 	}
+
 	domain->boot_freq = cal_dfs_get_boot_freq(domain->cal_id);
 	domain->resume_freq = cal_dfs_get_resume_freq(domain->cal_id);
 	// Allow phone to boot with max frequency and increase resume_freq by 1 level
