@@ -249,9 +249,6 @@ struct s2mu005_charger_data {
 	s2mu005_charger_platform_data_t *pdata;
 	int dev_id;
 	int input_current;
-	int eureka_input_limit;
-	int charging_current_now;
-	int eureka_charging_current;
 	int charging_current;
 	int topoff_current;
 	int cable_type;
