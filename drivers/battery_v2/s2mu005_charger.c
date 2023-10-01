@@ -27,6 +27,8 @@
 #define EN_IVR_IRQ 1
 #define MINVAL(a, b) ((a <= b) ? a : b)
 
+#define EUREKA_CHARGING_LIMIT 1200
+
 #define HEALTH_DEBOUNCE_CNT 3
 
 #ifndef EN_TEST_READ
@@ -1092,26 +1094,14 @@ static int sec_chg_set_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		{
-			int input_current = val->intval;
-			charger->eureka_input_limit = 1200;
-			if (charger->eureka_input_limit > input_current)
-				s2mu005_set_input_current_limit(charger, charger->eureka_input_limit);
-			else
-				s2mu005_set_input_current_limit(charger, input_current);
-
-			charger->input_current = val->intval;
+			s2mu005_set_input_current_limit(charger, EUREKA_CHARGING_LIMIT);
+			charger->input_current = EUREKA_CHARGING_LIMIT;
 		}
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
 		pr_info("[DEBUG] %s: is_charging %d\n", __func__, charger->is_charging);
-		charger->eureka_charging_current = 1200;
-		charger->charging_current_now = val->intval;
-		if (charger->eureka_charging_current > charger->charging_current_now)
-			charger->charging_current = charger->eureka_charging_current;
-		else
-			charger->charging_current = charger->charging_current_now;
-
+		charger->charging_current = EUREKA_CHARGING_LIMIT;
 		/* set charging current */
 		s2mu005_set_fast_charging_current(charger->client, charger->charging_current);
 #if EN_TEST_READ
