@@ -3738,6 +3738,7 @@ failure:
 			regulator_disable(base->lcpa_regulator);
 			regulator_put(base->lcpa_regulator);
 		}
+		pm_runtime_disable(base->dev);
 
 		kfree(base->lcla_pool.alloc_map);
 		kfree(base->lookup_log_chans);
