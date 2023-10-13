@@ -4475,7 +4475,7 @@ int vfs_rename2(struct vfsmount *mnt,
 		error = old_dir->i_op->rename(old_dir, old_dentry,
 					      new_dir, new_dentry);
 	} else {
-		WARN_ON(old_dir->i_op->rename != NULL);
+		WARN_ON_ONCE(old_dir->i_op->rename != NULL);
 		error = old_dir->i_op->rename2(old_dir, old_dentry,
 					       new_dir, new_dentry, flags);
 	}
