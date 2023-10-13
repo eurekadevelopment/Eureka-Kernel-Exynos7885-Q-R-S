@@ -943,7 +943,7 @@ static int fimc_is_sensor_notify_by_fstr(struct fimc_is_device_sensor *device, v
 
 	hashkey = device->fcount % FIMC_IS_TIMESTAMP_HASH_KEY;
 	device->timestamp[hashkey] = fimc_is_get_timestamp();
-	device->timestampboot[hashkey] = fimc_is_get_timestamp();
+	device->timestampboot[hashkey] = fimc_is_get_timestamp_boot();
 
 	framemgr_e_barrier(framemgr, FMGR_IDX_28);
 
