@@ -50,7 +50,7 @@ bool __read_mostly walt_disabled = false;
  */
 __read_mostly unsigned int walt_ravg_window =
 					    (20000000 / TICK_NSEC) * TICK_NSEC;
-#define MIN_SCHED_RAVG_WINDOW ((10000000 / TICK_NSEC) * TICK_NSEC)
+#define MIN_SCHED_RAVG_WINDOW ((20000000 / TICK_NSEC) * TICK_NSEC)
 #define MAX_SCHED_RAVG_WINDOW ((1000000000 / TICK_NSEC) * TICK_NSEC)
 
 static unsigned int sync_cpu;
