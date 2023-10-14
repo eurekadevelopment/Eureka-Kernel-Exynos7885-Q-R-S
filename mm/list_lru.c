@@ -166,7 +166,7 @@ static unsigned long __list_lru_count_one(struct list_lru *lru,
 
 	spin_lock(&nlru->lock);
 	l = list_lru_from_memcg_idx(nlru, memcg_idx);
-	count = l->nr_items;
+	count = READ_ONCE(l->nr_items);
 	spin_unlock(&nlru->lock);
 
 	return count;
