@@ -3420,44 +3420,26 @@ dequeue_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se)
 		max_t(s64,  cfs_rq->runnable_load_sum - se->avg.load_sum, 0);
 }
 
-#ifndef CONFIG_64BIT
-static inline u64 cfs_rq_last_update_time(struct cfs_rq *cfs_rq)
+/*
+ * Task first catches up with cfs_rq, and then subtract
+ * itself from the cfs_rq (task must be off the queue now).
+ */
+static void remove_entity_load_avg(struct sched_entity *se)
 {
-	u64 last_update_time_copy;
+	struct cfs_rq *cfs_rq = cfs_rq_of(se);
 	u64 last_update_time;
+
+#ifndef CONFIG_64BIT
+	u64 last_update_time_copy;
 
 	do {
 		last_update_time_copy = cfs_rq->load_last_update_time_copy;
 		smp_rmb();
 		last_update_time = cfs_rq->avg.last_update_time;
 	} while (last_update_time != last_update_time_copy);
-
-	return last_update_time;
-}
 #else
-static inline u64 cfs_rq_last_update_time(struct cfs_rq *cfs_rq)
-{
-	return cfs_rq->avg.last_update_time;
-}
+	last_update_time = cfs_rq->avg.last_update_time;
 #endif
-
-/*
- * Task first catches up with cfs_rq, and then subtract
- * itself from the cfs_rq (task must be off the queue now).
- */
-void remove_entity_load_avg(struct sched_entity *se)
-{
-	struct cfs_rq *cfs_rq = cfs_rq_of(se);
-	u64 last_update_time;
-
-	/*
-	 * Newly created task or never used group entity should not be removed
-	 * from its (source) cfs_rq
-	 */
-	if (se->avg.last_update_time == 0)
-		return;
-
-	last_update_time = cfs_rq_last_update_time(cfs_rq);
 
 	__update_load_avg(last_update_time, cpu_of(rq_of(cfs_rq)), &se->avg, 0, 0, NULL);
 	atomic_long_add(se->avg.load_avg, &cfs_rq->removed_load_avg);
@@ -11868,3 +11850,5 @@ static int __init hmp_tbsoftlanding_init(void)
 }
 late_initcall(hmp_tbsoftlanding_init);
 #endif	/* CONFIG_SCHED_HMP_TASK_BASED_SOFTLANDING */
+
+
