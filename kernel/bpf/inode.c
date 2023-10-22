@@ -184,21 +184,12 @@ bpf_lookup(struct inode *dir, struct dentry *dentry, unsigned flags)
 	return simple_lookup(dir, dentry, flags);
 }
 
-// Create a wrapper, in Linux 4.4, 'struct inode_operations' had a rename2 member,
-// and if that fleid is not set (= NULL), it would return -EINVAL at rename2 syscall.
-static int bpf_simple_rename2(struct inode *oldi, struct dentry *oldd,
-			      struct inode *newi, struct dentry *newd,
-			      unsigned int flags) {
-	return simple_rename(oldi, oldd, newi, newd);
-}
-
 static const struct inode_operations bpf_dir_iops = {
 	.lookup		= bpf_lookup,
 	.mknod		= bpf_mkobj,
 	.mkdir		= bpf_mkdir,
 	.rmdir		= simple_rmdir,
 	.rename		= simple_rename,
-	.rename2	= bpf_simple_rename2,
 	.link		= simple_link,
 	.unlink		= simple_unlink,
 };
