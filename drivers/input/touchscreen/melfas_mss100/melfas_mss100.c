@@ -1546,13 +1546,13 @@ static int mms_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		ret = -EAGAIN;
 		goto err_create_attr_group;
 	}
-
+/*
 	if (sysfs_create_link(NULL, &client->dev.kobj, MMS_DEVICE_NAME)) {
 		input_err(true, &client->dev, "%s [ERROR] sysfs_create_link\n", __func__);
 		ret = -EAGAIN;
 		goto err_create_dev_link;
 	}
-
+*/
 	INIT_DELAYED_WORK(&info->work_print_info, mms_ts_print_info_work);
 	INIT_DELAYED_WORK(&info->work_read_info, mms_read_info_work);
 	mutex_init(&info->modechange);
@@ -1578,9 +1578,10 @@ static int mms_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	schedule_work(&info->work_print_info.work);
 	return 0;
 
-
+/*
 err_create_dev_link:
 	sysfs_remove_group(&client->dev.kobj, &mms_attr_group);
+*/
 err_create_attr_group:
 #if MMS_USE_CMD_MODE
 	mms_sysfs_cmd_remove(info);
