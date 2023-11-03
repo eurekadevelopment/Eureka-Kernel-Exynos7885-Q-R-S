@@ -556,7 +556,7 @@ static inline void wait_on_page_locked(struct page *page)
  */
 static inline void wait_on_page_writeback(struct page *page)
 {
-	if (PageWriteback(page))
+	while (PageWriteback(page))
 		wait_on_page_bit(page, PG_writeback);
 }
 
