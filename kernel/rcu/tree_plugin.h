@@ -24,9 +24,9 @@
  *	   Paul E. McKenney <paulmck@linux.vnet.ibm.com>
  */
 
-#ifdef CONFIG_RCU_BOOST
-
 #include "../locking/rtmutex_common.h"
+
+#ifdef CONFIG_RCU_BOOST
 
 #else /* #ifdef CONFIG_RCU_BOOST */
 
@@ -498,7 +498,7 @@ void rcu_read_unlock_special(struct task_struct *t)
 
 		/* Unboost if we were boosted. */
 		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
-			rt_mutex_unlock(&rnp->boost_mtx);
+			rt_mutex_futex_unlock(&rnp->boost_mtx);
 
 		/*
 		 * If this was the last task on the expedited lists,
