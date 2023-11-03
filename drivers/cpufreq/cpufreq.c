@@ -1210,7 +1210,7 @@ static void cpufreq_policy_put_kobj(struct cpufreq_policy *policy, bool notify)
 	 * proceed with unloading.
 	 */
 	pr_debug("waiting for dropping of refcount\n");
-	wait_for_completion(cmp);
+	wait_for_completion_interruptible(cmp);
 	pr_debug("wait complete\n");
 }
 
