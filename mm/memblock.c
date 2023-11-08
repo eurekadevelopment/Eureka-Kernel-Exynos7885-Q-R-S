@@ -1549,7 +1549,7 @@ void __init __memblock_free_late(phys_addr_t base, phys_addr_t size)
 
 	for (; cursor < end; cursor++) {
 		__free_pages_bootmem(pfn_to_page(cursor), cursor, 0);
-		totalram_pages++;
+		totalram_pages_inc();
 	}
 }
 
@@ -1944,7 +1944,7 @@ static int memsize_reserved_show(struct seq_file *m, void *private)
 	int i;
 	struct reserved_mem_reg *rmem_reg;
 	unsigned long dt_reserved = 0, reusable = 0, kernel, total;
-	unsigned long system = totalram_pages << PAGE_SHIFT;
+	unsigned long system = totalram_pages() << PAGE_SHIFT;
 
 	sort(reserved_mem_reg, reserved_mem_reg_count,
 	     sizeof(reserved_mem_reg[0]), __rmem_reg_cmp, NULL);

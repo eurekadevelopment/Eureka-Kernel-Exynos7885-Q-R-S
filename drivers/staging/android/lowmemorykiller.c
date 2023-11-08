@@ -117,7 +117,7 @@ static void show_memory(void)
 		" pagetables:%lukB"
 		" free_cma:%lukB"
 		"\n",
-		K(totalram_pages),
+		K(totalram_pages()),
 		K(global_page_state(NR_FREE_PAGES)),
 		K(global_page_state(NR_ACTIVE_ANON)),
 		K(global_page_state(NR_INACTIVE_ANON)),

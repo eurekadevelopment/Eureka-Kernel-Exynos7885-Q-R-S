@@ -169,6 +169,7 @@ err_oom:
 
 int wg_ratelimiter_init(void)
 {
+	unsigned long int totalram_pages;
 	mutex_lock(&init_lock);
 	if (++init_refcnt != 1)
 		goto out;
