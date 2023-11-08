@@ -672,6 +672,14 @@ config TCP_CONG_CDG
 	  D.A. Hayes and G. Armitage. "Revisiting TCP congestion control using
 	  delay gradients." In Networking 2011. Preprint: http://goo.gl/No3vdg
 
+config TCP_CONG_SOCIOPATH
+        tristate "TCP Sociopath"
+        default n
+        ---help---
+        This is basically TCP Reno with no slow start and a much more
+        aggressive ssthresh recalculation (lowers it by 5% instead of 50%).
+        Use responsibly!
+
 choice
 	prompt "Default TCP congestion control"
 	default DEFAULT_CUBIC
@@ -699,6 +707,9 @@ choice
 
 	config DEFAULT_WESTWOOD
 		bool "Westwood" if TCP_CONG_WESTWOOD=y
+
+	config DEFAULT_SOCIOPATH
+		bool "Sociopath" if TCP_CONG_SOCIOPATH=y
 
 	config DEFAULT_DCTCP
 		bool "DCTCP" if TCP_CONG_DCTCP=y
@@ -744,6 +755,7 @@ config DEFAULT_TCP_CONG
 	default "reno" if DEFAULT_RENO
 	default "dctcp" if DEFAULT_DCTCP
 	default "cdg" if DEFAULT_CDG
+	default "sociopath" if DEFAULT_SOCIOPATH
 	default "cubic"
 
 config TCP_MD5SIG
