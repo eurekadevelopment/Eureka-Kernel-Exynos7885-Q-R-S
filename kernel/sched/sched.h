@@ -973,17 +973,19 @@ static inline unsigned int group_first_cpu(struct sched_group *group)
 }
 
 extern int group_balance_cpu(struct sched_group *sg);
+extern void flush_smp_call_function_from_idle(void);
 
 #ifdef CONFIG_SCHED_HMP
 extern struct list_head hmp_domains;
 DECLARE_PER_CPU(struct hmp_domain *, hmp_cpu_domain);
 #define hmp_cpu_domain(cpu)	(per_cpu(hmp_cpu_domain, (cpu)))
 #endif /* CONFIG_SCHED_HMP */
-#else
 
+#else /* !CONFIG_SMP: */
+static inline void flush_smp_call_function_from_idle(void) { }
 static inline void sched_ttwu_pending(void) { }
 
-#endif /* CONFIG_SMP */
+#endif
 
 #include "stats.h"
 #include "auto_group.h"
