@@ -1966,28 +1966,28 @@ static void mmc_card_debug_log_sysfs_init(struct mmc_card *card)
 		return;
 	}
 	/* init. card->err_log */
-	snprintf(card->err_log[0].type, sizeof(char)*4, "sbc ");
-	snprintf(card->err_log[1].type, sizeof(char)*4, "sbc ");
+	snprintf(card->err_log[0].type, sizeof(char)*5, "sbc ");
+	snprintf(card->err_log[1].type, sizeof(char)*5, "sbc ");
 	card->err_log[0].err_type = -EILSEQ;
 	card->err_log[1].err_type = -ETIMEDOUT;
 
-	snprintf(card->err_log[2].type, sizeof(char)*4, "cmd ");
-	snprintf(card->err_log[3].type, sizeof(char)*4, "cmd ");
+	snprintf(card->err_log[2].type, sizeof(char)*5, "cmd ");
+	snprintf(card->err_log[3].type, sizeof(char)*5, "cmd ");
 	card->err_log[2].err_type = -EILSEQ;
 	card->err_log[3].err_type = -ETIMEDOUT;
 
-	snprintf(card->err_log[4].type, sizeof(char)*4, "data");
-	snprintf(card->err_log[5].type, sizeof(char)*4, "data");
+	snprintf(card->err_log[4].type, sizeof(char)*5, "data");
+	snprintf(card->err_log[5].type, sizeof(char)*5, "data");
 	card->err_log[4].err_type = -EILSEQ;
 	card->err_log[5].err_type = -ETIMEDOUT;
 
-	snprintf(card->err_log[6].type, sizeof(char)*4, "stop");
-	snprintf(card->err_log[7].type, sizeof(char)*4, "stop");
+	snprintf(card->err_log[6].type, sizeof(char)*5, "stop");
+	snprintf(card->err_log[7].type, sizeof(char)*5, "stop");
 	card->err_log[6].err_type = -EILSEQ;
 	card->err_log[7].err_type = -ETIMEDOUT;
 
-	snprintf(card->err_log[8].type, sizeof(char)*4, "busy");
-	snprintf(card->err_log[9].type, sizeof(char)*4, "busy");
+	snprintf(card->err_log[8].type, sizeof(char)*5, "busy");
+	snprintf(card->err_log[9].type, sizeof(char)*5, "busy");
 	card->err_log[8].err_type = -EILSEQ;
 	card->err_log[9].err_type = -ETIMEDOUT;
 }
