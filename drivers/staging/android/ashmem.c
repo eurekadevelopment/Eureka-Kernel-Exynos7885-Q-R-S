@@ -424,7 +424,7 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 
 	/* requested protection bits must match our allowed protection mask */
 	if (vma->vm_flags & ~calc_vm_prot_bits(prot_mask) &
-		     calc_vm_prot_bits(PROT_MASK)))
+		     calc_vm_prot_bits(PROT_MASK))
 		return -EPERM;
 	vma->vm_flags &= ~calc_vm_may_flags(~prot_mask);
 
@@ -524,7 +524,7 @@ static struct shrinker ashmem_shrinker = {
 static int set_prot_mask(struct ashmem_area *asma, unsigned long prot)
 {
 	/* the user can only remove, not add, protection bits */
-	if ((READ_ONCE(asma->prot_mask) & prot) != prot))
+	if ((READ_ONCE(asma->prot_mask) & prot) != prot)
 		return -EINVAL;
 
 	/* does the application expect PROT_READ to imply PROT_EXEC? */
