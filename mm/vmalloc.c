@@ -321,8 +321,6 @@ static LIST_HEAD(free_vmap_area_list);
  */
 static struct rb_root free_vmap_area_root = RB_ROOT;
 
-static unsigned long vmap_area_pcpu_hole;
-
 static __always_inline unsigned long
 va_size(struct vmap_area *va)
 {
@@ -1231,6 +1229,7 @@ static bool __purge_vmap_area_lazy(unsigned long *start, unsigned long *end,
 		spin_unlock(&vmap_area_lock);
 	}
 	spin_unlock(&purge_lock);
+	return true;
 }
 
 /*
@@ -1690,10 +1689,11 @@ void vm_unmap_ram(const void *mem, unsigned int count)
 	BUG_ON(addr > VMALLOC_END);
 	BUG_ON(addr & (PAGE_SIZE-1));
 
-	if (likely(count <= VMAP_MAX_ALLOC))
+	if (likely(count <= VMAP_MAX_ALLOC)) {
 		debug_check_no_locks_freed(mem, size);
 		vb_free(mem, size);
 		return;
+	}
 
 	free_unmap_vmap_area_addr(addr);
 	debug_check_no_locks_freed((void *)va->va_start,

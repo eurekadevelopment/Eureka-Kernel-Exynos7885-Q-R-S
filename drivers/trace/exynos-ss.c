@@ -3265,7 +3265,7 @@ void exynos_ss_printkl(size_t msg, size_t val)
 #define ESS_LOGGER_LEVEL_MAX		(4)
 #define ESS_LOGGER_SKIP_COUNT		(4)
 #define ESS_LOGGER_STRING_PAD		(1)
-#define ESS_LOGGER_HEADER_SIZE		(68)
+#define ESS_LOGGER_HEADER_SIZE		(69)
 
 #define ESS_LOG_ID_MAIN 		(0)
 #define ESS_LOG_ID_RADIO		(1)
