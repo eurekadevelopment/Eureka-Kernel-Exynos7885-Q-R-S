@@ -109,6 +109,20 @@ struct dma_buf_ops {
 	void *(*vmap)(struct dma_buf *);
 	void (*vunmap)(struct dma_buf *, void *vaddr);
 
+	/**
+	 * @get_flags:
+	 *
+	 * This is called by dma_buf_get_flags and is used to get the buffer's
+	 * flags.
+	 * This callback is optional.
+	 *
+	 * Returns:
+	 *
+	 * 0 on success or a negative error code on failure. On success flags
+	 * will be populated with the buffer's flags.
+	 */
+	int (*get_flags)(struct dma_buf *, unsigned long *flags);
+
 	void (*set_privflag)(struct dma_buf *);
 	bool (*get_privflag)(struct dma_buf *, bool);
 };
@@ -247,4 +261,5 @@ bool dma_buf_get_privflag(struct dma_buf *, bool clear);
 int dma_buf_debugfs_create_file(const char *name,
 				int (*write)(struct seq_file *));
 struct dma_buf *get_dma_buf_file(struct file *);
+int dma_buf_get_flags(struct dma_buf *dma_buf, unsigned long *flags);
 #endif /* __DMA_BUF_H__ */
