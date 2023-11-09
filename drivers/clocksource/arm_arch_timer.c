@@ -72,6 +72,8 @@ static bool arch_timer_c3stop;
 static bool arch_timer_mem_use_virtual;
 static bool arch_timer_use_clocksource_only = false;
 
+static cpumask_t evtstrm_available = CPU_MASK_NONE;
+
 /*
  * Architected system timer support.
  */
@@ -307,6 +309,7 @@ static void arch_timer_evtstrm_enable(int divider)
 #ifdef CONFIG_COMPAT
 	compat_elf_hwcap |= COMPAT_HWCAP_EVTSTRM;
 #endif
+	cpumask_set_cpu(smp_processor_id(), &evtstrm_available);
 }
 
 static void arch_timer_configure_evtstream(void)
@@ -423,6 +426,16 @@ static void arch_timer_banner(unsigned type)
 u32 arch_timer_get_rate(void)
 {
 	return arch_timer_rate;
+}
+
+bool arch_timer_evtstrm_available(void)
+{
+	/*
+	 * We might get called from a preemptible context. This is fine
+	 * because availability of the event stream should be always the same
+	 * for a preemptible context and context where we might resume a task.
+	 */
+	return cpumask_test_cpu(raw_smp_processor_id(), &evtstrm_available);
 }
 
 static u64 arch_counter_get_cntvct_mem(void)
@@ -549,6 +562,8 @@ static int arch_timer_cpu_notify(struct notifier_block *self,
 		arch_timer_setup(this_cpu_ptr(arch_timer_evt));
 		break;
 	case CPU_DYING:
+		cpumask_clear_cpu(smp_processor_id(), &evtstrm_available);
+
 		arch_timer_stop(this_cpu_ptr(arch_timer_evt));
 		break;
 	}
@@ -565,10 +580,16 @@ static unsigned int saved_cntkctl;
 static int arch_timer_cpu_pm_notify(struct notifier_block *self,
 				    unsigned long action, void *hcpu)
 {
-	if (action == CPU_PM_ENTER)
+	if (action == CPU_PM_ENTER) {
 		saved_cntkctl = arch_timer_get_cntkctl();
-	else if (action == CPU_PM_ENTER_FAILED || action == CPU_PM_EXIT)
+
+		cpumask_clear_cpu(smp_processor_id(), &evtstrm_available);
+	} else if (action == CPU_PM_ENTER_FAILED || action == CPU_PM_EXIT) {
 		arch_timer_set_cntkctl(saved_cntkctl);
+
+		if (elf_hwcap & HWCAP_EVTSTRM)
+			cpumask_set_cpu(smp_processor_id(), &evtstrm_available);
+	}
 	return NOTIFY_OK;
 }
 
