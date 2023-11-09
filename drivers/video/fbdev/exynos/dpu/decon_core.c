@@ -1189,7 +1189,7 @@ void decon_wait_for_vstatus(struct decon_device *decon, u32 timeout)
 	if (decon->id)
 		return;
 
-	ret = wait_event_timeout(decon->wait_vstatus,
+	ret = wait_event_interruptible_timeout(decon->wait_vstatus,
 			(decon->frame_cnt_target <= decon->frame_cnt),
 			msecs_to_jiffies(timeout));
 	if (!ret)
