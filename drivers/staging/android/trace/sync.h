@@ -38,19 +38,28 @@ TRACE_EVENT(sync_wait,
 	TP_ARGS(fence, begin),
 
 	TP_STRUCT__entry(
+#ifdef CONFIG_SYNC_DEBUG
 			__string(name, fence->name)
+#endif
 			__field(s32, status)
 			__field(u32, begin)
 	),
 
 	TP_fast_assign(
+#ifdef CONFIG_SYNC_DEBUG
 			__assign_str(name, fence->name);
+#endif
 			__entry->status = atomic_read(&fence->status);
 			__entry->begin = begin;
 	),
 
 	TP_printk("%s name=%s state=%d", __entry->begin ? "begin" : "end",
-			__get_str(name), __entry->status)
+#ifdef CONFIG_SYNC_DEBUG
+			__get_str(name),
+#else
+			"",
+#endif
+			__entry->status)
 );
 
 TRACE_EVENT(sync_pt,
