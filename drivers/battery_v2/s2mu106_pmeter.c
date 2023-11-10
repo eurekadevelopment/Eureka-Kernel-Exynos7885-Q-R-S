@@ -34,12 +34,12 @@ static const unsigned char enable_bit_data[PM_TYPE_MAX] =
 0x40, 0x01, 0x10, 0x80};
 
 static int s2mu106_pm_enable(struct s2mu106_pmeter_data *pmeter,
-					int mode, enum pm_type type)
+                                        int mode, enum pm_type type)
 {
 	u8 addr1 = S2MU106_PM_REQ_BOX_CO1;
 	u8 addr2 = S2MU106_PM_REQ_BOX_CO2;
 	u8 data1, data2;
-	
+
 	/* Default PM mode = continuous */
 	if (mode == REQUEST_RESPONSE_MODE) {
 		pr_info ("%s PM mode : Request Response mode (RR)\n", __func__);
@@ -490,7 +490,7 @@ static int s2mu106_pmeter_resume(struct device *dev)
 
 static void s2mu106_pmeter_shutdown(struct device *dev)
 {
-	pr_info("%s: S2MU106 PowerMeter driver shutdown\n", __func__);
+	dev_dbg(dev, "%s: S2MU106 PowerMeter driver shutdown\n", __func__);
 }
 
 static SIMPLE_DEV_PM_OPS(s2mu106_pmeter_pm_ops, s2mu106_pmeter_suspend,
