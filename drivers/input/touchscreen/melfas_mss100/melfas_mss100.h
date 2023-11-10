@@ -83,7 +83,7 @@ extern struct tsp_dump_callbacks dump_callbacks;
 #define MMS_USE_INPUT_OPEN_CLOSE	1
 #define I2C_RETRY_COUNT			3
 #define RESET_ON_EVENT_ERROR		0
-#define ESD_COUNT_FOR_DISABLE		7
+#define ESD_COUNT_FOR_DISABLE		1
 #define MMS_USE_TOUCHKEY		0
 
 #define POWER_ON_DELAY        150 /* ms */
