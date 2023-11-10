@@ -2515,6 +2515,7 @@ static struct i2c_driver ist40xx_i2c_driver = {
 #if (!defined(CONFIG_HAS_EARLYSUSPEND) && !defined(USE_OPEN_CLOSE))
 		   .pm = &ist40xx_pm_ops,
 #endif
+		   .probe_type = PROBE_PREFER_ASYNCHRONOUS,
 		   },
 };
 
