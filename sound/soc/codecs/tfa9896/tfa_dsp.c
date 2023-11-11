@@ -249,7 +249,8 @@ void tfa_set_query_info(struct tfa_device *tfa)
 	tfa->partial_enable = 0;
 	tfa->convert_dsp32 = 0;
 	tfa->sync_iv_delay = 0;
-    tfa->dynamicTDMmode = -1; /**tracking dynamic TDM setting from alsa input stream*/
+	tfa->dynamicTDMmode = -1; /**tracking dynamic TDM setting from alsa input stream*/
+	tfa->rate = 0;
 	tfa->bitwidth = -1;/**bitwdith from alsa input stream*/
 
 	/* TODO use the getfeatures() for retrieving the features [artf103523]
@@ -415,10 +416,12 @@ int tfa98xx_dev2family(int dev_type)
 
 /*
  * 	return the target address for the filter on this device
+
   filter_index:
 	[0..9] reserved for EQ (not deployed, calc. is available)
 	[10..12] anti-alias filter
 	[13]  integrator filter
+
  */
 enum Tfa98xx_DMEM tfa98xx_filter_mem(struct tfa_device *tfa, int filter_index, unsigned short *address, int channel)
 {
@@ -2697,8 +2700,13 @@ enum Tfa98xx_Error tfaGetFwApiVersion(struct tfa_device *tfa, unsigned char *pFi
 		}
 		pFirmwareVersion[0] = (buffer >> 16) & 0xff;
 		pFirmwareVersion[1] = (buffer >> 8) & 0xff;
-		pFirmwareVersion[2] = (buffer >> 6) & 0x03;
-		pFirmwareVersion[3] = (buffer)      & 0x3f;
+		if ((pFirmwareVersion[0] != 2) && (pFirmwareVersion[1] >= 33)) {
+			pFirmwareVersion[2] = (buffer >> 3) & 0x1F;
+			pFirmwareVersion[3] = (buffer) & 0x07;
+		} else {
+			pFirmwareVersion[2] = (buffer >> 6) & 0x03;
+			pFirmwareVersion[3] = (buffer) & 0x3f;
+		}
 	}
 	else
 	{
@@ -2725,9 +2733,13 @@ enum Tfa98xx_Error tfaGetFwApiVersion(struct tfa_device *tfa, unsigned char *pFi
 		/* Split 3rd byte into two seperate ITF version fields (3rd field and 4th field) */
 		pFirmwareVersion[0] = (buffer[0]);
 		pFirmwareVersion[1] = (buffer[1]);
-		pFirmwareVersion[3] = (buffer[2])      & 0x3f;
-		pFirmwareVersion[2] = (buffer[2] >> 6) & 0x03;
-		
+		if ((pFirmwareVersion[0] != 2) && (pFirmwareVersion[1] >= 33)) {
+			pFirmwareVersion[3] = (buffer[2]) & 0x07;
+			pFirmwareVersion[2] = (buffer[2] >> 3) & 0x1F;
+		} else {
+			pFirmwareVersion[3] = (buffer[2]) & 0x3f;
+			pFirmwareVersion[2] = (buffer[2] >> 6) & 0x03;
+		}
 	}
 
 	if (1 == tfa->cnt->ndev) {
@@ -2736,7 +2748,7 @@ enum Tfa98xx_Error tfaGetFwApiVersion(struct tfa_device *tfa, unsigned char *pFi
 		   Firmware cannot return the 4th field (mono/stereo) of ITF version correctly, as it requires 
 		   certain set of messages to be sent before it can detect itself as a mono/stereo configuration.
 		   Hence, HostSDK need to handle this at system level */
-		if ((pFirmwareVersion[0] != 2) && (pFirmwareVersion[1] >= 31)) {
+		if ((pFirmwareVersion[0] == 8) && (pFirmwareVersion[1] >= 31)) {
 			pFirmwareVersion[3] = 1;
 		}
 	}
@@ -2983,7 +2995,13 @@ enum Tfa98xx_Error tfaRunStartup(struct tfa_device *tfa, int profile)
 
 	/* Factory trimming for the Boost converter */
 	tfa98xx_factory_trimmer(tfa);
-
+#ifdef __KERNEL__
+#if 0
+	/* Control for PWM phase shift */
+	if (tfa->bitwidth == 24 && tfa->rate == 16)/*TFA9875-240*/
+		tfa98xx_set_phase_shift(tfa);
+#endif
+#endif
 	/* Go to the initCF state */
 	tfa_dev_set_state(tfa, TFA_STATE_INIT_CF, strstr(tfaContProfileName(tfa->cnt, tfa->dev_idx, profile), ".cal") != NULL);
 
@@ -3217,11 +3235,15 @@ enum tfa_error tfa_dev_start(struct tfa_device *tfa, int next_profile, int vstep
 		if (err != Tfa98xx_Error_Ok)
 			goto error_exit;
 
-		/* Make sure internal oscillator is running for DSP devices (non-dsp and max1 this is no-op) */
-		tfa98xx_set_osc_powerdown(tfa, 0);
+		if (strstr(tfaContProfileName(tfa->cnt, tfa->dev_idx, next_profile), ".standby") != NULL) {
+			pr_info("Skip powering on device, in standby profile!\n");
+		} else {
+			/* Make sure internal oscillator is running for DSP devices (non-dsp and max1 this is no-op) */
+			tfa98xx_set_osc_powerdown(tfa, 0);
 
-		/* Go to the Operating state */
-		tfa_dev_set_state(tfa, TFA_STATE_OPERATING | TFA_STATE_MUTE, 0);
+			/* Go to the Operating state */
+			tfa_dev_set_state(tfa, TFA_STATE_OPERATING | TFA_STATE_MUTE, 0);
+		}
 	}
 	active_profile = tfa_dev_get_swprof(tfa);
 
@@ -3238,6 +3260,9 @@ enum tfa_error tfa_dev_start(struct tfa_device *tfa, int next_profile, int vstep
 	if (strstr(tfaContProfileName(tfa->cnt, tfa->dev_idx, next_profile), ".standby") != NULL) {
 		tfa_dev_set_swprof(tfa, (unsigned short)next_profile);
 		tfa_dev_set_swvstep(tfa, (unsigned short)vstep);
+
+		pr_info("Power down device, by force, in standby profile!\n");
+		err = tfa_dev_stop(tfa);
 		goto error_exit;
 	}
 
