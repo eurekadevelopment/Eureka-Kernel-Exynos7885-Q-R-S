@@ -83,7 +83,7 @@ static struct pm_qos_constraints network_lat_constraints = {
 	.list = PLIST_HEAD_INIT(network_lat_constraints.list),
 	.target_value = PM_QOS_NETWORK_LAT_DEFAULT_VALUE,
 	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
-				PM_QOS_CPU_DMA_LAT_DEFAULT_VALUE },
+				PM_QOS_NETWORK_LAT_DEFAULT_VALUE },
 	.default_value = PM_QOS_NETWORK_LAT_DEFAULT_VALUE,
 	.no_constraint_value = PM_QOS_NETWORK_LAT_DEFAULT_VALUE,
 	.type = PM_QOS_MIN,
@@ -100,7 +100,7 @@ static struct pm_qos_constraints device_tput_constraints = {
 	.list = PLIST_HEAD_INIT(device_tput_constraints.list),
 	.target_value = PM_QOS_DEVICE_THROUGHPUT_DEFAULT_VALUE,
 	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
-				PM_QOS_NETWORK_LAT_DEFAULT_VALUE },
+				PM_QOS_DEVICE_THROUGHPUT_DEFAULT_VALUE },
 	.default_value = PM_QOS_DEVICE_THROUGHPUT_DEFAULT_VALUE,
 	.type = PM_QOS_FORCE_MAX,
 	.notifiers = &device_throughput_notifier,
