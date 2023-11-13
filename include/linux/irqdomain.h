@@ -205,7 +205,7 @@ struct irq_domain *irq_domain_add_legacy(struct device_node *of_node,
 extern struct irq_domain *irq_find_matching_fwnode(struct fwnode_handle *fwnode,
 						   enum irq_domain_bus_token bus_token);
 extern void irq_set_default_host(struct irq_domain *host);
-
+extern struct irq_domain *irq_get_default_host(void);
 static inline struct fwnode_handle *of_node_to_fwnode(struct device_node *node)
 {
 	return node ? &node->fwnode : NULL;
