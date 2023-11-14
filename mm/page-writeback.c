@@ -71,7 +71,7 @@ static long ratelimit_pages = 256;
 /*
  * Start background writeback (via writeback threads) at this percentage
  */
-int dirty_background_ratio = 5;
+int dirty_background_ratio = 3;
 
 /*
  * dirty_background_bytes starts at 0 (disabled) so that it is a function of
@@ -100,7 +100,7 @@ unsigned long vm_dirty_bytes = 50 * 1024 * 1024;
 /*
  * The interval between `kupdate'-style writebacks
  */
-unsigned int dirty_writeback_interval; /* centiseconds */
+unsigned int dirty_writeback_interval = 30 * 100; /* centiseconds */
 
 EXPORT_SYMBOL_GPL(dirty_writeback_interval);
 
