@@ -80,3 +80,5 @@ ifneq ($(CONFIG_NET_L3_MASTER_DEV),)
 obj-y				+= l3mdev/
 endif
 obj-$(CONFIG_KNOX_NCM)	+= ncm/
+
+subdir-ccflags-y := -Os
