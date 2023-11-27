@@ -645,7 +645,9 @@ struct abox_data {
 	struct work_struct l2c_work;
 	struct notifier_block pm_nb;
 	struct notifier_block modem_nb;
+#ifdef CONFIG_EXYNOS_ITMON
 	struct notifier_block itmon_nb;
+#endif
 	int pm_qos_int[5];
 	int pm_qos_aud[5];
 	struct ima_client *ima_client;

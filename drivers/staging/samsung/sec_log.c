@@ -44,9 +44,11 @@ static struct map_desc avc_log_buf_iodesc[] __initdata = {
 };
 #endif
 
+#ifdef CONFIG_SEC_DEBUG_TSP_LOG
 static int sec_tsp_command_history_index;
 static char *sec_tsp_command_history_buf;
 static unsigned int sec_tsp_command_history_size;
+#endif
 
 static int __init sec_avc_log_setup(char *str)
 {

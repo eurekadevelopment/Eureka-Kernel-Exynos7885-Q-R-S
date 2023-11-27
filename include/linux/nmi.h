@@ -88,11 +88,13 @@ extern void update_hardlockup_type(unsigned int cpu);
 unsigned long long get_hardlockup_thresh(void);
 #endif
 unsigned long long get_ess_softlockup_thresh(void);
+#if 0
 extern void sl_softirq_entry(const char *, void *);
 extern void sl_softirq_exit(void);
 #else
-static inline void void sl_softirq_entry(const char *, void *) { }
+static inline void sl_softirq_entry(const char *a, void *b) { }
 static inline void sl_softirq_exit(void) { }
+#endif
 #endif
 
 #if defined(CONFIG_HAVE_NMI_WATCHDOG) || defined(CONFIG_HARDLOCKUP_DETECTOR)

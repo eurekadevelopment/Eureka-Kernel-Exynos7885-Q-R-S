@@ -915,8 +915,8 @@ void decon_destroy_debugfs(struct decon_device *decon);
 #define DPU_EVENT_SHOW(...) do { } while(0)
 #define DPU_EVENT_LOG_WIN_CONFIG(...) do { } while(0)
 #define DPU_EVENT_LOG_INSTANT_OFF(...) do { } while (0)
-#define decon_create_debugfs(...) do { } while(0)
-#define decon_destroy_debugfs(..) do { } while(0)
+#define decon_create_debugfs(d) 0
+#define decon_destroy_debugfs(d) 0
 #endif
 
 #if defined(CONFIG_DPU_20)

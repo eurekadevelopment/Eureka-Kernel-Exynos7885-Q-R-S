@@ -5588,6 +5588,7 @@ static int abox_modem_notifier(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
+#ifdef CONFIG_EXYNOS_ITMON
 static int abox_itmon_notifier(struct notifier_block *nb,
 		unsigned long action, void *nb_data)
 {
@@ -5604,6 +5605,7 @@ static int abox_itmon_notifier(struct notifier_block *nb,
 
 	return NOTIFY_DONE;
 }
+#endif
 
 static ssize_t calliope_version_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -5920,8 +5922,10 @@ static int samsung_abox_probe(struct platform_device *pdev)
 
 	data->modem_nb.notifier_call = abox_modem_notifier;
 
+#ifdef CONFIG_EXYNOS_ITMON
 	data->itmon_nb.notifier_call = abox_itmon_notifier;
 	itmon_notifier_chain_register(&data->itmon_nb);
+#endif
 
 	abox_failsafe_init(dev);
 

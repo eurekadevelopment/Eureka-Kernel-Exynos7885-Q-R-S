@@ -58,8 +58,9 @@ struct cs_dbg {
 };
 static struct cs_dbg dbg;
 
-
+#ifdef CONFIG_HARDLOCKUP_DETECTOR_OTHER_CPU
 extern struct atomic_notifier_head hardlockup_notifier_list;
+#endif
 static DEFINE_SPINLOCK(debug_lock);
 static unsigned int cs_arm_arch;
 static unsigned int cs_reg_base;
@@ -561,8 +562,10 @@ static int __init exynos_cs_init(void)
 	get_arm_arch_version();
 
 #ifdef CONFIG_EXYNOS_CORESIGHT_PC_INFO
+#ifdef CONFIG_HARDLOCKUP_DETECTOR_OTHER_CPU
 	atomic_notifier_chain_register(&hardlockup_notifier_list,
 			&exynos_cs_lockup_nb);
+#endif
 	atomic_notifier_chain_register(&panic_notifier_list,
 			&exynos_cs_panic_nb);
 	pr_info("[Exynos Coresight] Success Init.\n");

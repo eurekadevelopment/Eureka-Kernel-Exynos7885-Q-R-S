@@ -12,7 +12,7 @@
 bool is_battery_saver_on(void);
 void enable_battery_saver(bool status);
 #else
-static inline bool is_battery_saver_on()
+static inline bool is_battery_saver_on(void)
 {
 	return false;
 }

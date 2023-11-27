@@ -897,6 +897,7 @@ TRACE_EVENT(sched_rt_load_avg_task,
 		(u32)__entry->period_contrib)
 );
 
+#ifdef CONFIG_RT_GROUP_SCHED
 TRACE_EVENT(sched_rt_load_avg_cpu,
 
 	TP_PROTO(int cpu, struct rt_rq *rt_rq),
@@ -915,6 +916,7 @@ TRACE_EVENT(sched_rt_load_avg_cpu,
 
 	TP_printk("cpu=%d util_avg=%lu ", __entry->cpu, __entry->util_avg)
 );
+#endif
 
 #ifdef CONFIG_SCHED_USE_FLUID_RT
 TRACE_EVENT(sched_fluid_victim_rt_cpu,

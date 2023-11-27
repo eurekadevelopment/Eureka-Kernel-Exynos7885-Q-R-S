@@ -23,7 +23,9 @@
 #include "dpp.h"
 #include <video/mipi_display.h>
 
+#ifdef CONFIG_DECON_EVENT_LOG
 char acquire_fence_log[ACQUIRE_FENCE_LEN];
+#endif
 
 static int __dpu_match_dev(struct device *dev, void *data)
 {
@@ -447,14 +449,15 @@ void decon_install_fence(struct sync_fence *fence, int fd)
 int decon_wait_fence(struct sync_fence *fence)
 {
 	int err = 0;
-
+#ifdef CONFIG_DECON_EVENT_LOG
 	snprintf(acquire_fence_log, ACQUIRE_FENCE_LEN, "%p:%s:%d",
 			fence, fence->name, atomic_read(&fence->status));
-
+#endif
 	err = sync_fence_wait(fence, 900);
+#ifdef CONFIG_DECON_EVENT_LOG
 	if (err < 0)
 		decon_warn("%s: error waiting on acquire fence: %d\n", acquire_fence_log, err);
-
+#endif
 	return err;
 }
 
