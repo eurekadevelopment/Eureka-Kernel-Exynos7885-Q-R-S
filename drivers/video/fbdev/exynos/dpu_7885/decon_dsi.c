@@ -887,9 +887,7 @@ int decon_enter_hiber(struct decon_device *decon)
 		decon_dpp_stop(decon, false);
 	}
 
-#if defined(CONFIG_EXYNOS7885_BTS)
 	decon->bts.ops->bts_release_bw(decon);
-#endif
 
 	decon->state = DECON_STATE_HIBER;
 

@@ -378,11 +378,7 @@ void s5p_mfc_qos_on(struct s5p_mfc_ctx *ctx)
 		fw_time = qos_table[i].time_fw;
 		sw_time = (MFC_DRV_TIME + fw_time);
 
-		if ((total_fps * sw_time) >= 1000000)
-			total_mb = pdata->max_mb;
-		else
-			total_mb = ((1000000 * hw_mb) / (1000000 - (total_fps * sw_time)));
-
+		total_mb = ((1000000 * hw_mb) / (1000000 - (total_fps * sw_time)));
 		mfc_debug(4, "QoS table[%d] fw_time: %dus, hw_mb: %ld, "
 				"sw_time: %d, total_fps: %d, total_mb: %ld\n",
 				i, fw_time, hw_mb, sw_time, total_fps, total_mb);
@@ -446,11 +442,7 @@ void s5p_mfc_qos_off(struct s5p_mfc_ctx *ctx)
 		fw_time = qos_table[i].time_fw;
 		sw_time = (MFC_DRV_TIME + fw_time);
 
-		if ((total_fps * sw_time) >= 1000000)
-			total_mb = pdata->max_mb;
-		else
-			total_mb = ((1000000 * hw_mb) / (1000000 - (total_fps * sw_time)));
-
+		total_mb = ((1000000 * hw_mb) / (1000000 - (total_fps * sw_time)));
 		mfc_debug(4, "QoS table[%d] fw_time: %dus, hw_mb: %ld, "
 				"sw_time: %d, total_fps: %d, total_mb: %ld\n",
 				i, fw_time, hw_mb, sw_time, total_fps, total_mb);
@@ -719,7 +711,5 @@ update_qos:
 void s5p_mfc_qos_update_last_framerate(struct s5p_mfc_ctx *ctx, struct vb2_v4l2_buffer *buf)
 {
 	ctx->last_framerate = mfc_qos_get_fps_by_timestamp(ctx, buf);
-
-	if (!(ctx->type == MFCINST_DECODER && !IS_UHD_RES(ctx)))
-		ctx->last_framerate = (ctx->qos_ratio * ctx->last_framerate) / 100;
+	ctx->last_framerate = (ctx->qos_ratio * ctx->last_framerate) / 100;
 }
