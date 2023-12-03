@@ -5,6 +5,7 @@
 #include <linux/export.h>
 #include <linux/bootmem.h>
 
+#if NR_CPUS > BITS_PER_LONG
 /**
  * cpumask_next_and - get the next cpu in *src1p & *src2p
  * @n: the cpu prior to the place to search (ie. return will be > @n)
@@ -41,6 +42,8 @@ int cpumask_any_but(const struct cpumask *mask, unsigned int cpu)
 			break;
 	return i;
 }
+EXPORT_SYMBOL(cpumask_any_but);
+#endif /* NR_CPUS > BITS_PER_LONG */
 
 /**
  * cpumask_next_wrap - helper to implement for_each_cpu_wrap
