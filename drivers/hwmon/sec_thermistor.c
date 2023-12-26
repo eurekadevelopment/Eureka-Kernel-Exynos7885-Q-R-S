@@ -202,11 +202,7 @@ static int convert_adc_to_temper(struct sec_therm_info *info, unsigned int adc)
 		(info->pdata->adc_table[low].adc -
 			info->pdata->adc_table[high].adc);
 
-#ifdef CONFIG_NO_THROTTLING 
-	return 200;
-#else
 	return temp;
-#endif
 }
 
 #define ABS(x)		((x) < 0 ? (-1 * (x)) : (x))
