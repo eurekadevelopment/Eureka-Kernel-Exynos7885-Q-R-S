@@ -2082,6 +2082,7 @@ static struct device_node *exynos_audio_parse_dt(struct s610_radio *radio)
 }
 #endif /* USE_AUDIO_PM */
 
+#ifdef CONFIG_RADIO_S610_AOSP_FWK
 static ssize_t radio_freq_ctrl_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
@@ -2180,6 +2181,7 @@ static int create_radio_sysfs(void)
 	}
 	return ret;
 }
+#endif
 
 static int s610_radio_probe(struct platform_device *pdev)
 {
@@ -2320,11 +2322,13 @@ static int s610_radio_probe(struct platform_device *pdev)
 	}
 #endif /* USE_AUDIO_PM */
 
+#ifdef CONFIG_RADIO_S610_AOSP_FWK
 	ret = create_radio_sysfs();
 	if (ret) {
 		goto alloc_err4;
 	}
 	gradio->custom_radio_freq_ctrl = 87500;	// Radio set at 87.5 MHz by default
+#endif
 
 	memcpy(&radio->videodev, &s610_viddev_template,
 			sizeof(struct video_device));
