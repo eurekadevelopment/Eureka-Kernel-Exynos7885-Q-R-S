@@ -118,9 +118,14 @@ CFLAGS_cpuset.o += $(call cc-disable-warning, incompatible-pointer-types)
 # config_data.h contains the same information as ikconfig.h but gzipped.
 # Info from config_data can be extracted from /proc/config*
 targets += config_data.gz
+
+ifeq ($(CONFIG_USE_STOCK_CONFIG_FOR_IKCONFIG),y)
 $(obj)/config_data.gz: arch/arm64/configs/stock/a40_00_stock_defconfig FORCE
 	$(call if_changed,gzip)
-
+else
+$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
+	$(call if_changed,gzip)
+endif
       filechk_ikconfiggz = (echo "static const char kernel_config_data[] __used = MAGIC_START"; cat $< | scripts/basic/bin2c; echo "MAGIC_END;")
 targets += config_data.h
 $(obj)/config_data.h: $(obj)/config_data.gz FORCE
