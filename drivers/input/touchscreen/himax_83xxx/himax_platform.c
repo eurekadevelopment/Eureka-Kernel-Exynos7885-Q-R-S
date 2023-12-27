@@ -13,6 +13,8 @@
 
 */
 
+#include <linux/reboot.h>
+
 #include "himax_platform.h"
 #include "himax_common.h"
 

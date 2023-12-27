@@ -2238,10 +2238,12 @@ p_err:
 	return ret;
 }
 
+
 int fimc_is_sensor_peri_debug_fixed(struct fimc_is_device_sensor *device)
 {
 	int ret = 0;
 
+#ifdef FIXED_SENSOR_DEBUG
 	if (!device) {
 		err("device is null\n");
 		goto p_err;
@@ -2288,6 +2290,7 @@ int fimc_is_sensor_peri_debug_fixed(struct fimc_is_device_sensor *device)
 	}
 
 p_err:
+#endif
 	return ret;
 }
 
