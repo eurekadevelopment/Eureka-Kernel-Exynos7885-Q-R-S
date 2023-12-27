@@ -182,6 +182,7 @@ config SEC_AVC_LOG
 	default n
 	bool "Enable avc audit log support" if EMBEDDED
 	depends on SEC_EXT
+	depends on AUDIT
 	help
 	  This option enables additional log buffer for audit log.
 
