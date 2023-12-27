@@ -47,7 +47,7 @@
 #define ENABLE_FLITE_OVERFLOW_STOP
 #define ENABLE_DBG_FS
 #define ENABLE_DBG_STATE
-#define FIXED_SENSOR_DEBUG
+// #define FIXED_SENSOR_DEBUG
 #define ENABLE_RESERVED_MEM
 #define ENABLE_DYNAMIC_MEM
 
@@ -105,7 +105,7 @@ extern int debug_psv;
 extern int debug_irq;
 extern int debug_sensor;
 
-#define DEBUG_LOG_MEMORY
+// #define DEBUG_LOG_MEMORY
 /* #define DEBUG_HW_SIZE */
 #define DBG_STREAM_ID 0x3F
 /* #define DBG_JITTER */
@@ -441,11 +441,11 @@ extern int debug_sensor;
 	pr_warning("[WRN]" fmt "\n", ##args)
 
 #if defined(DEBUG_LOG_MEMORY)
-#define fimc_is_err(fmt, ...)	printk(KERN_DEBUG fmt, ##__VA_ARGS__)
-#define fimc_is_warn(fmt, ...)	printk(KERN_DEBUG fmt, ##__VA_ARGS__)
-#define fimc_is_dbg(fmt, ...)	printk(KERN_DEBUG fmt, ##__VA_ARGS__)
-#define fimc_is_info(fmt, ...)	printk(KERN_DEBUG fmt, ##__VA_ARGS__)
-#define fimc_is_cont(fmt, ...)	printk(KERN_DEBUG fmt, ##__VA_ARGS__)
+#define fimc_is_err(fmt, ...)	//printk(KERN_DEBUG fmt, ##__VA_ARGS__)
+#define fimc_is_warn(fmt, ...)	//printk(KERN_DEBUG fmt, ##__VA_ARGS__)
+#define fimc_is_dbg(fmt, ...)	//printk(KERN_DEBUG fmt, ##__VA_ARGS__)
+#define fimc_is_info(fmt, ...)	//printk(KERN_DEBUG fmt, ##__VA_ARGS__)
+#define fimc_is_cont(fmt, ...)	//printk(KERN_DEBUG fmt, ##__VA_ARGS__)
 #else
 #define fimc_is_err(fmt, ...)	pr_err(fmt, ##__VA_ARGS__)
 #define fimc_is_warn(fmt, ...)	pr_warning(fmt, ##__VA_ARGS__)
