@@ -25,6 +25,8 @@
 #include "abox_util.h"
 #include "abox_effect.h"
 
+#include <linux/stub_logs.h>
+
 struct abox_ctl_eq_switch {
 	unsigned int base;
 	unsigned int count;

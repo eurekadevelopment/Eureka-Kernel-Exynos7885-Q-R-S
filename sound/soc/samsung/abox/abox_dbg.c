@@ -21,6 +21,8 @@
 #include "abox_dbg.h"
 #include "abox_gic.h"
 
+#include <linux/stub_logs.h>
+
 #define ABOX_DBG_DUMP_LIMIT_NS		(5 * NSEC_PER_SEC)
 
 static struct dentry *abox_dbg_root_dir __read_mostly;

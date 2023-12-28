@@ -20,6 +20,8 @@
 #include "abox_dbg.h"
 #include "abox_log.h"
 
+#include <linux/stub_logs.h>
+
 #define BUFFER_MAX (SZ_32)
 #define NAME_LENGTH (SZ_32)
 

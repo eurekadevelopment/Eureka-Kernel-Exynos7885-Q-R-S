@@ -17,6 +17,7 @@
 /*#include <sound/abox_synchronized_ipc.h>*/
 #include <sound/tfa_ext.h>
 #include "abox.h"
+#include <linux/stub_logs.h>
 
 #define TFADSP_CMD_WRITE    0x1001
 #define TFADSP_CMD_READ     0x1002
@@ -37,7 +38,6 @@
 /*#define SMEM_WRITE          0x80842000*/
 
 #define TIMEOUT_MS 100
-#define DEBUG_SYNCHRONIZED_IPC
 
 #ifdef DEBUG_SYNCHRONIZED_IPC
 #define ipc_dbg(format, args...)	\

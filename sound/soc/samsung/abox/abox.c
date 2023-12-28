@@ -51,6 +51,8 @@
 #include "abox_failsafe.h"
 #include <scsc/api/bt_audio.h>
 
+#include <linux/stub_logs.h>
+
 #undef EMULATOR
 #ifdef EMULATOR
 static void __iomem *pmu_alive;

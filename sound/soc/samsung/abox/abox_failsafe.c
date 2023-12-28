@@ -21,6 +21,8 @@
 #include "abox.h"
 #include "abox_log.h"
 
+#include <linux/stub_logs.h>
+
 #define SMART_FAILSAFE
 
 static int abox_failsafe_reset_count;

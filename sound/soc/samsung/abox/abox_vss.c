@@ -17,6 +17,8 @@
 
 #include "abox.h"
 
+#include <linux/stub_logs.h>
+
 #define VSS_MAGIC_OFFSET (0x600000)
 
 static int samsung_abox_vss_probe(struct platform_device *pdev)

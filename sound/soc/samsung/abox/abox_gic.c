@@ -23,6 +23,8 @@
 #include "abox_util.h"
 #include "abox_gic.h"
 
+#include <linux/stub_logs.h>
+
 #define GIC_IS_SECURE_FREE
 
 void abox_gic_generate_interrupt(struct platform_device *pdev, int hw_irq)

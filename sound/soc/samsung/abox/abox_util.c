@@ -4,6 +4,8 @@
 
 #include "abox_util.h"
 
+#include <linux/stub_logs.h>
+
 void __iomem *devm_not_request_and_map(struct platform_device *pdev,
 		const char *name, unsigned int num,
 		phys_addr_t *phys_addr, size_t *size)

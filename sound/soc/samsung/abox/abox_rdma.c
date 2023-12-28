@@ -34,6 +34,8 @@
 #include "abox.h"
 #include <scsc/api/bt_audio.h>
 
+#include <linux/stub_logs.h>
+
 #undef COMPR_USE_COPY
 #define COMPR_USE_FIXED_MEMORY
 #define USE_FIXED_MEMORY

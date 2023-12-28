@@ -33,6 +33,8 @@
 #include "abox.h"
 #include <scsc/api/bt_audio.h>
 
+#include <linux/stub_logs.h>
+
 #define USE_FIXED_MEMORY
 #define STR (SNDRV_PCM_STREAM_CAPTURE)
 
