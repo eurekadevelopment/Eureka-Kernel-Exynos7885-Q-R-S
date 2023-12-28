@@ -18,7 +18,7 @@
  *
  */
 
-#define DEBUG
+
 
 #define SINGLE_BYTE	1
 #define TABLE_SIZE	22

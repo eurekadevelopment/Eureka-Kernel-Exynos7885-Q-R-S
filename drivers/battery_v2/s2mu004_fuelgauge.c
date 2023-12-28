@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define DEBUG
+
 
 #define SINGLE_BYTE	1
 #define TABLE_SIZE	22
