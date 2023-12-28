@@ -8,6 +8,9 @@
  * (at your option) any later version.
  */
 
+#include <linux/device.h>
+#include <linux/printk.h>
+
 #define dev_common(dev, fmt, ...)
 
 #ifdef dev_info
