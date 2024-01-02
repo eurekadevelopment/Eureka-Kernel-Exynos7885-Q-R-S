@@ -775,7 +775,7 @@ void sec_bootstat_get_cpuinfo(int *freq, int *online)
 /*********************************************************************
  *                  INITIALIZE EXYNOS CPUFREQ DRIVER                 *
  *********************************************************************/
-static void print_domain_info(struct exynos_cpufreq_domain *domain)
+static void __maybe_unused print_domain_info(struct exynos_cpufreq_domain *domain)
 {
 	int i;
 	char buf[10];
@@ -1454,7 +1454,7 @@ static int __init exynos_cpufreq_init(void)
 			continue;
 		}
 
-		print_domain_info(domain);
+//		print_domain_info(domain);
 		domain_id++;
 	}
 
