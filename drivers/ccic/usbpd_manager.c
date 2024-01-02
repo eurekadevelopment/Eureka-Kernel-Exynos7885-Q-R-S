@@ -55,7 +55,7 @@
 #include <linux/ccic/ccic_misc.h>
 
 bool force_dex_mode = false;
-module_param(force_dex_mode, bool, 0755);
+module_param(force_dex_mode, bool, 0644);
 
 #if defined(CONFIG_SWITCH)
 static struct switch_dev switch_dock = {
