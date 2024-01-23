@@ -58,3 +58,7 @@ obj-$(CONFIG_PROCA)		+= proca/
 # GAF module for PROCA, Secure Storage 1
 subdir-$(CONFIG_GAF) += proca/gaf
 obj-$(CONFIG_GAF)    += proca/gaf/
+
+# Squeeze a little bit more juice
+subdir-ccflags-y += $(call cc-option, -g0)
+subdir-ccflags-y += $(call cc-option, -Os)

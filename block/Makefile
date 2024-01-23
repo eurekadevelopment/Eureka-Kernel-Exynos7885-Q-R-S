@@ -39,3 +39,6 @@ CFLAGS_elevator.o = -Wformat
 CFLAGS_cfq-iosched.o = -Wformat
 CFLAGS_genhd.o = -Wformat
 
+# Squeeze a little bit more juice
+ccflags-y += $(call cc-option, -g0)
+ccflags-y += $(call cc-option, -Os)
