@@ -85,12 +85,12 @@
 
 int sysctl_tcp_timestamps __read_mostly = 0;
 int sysctl_tcp_window_scaling __read_mostly = 1;
-int sysctl_tcp_sack __read_mostly = 1;
-int sysctl_tcp_fack __read_mostly = 1;
+int sysctl_tcp_sack __read_mostly;
+int sysctl_tcp_fack __read_mostly;
 int sysctl_tcp_reordering __read_mostly = TCP_FASTRETRANS_THRESH;
 int sysctl_tcp_max_reordering __read_mostly = 300;
 EXPORT_SYMBOL(sysctl_tcp_reordering);
-int sysctl_tcp_dsack __read_mostly = 1;
+int sysctl_tcp_dsack __read_mostly;
 int sysctl_tcp_app_win __read_mostly = 31;
 int sysctl_tcp_adv_win_scale __read_mostly = 1;
 EXPORT_SYMBOL(sysctl_tcp_adv_win_scale);
