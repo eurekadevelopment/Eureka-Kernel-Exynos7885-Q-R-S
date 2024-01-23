@@ -100,7 +100,7 @@ unsigned long vm_dirty_bytes = 50 * 1024 * 1024;
 /*
  * The interval between `kupdate'-style writebacks
  */
-unsigned int dirty_writeback_interval = 30 * 100; /* centiseconds */
+unsigned int dirty_writeback_interval; /* centiseconds */
 
 EXPORT_SYMBOL_GPL(dirty_writeback_interval);
 
