@@ -922,7 +922,6 @@ struct sched_group_capacity {
 	 * for a single CPU.
 	 */
 	unsigned int capacity;
-	unsigned long next_update;
 	int imbalance; /* XXX unrelated to capacity but shared group state */
 	/*
 	 * Number of busy cpus in this group.
