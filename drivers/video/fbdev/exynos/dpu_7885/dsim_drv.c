@@ -1521,16 +1521,12 @@ static void dsim_shutdown(struct platform_device *pdev)
 
 static int dsim_runtime_suspend(struct device *dev)
 {
-	struct dsim_device *dsim = dev_get_drvdata(dev);
-
 	DPU_EVENT_LOG(DPU_EVT_DSIM_SUSPEND, &dsim->sd, ktime_set(0, 0));
 	return 0;
 }
 
 static int dsim_runtime_resume(struct device *dev)
 {
-	struct dsim_device *dsim = dev_get_drvdata(dev);
-
 	DPU_EVENT_LOG(DPU_EVT_DSIM_RESUME, &dsim->sd, ktime_set(0, 0));
 	return 0;
 }

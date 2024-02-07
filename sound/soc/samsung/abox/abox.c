@@ -1005,11 +1005,10 @@ static int abox_dsif_set_channel_map(struct snd_soc_dai *dai,
 		unsigned int tx_num, unsigned int *tx_slot,
 		unsigned int rx_num, unsigned int *rx_slot)
 {
-	struct device *dev = dai->dev;
 	struct snd_soc_codec *codec = dai->codec;
 	unsigned int ctrl;
 
-	dev_info(dev, "%s[%d]\n", __func__, dai->id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__, dai->id);
 
 	ctrl = snd_soc_read(codec, ABOX_DSIF_CTRL);
 
@@ -1071,12 +1070,9 @@ static void abox_dsif_shutdown(struct snd_pcm_substream *substream,
 static int abox_dsif_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *hw_params, struct snd_soc_dai *dai)
 {
-	struct device *dev = dai->dev;
-	struct abox_data *data = platform_get_drvdata(to_platform_device(dev));
-	enum abox_dai id = dai->id;
 	unsigned int channels, rate, width;
 
-	dev_info(dev, "%s[%d]\n", __func__, dai->id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__);
 
 	channels = params_channels(hw_params);
 	rate = params_rate(hw_params);
@@ -1108,11 +1104,9 @@ static int abox_dsif_hw_params(struct snd_pcm_substream *substream,
 static int abox_dsif_trigger(struct snd_pcm_substream *substream,
 		int trigger, struct snd_soc_dai *dai)
 {
-	struct device *dev = dai->dev;
 	struct snd_soc_codec *codec = dai->codec;
-	enum abox_dai id = dai->id;
 
-	dev_info(dev, "%s[%d] trigger=%d\n", __func__, id, trigger);
+	dev_info(&pdev->dev, "%s[%d] trigger=%d\n", __func__, trigger);
 
 	switch (trigger) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -1183,12 +1177,9 @@ static void abox_spdyif_shutdown(struct snd_pcm_substream *substream,
 static int abox_spdyif_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *hw_params, struct snd_soc_dai *dai)
 {
-	struct device *dev = dai->dev;
-	struct abox_data *data = platform_get_drvdata(to_platform_device(dev));
-	enum abox_dai id = dai->id;
 	unsigned int channels, rate, width;
 
-	dev_info(dev, "%s[%d]\n", __func__, dai->id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__);
 
 	channels = params_channels(hw_params);
 	rate = params_rate(hw_params);
@@ -1220,11 +1211,9 @@ static int abox_spdyif_hw_params(struct snd_pcm_substream *substream,
 static int abox_spdyif_trigger(struct snd_pcm_substream *substream,
 		int trigger, struct snd_soc_dai *dai)
 {
-	struct device *dev = dai->dev;
 	struct snd_soc_codec *codec = dai->codec;
-	enum abox_dai id = dai->id;
 
-	dev_info(dev, "%s[%d] trigger=%d\n", __func__, id, trigger);
+	dev_info(&pdev->dev, "%s[%d] trigger=%d\n", __func__, trigger);
 
 	switch (trigger) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -3831,12 +3820,11 @@ static void abox_change_lit_freq_work_func(struct work_struct *work)
 {
 	struct abox_data *data = container_of(work, struct abox_data,
 			change_lit_freq_work);
-	struct device *dev = &data->pdev->dev;
 	size_t array_size = ARRAY_SIZE(data->lit_requests);
 	struct abox_qos_request *request;
 	unsigned int freq = 0;
 
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 
 	for (request = data->lit_requests;
 			request - data->lit_requests < array_size &&
@@ -3893,12 +3881,11 @@ static void abox_change_big_freq_work_func(struct work_struct *work)
 {
 	struct abox_data *data = container_of(work, struct abox_data,
 			change_big_freq_work);
-	struct device *dev = &data->pdev->dev;
 	size_t array_size = ARRAY_SIZE(data->big_requests);
 	struct abox_qos_request *request;
 	unsigned int freq = 0;
 
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 
 	for (request = data->big_requests;
 			request - data->big_requests < array_size &&
@@ -3955,12 +3942,11 @@ static void abox_change_hmp_boost_work_func(struct work_struct *work)
 {
 	struct abox_data *data = container_of(work, struct abox_data,
 			change_hmp_boost_work);
-	struct device *dev = &data->pdev->dev;
 	size_t array_size = ARRAY_SIZE(data->hmp_requests);
 	struct abox_qos_request *request;
 	unsigned int on = 0;
 
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 
 	for (request = data->hmp_requests;
 			request - data->hmp_requests < array_size &&
@@ -4016,12 +4002,11 @@ int abox_request_hmp_boost(struct device *dev, struct abox_data *data,
 
 void abox_request_dram_on(struct platform_device *pdev_abox, void *id, bool on)
 {
-	struct device *dev = &pdev_abox->dev;
 	struct abox_data *data = platform_get_drvdata(pdev_abox);
 	struct abox_dram_request *request;
 	unsigned int val = 0x0;
 
-	dev_dbg(dev, "%s(%d)\n", __func__, on);
+	dev_dbg(&pdev->dev, "%s(%d)\n", __func__, on);
 
 	for (request = data->dram_requests;
 			request - data->dram_requests <
@@ -4203,12 +4188,10 @@ void abox_register_wdma(struct platform_device *pdev_abox,
 static int abox_component_control_info(struct snd_kcontrol *kcontrol,
 		struct snd_ctl_elem_info *uinfo)
 {
-	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
-	struct device *dev = codec->dev;
 	struct abox_component_kcontrol_value *value =
 			(void *)kcontrol->private_value;
 
-	dev_dbg(dev, "%s(%s)\n", __func__, kcontrol->id.name);
+	dev_dbg(&pdev->dev, "%s(%s)\n", __func__, kcontrol->id.name);
 
 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
 	uinfo->count = value->control->count;
@@ -4885,14 +4868,11 @@ static int abox_cpu_enable(bool enable)
 
 static void abox_save_register(struct abox_data *data)
 {
-	struct platform_device *pdev = data->pdev;
-	struct device *dev = &pdev->dev;
-
 	if (data->iommu_domain) {
 		regmap_read(data->regmap, ABOX_SPUM_CTRL1, &data->save_recp);
 		data->save_recp &= ABOX_RECP_SRC_VALID_MASK;
 		regmap_read(data->regmap, ABOX_SPUS_CTRL1, &data->save_spus_ctrl1);
-		dev_info(dev, "%s: save register(recp:0x%x, spus_ctrl1:0x%x)\n",
+		dev_info(&pdev->dev, "%s: save register(recp:0x%x, spus_ctrl1:0x%x)\n",
 			__func__, data->save_recp, data->save_spus_ctrl1);
 	}
 
@@ -4902,9 +4882,6 @@ static void abox_save_register(struct abox_data *data)
 
 static void abox_restore_register(struct abox_data *data)
 {
-	struct platform_device *pdev = data->pdev;
-	struct device *dev = &pdev->dev;
-
 	regcache_cache_only(data->regmap, false);
 	regcache_sync(data->regmap);
 
@@ -4913,7 +4890,7 @@ static void abox_restore_register(struct abox_data *data)
 			regmap_write(data->regmap, ABOX_SPUM_CTRL1, data->save_recp);
 		if (data->save_spus_ctrl1)
 			regmap_write(data->regmap, ABOX_SPUS_CTRL1, data->save_spus_ctrl1);
-		dev_info(dev, "%s: restore register(recp:0x%x, spus_ctrl1:0x%x)\n",
+		dev_info(&pdev->dev, "%s: restore register(recp:0x%x, spus_ctrl1:0x%x)\n",
 			__func__, data->save_recp, data->save_spus_ctrl1);
 	}
 }
@@ -5194,13 +5171,11 @@ static void __abox_control_l2c(struct abox_data *data, bool enable)
 static void abox_l2c_work_func(struct work_struct *work)
 {
 	struct abox_data *data = container_of(work, struct abox_data, l2c_work);
-	struct platform_device *pdev = data->pdev;
-	struct device *dev = &pdev->dev;
 	size_t length = ARRAY_SIZE(data->l2c_requests);
 	struct abox_l2c_request *request;
 	bool enable = false;
 
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 
 	for (request = data->l2c_requests;
 			request - data->l2c_requests < length
@@ -5595,12 +5570,11 @@ static int abox_itmon_notifier(struct notifier_block *nb,
 		unsigned long action, void *nb_data)
 {
 	struct abox_data *data = container_of(nb, struct abox_data, itmon_nb);
-	struct device *dev = &data->pdev->dev;
 	struct itmon_notifier *itmon_data = nb_data;
 
 	if (itmon_data && itmon_data->dest && (strncmp("ABOX", itmon_data->dest,
 			sizeof("ABOX") - 1) == 0)) {
-		dev_info(dev, "%s(%lu)\n", __func__, action);
+		dev_info(&pdev->dev, "%s(%lu)\n", __func__, action);
 		data->enabled = false;
 		return NOTIFY_OK;
 	}

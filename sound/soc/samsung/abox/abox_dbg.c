@@ -357,9 +357,7 @@ static ssize_t calliope_sram_read(struct file *file, struct kobject *kobj,
 		struct bin_attribute *battr, char *buf,
 		loff_t off, size_t size)
 {
-	struct device *dev = kobj_to_dev(kobj);
-
-	dev_dbg(dev, "%s(%lld, %zu)\n", __func__, off, size);
+	dev_dbg(&pdev->dev, "%s(%lld, %zu)\n", __func__, off, size);
 
 	memcpy_fromio(buf, battr->private + off, size);
 	return size;
@@ -369,9 +367,7 @@ static ssize_t calliope_iva_read(struct file *file, struct kobject *kobj,
 		struct bin_attribute *battr, char *buf,
 		loff_t off, size_t size)
 {
-	struct device *dev = kobj_to_dev(kobj);
-
-	dev_dbg(dev, "%s(%lld, %zu)\n", __func__, off, size);
+	dev_dbg(&pdev->dev, "%s(%lld, %zu)\n", __func__, off, size);
 
 	if (!battr->private)
 		return -EIO;
@@ -383,9 +379,7 @@ static ssize_t calliope_dram_read(struct file *file, struct kobject *kobj,
 		struct bin_attribute *battr, char *buf,
 		loff_t off, size_t size)
 {
-	struct device *dev = kobj_to_dev(kobj);
-
-	dev_dbg(dev, "%s(%lld, %zu)\n", __func__, off, size);
+	dev_dbg(&pdev->dev, "%s(%lld, %zu)\n", __func__, off, size);
 
 	memcpy(buf, battr->private + off, size);
 	return size;
@@ -499,10 +493,9 @@ static int samsung_abox_debug_probe(struct platform_device *pdev)
 
 static int samsung_abox_debug_remove(struct platform_device *pdev)
 {
-	struct device *dev = &pdev->dev;
 	int i;
 
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 	for (i = 0; i < ABOX_DBG_DUMP_COUNT; i++) {
 		struct page **tmp = p_abox_dbg_dump_min[i]->pages;
 

@@ -337,7 +337,6 @@ static ssize_t sec_cmd_store(struct device *dev, struct device_attribute *devatt
 {
 	struct sec_cmd_data *data = dev_get_drvdata(dev);
 	struct command cmd = {{0}};
-	struct sec_cmd *sec_cmd_ptr = NULL;
 	int queue_size;
 
 	if (!data) {

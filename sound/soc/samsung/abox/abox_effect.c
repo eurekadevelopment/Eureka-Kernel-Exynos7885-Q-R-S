@@ -36,11 +36,9 @@ struct abox_ctl_eq_switch {
 
 static int abox_ctl_info(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_info *uinfo)
 {
-	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
-	struct device *dev = codec->dev;
 	struct abox_ctl_eq_switch *params = (void *)kcontrol->private_value;
 
-	dev_dbg(dev, "%s: %s\n", __func__, kcontrol->id.name);
+	dev_dbg(&pdev->dev, "%s: %s\n", __func__, kcontrol->id.name);
 
 	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
 	uinfo->count = params->count;

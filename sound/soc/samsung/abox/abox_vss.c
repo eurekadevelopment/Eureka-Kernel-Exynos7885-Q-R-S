@@ -23,25 +23,21 @@
 
 static int samsung_abox_vss_probe(struct platform_device *pdev)
 {
-	struct device *dev = &pdev->dev;
-
 	if (IS_ENABLED(CONFIG_SHM_IPC)) {
 		void __iomem *magic_addr = phys_to_virt(shm_get_phys_base() +
 				shm_get_cp_size() + VSS_MAGIC_OFFSET);
 
-		dev_dbg(dev, "%s\n", __func__);
+		dev_dbg(&pdev->dev, "%s\n", __func__);
 		writel(0, magic_addr);
 	} else
-		dev_info(dev, "%s(shm is disabled)\n", __func__);
+		dev_info(&pdev->dev, "%s(shm is disabled)\n", __func__);
 
 	return 0;
 }
 
 static int samsung_abox_vss_remove(struct platform_device *pdev)
 {
-	struct device *dev = &pdev->dev;
-
-	dev_dbg(dev, "%s\n", __func__);
+	dev_dbg(&pdev->dev, "%s\n", __func__);
 	return 0;
 }
 

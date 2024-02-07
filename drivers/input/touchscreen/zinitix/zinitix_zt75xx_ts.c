@@ -1182,12 +1182,11 @@ static bool get_raw_data(struct bt532_ts_info *info, u8 *buff, int skip_cnt)
 #endif
 static bool ts_get_raw_data(struct bt532_ts_info *info)
 {
-	struct i2c_client *client = info->client;
 	u32 total_node = info->cap_info.total_node_num;
 	u32 sz;
 
 	if (down_trylock(&info->raw_data_lock)) {
-		input_err(true, &client->dev, "Failed to occupy sema\n");
+		input_err(true, &info->client->dev, "Failed to occupy sema\n");
 		info->touch_info.status = 0;
 		return true;
 	}
@@ -1196,7 +1195,7 @@ static bool ts_get_raw_data(struct bt532_ts_info *info)
 
 	if (read_raw_data(info->client, BT532_RAWDATA_REG,
 			(char *)info->cur_data, sz) < 0) {
-		input_err(true, &client->dev, "Failed to read raw data\n");
+		input_err(true, &info->client->dev, "Failed to read raw data\n");
 		up(&info->raw_data_lock);
 		return false;
 	}
@@ -1212,11 +1211,10 @@ static bool ts_get_raw_data(struct bt532_ts_info *info)
 
 static bool ts_read_coord(struct bt532_ts_info *info)
 {
-	struct i2c_client *client = info->client;
 	int retry_cnt;
 	u16* u16_point_info;
 	int i;
-	u16 prox_data = 0; 
+	u16 prox_data = 0;
 
 	/* zinitix_debug_msg("ts_read_coord+\r\n"); */
 
@@ -1226,7 +1224,7 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 		if (ts_get_raw_data(info) == false)
 			return false;
 
-		input_err(true, &client->dev, "status = 0x%04X\n", info->touch_info.status);
+		input_err(true, &info->client->dev, "status = 0x%04X\n", info->touch_info.status);
 
 		goto out;
 	}
@@ -1237,12 +1235,12 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 
 	if (read_data(info->client, BT532_POINT_STATUS_REG,
 			(u8 *)(&info->touch_info), 4) < 0) {
-		input_err(true, &client->dev, "%s: Failed to read point info\n", __func__);
+		input_err(true, &info->client->dev, "%s: Failed to read point info\n", __func__);
 
 		return false;
 	}
 
-	input_info(true, &client->dev, "status reg = 0x%x , event_flag = 0x%04x\n",
+	input_info(true, &info->client->dev, "status reg = 0x%x , event_flag = 0x%04x\n",
 				info->touch_info.status, info->touch_info.event_flag);
 
 	if (info->touch_info.event_flag == 0)
@@ -1255,7 +1253,7 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 			if (read_data(info->client, BT532_POINT_STATUS_REG + 2 + ( i * 4),
 					(u8 *)(&info->touch_info.coord[i]),
 					sizeof(struct coord)) < 0) {
-				input_err(true, &client->dev, "Failed to read point info\n");
+				input_err(true, &info->client->dev, "Failed to read point info\n");
 
 				return false;
 			}
@@ -1268,18 +1266,18 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 	while(retry_cnt < 10) {
 		if (read_data(info->client, BT532_POINT_STATUS_REG,
 				(u8 *)(&info->touch_info), sizeof(struct point_info)) < 0) {
-			input_err(true, &client->dev, "Failed to read point info, retry_cnt = %d\n", ++retry_cnt);
+			input_err(true, &info->client->dev, "Failed to read point info, retry_cnt = %d\n", ++retry_cnt);
 			continue;
 		}
 
 		if(zinitix_bit_test(info->touch_info.status, BIT_MUST_ZERO) || info->touch_info.status == 0x1 ) {
-			input_err(true, &client->dev, "abnormal point info read, retry_cnt = %d\n", ++retry_cnt);
+			input_err(true, &info->client->dev, "abnormal point info read, retry_cnt = %d\n", ++retry_cnt);
 			continue;
 		}
 
 		for(i = 0 ; i < sizeof(struct point_info)/2 ; i++) {
 			if(*(u16_point_info+i) == 0xffff) {
-				input_err(true, &client->dev, "point info 0xffff, retry_cnt = %d\n", ++retry_cnt);
+				input_err(true, &info->client->dev, "point info 0xffff, retry_cnt = %d\n", ++retry_cnt);
 				info->touch_info.status = 0xffff;
 				break;
 			}
@@ -1298,11 +1296,11 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 	/* LPM mode : Spay, AOT */
 	if((info->pdata->support_lpm_mode)&&(zinitix_bit_test(info->touch_info.status, BIT_GESTURE))){
 		if (read_data(info->client, ZT75XX_LPM_MODE_REG, (u8 *)&lpm_mode_reg, 2) < 0)
-			input_info(true, &client->dev, "%s: lpm_mode_reg read fail\n", __func__);
-		input_info(true, &client->dev, "lpm_mode_reg read  0x%02x%02x \n", lpm_mode_reg.data, lpm_mode_reg.flag);
+			input_info(true, &info->client->dev, "%s: lpm_mode_reg read fail\n", __func__);
+		input_info(true, &info->client->dev, "lpm_mode_reg read  0x%02x%02x \n", lpm_mode_reg.data, lpm_mode_reg.flag);
 
 		if (zinitix_bit_test(lpm_mode_reg.data, BIT_EVENT_SPAY)) {
-			input_info(true, &client->dev, "Spay Gesture\n");
+			input_info(true, &info->client->dev, "Spay Gesture\n");
 
 			info->scrub_id = SPONGE_EVENT_TYPE_SPAY;
 			info->scrub_x = 0;
@@ -1334,29 +1332,28 @@ static bool ts_read_coord(struct bt532_ts_info *info)
 					input_sync(info->input_dev_proximity);
 				}
 
-				input_info(true, &client->dev, "AOT Doubletab\n");
-			}	
-		
+				input_info(true, &info->client->dev, "AOT Doubletab\n");
+			}
 		}
 	}
 	if (!info->aot_enable && zinitix_bit_test(info->touch_info.status, BIT_GESTURE)) {
-		info->scrub_id = SPONGE_EVENT_TYPE_AOD_DOUBLETAB;	
+		info->scrub_id = SPONGE_EVENT_TYPE_AOD_DOUBLETAB;
 		if (read_data(info->client, ZT75XX_GET_AOD_X_REG, (u8 *)&info->scrub_x, 2) < 0)
-			input_info(true, &client->dev, "aod_x_reg read fail\n");
+			input_info(true, &info->client->dev, "aod_x_reg read fail\n");
 		if (read_data(info->client, ZT75XX_GET_AOD_Y_REG, (u8 *)&info->scrub_y, 2) < 0)
-			input_info(true, &client->dev, "aod_y_reg read fail\n");
+			input_info(true, &info->client->dev, "aod_y_reg read fail\n");
 		input_report_key(info->input_dev, KEY_WAKEUP, 1);
-		input_sync(info->input_dev);	
+		input_sync(info->input_dev);
 		input_report_key(info->input_dev, KEY_WAKEUP, 0);
 		input_sync(info->input_dev);
-		input_info(true, &client->dev, "AOD Doubletab\n");
+		input_info(true, &info->client->dev, "AOD Doubletab\n");
 	}
 
 	if (info->pdata->support_ear_detect && zinitix_bit_test(info->touch_info.status, BIT_PROXIMITY)) {
 		if (read_data(info->client, ZT75XX_PROXIMITY_DETECT, (u8 *)&prox_data, 2) < 0)
-			input_err(true, &client->dev, "%s: fail to read proximity detect reg\n", __func__);
+			input_err(true, &info->client->dev, "%s: fail to read proximity detect reg\n", __func__);
 
-		input_info(true, &client->dev, "Ear_Detect: value: %d\n", prox_data);
+		input_info(true, &info->client->dev, "Ear_Detect: value: %d\n", prox_data);
 		input_report_abs(info->input_dev_proximity, ABS_MT_CUSTOM, prox_data);
 		input_sync(info->input_dev_proximity);
 	}
@@ -1366,7 +1363,7 @@ out:
 	/* error */
 #if (TOUCH_POINT_MODE == 1)
 	if (zinitix_bit_test(info->touch_info.status, BIT_MUST_ZERO)) {
-		input_err(true, &client->dev, "Invalid must zero bit(%04x)\n",
+		input_err(true, &info->client->dev, "Invalid must zero bit(%04x)\n",
 			info->touch_info.status);
 		return false;
 	}
@@ -1390,10 +1387,8 @@ static void esd_timeout_handler(unsigned long data)
 	}
 #endif
 #ifdef CONFIG_SAMSUNG_TUI
-	struct i2c_client *client = info->client;
-
 	if (STUI_MODE_TOUCH_SEC & stui_get_mode()) {
-		input_err(true, &client->dev,
+		input_err(true, &info->client->dev,
 				"%s TSP not accessible during TUI\n", __func__);
 		return;
 	}
@@ -1459,21 +1454,19 @@ static void ts_tmr_work(struct work_struct *work)
 {
 	struct bt532_ts_info *info =
 				container_of(work, struct bt532_ts_info, tmr_work);
-	struct i2c_client *client = info->client;
-
 #if defined(TSP_VERBOSE_DEBUG)
-	input_info(true, &client->dev, "tmr queue work ++\n");
+	input_info(true, &info->client->dev, "tmr queue work ++\n");
 #endif
 
 	if(down_trylock(&info->work_lock)) {
-		input_err(true, &client->dev, "%s: Failed to occupy work lock\n", __func__);
+		input_err(true, &info->client->dev, "%s: Failed to occupy work lock\n", __func__);
 		esd_timer_start(CHECK_ESD_TIMER, info);
 
 		return;
 	}
 
 	if (info->work_state != NOTHING) {
-		input_info(true, &client->dev, "%s: Other process occupied (%d)\n",
+		input_info(true, &info->client->dev, "%s: Other process occupied (%d)\n",
 			__func__, info->work_state);
 		up(&info->work_lock);
 
@@ -1493,12 +1486,12 @@ static void ts_tmr_work(struct work_struct *work)
 	enable_irq(info->irq);
 	up(&info->work_lock);
 #if defined(TSP_VERBOSE_DEBUG)
-	input_info(true, &client->dev, "tmr queue work--\n");
+	input_info(true, &info->client->dev, "tmr queue work--\n");
 #endif
 
 	return;
 fail_time_out_init:
-	input_err(true, &client->dev, "%s: Failed to restart\n", __func__);
+	input_err(true, &info->client->dev, "%s: Failed to restart\n", __func__);
 	esd_timer_start(CHECK_ESD_TIMER, info);
 	info->work_state = NOTHING;
 	enable_irq(info->irq);
@@ -1576,11 +1569,9 @@ fail_power_sequence:
 
 static bool bt532_power_control(struct bt532_ts_info *info, u8 ctl)
 {
-	struct i2c_client *client = info->client;
-
 	int ret = 0;
 
-	input_info(true, &client->dev, "[TSP] %s, %d\n", __func__, ctl);
+	input_info(true, &info->client->dev, "[TSP] %s, %d\n", __func__, ctl);
 
 	ret = info->pdata->tsp_power(info, ctl);
 	if (ret)
@@ -2390,7 +2381,6 @@ fail_mini_init:
 static void clear_report_data(struct bt532_ts_info *info)
 {
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct i2c_client *client = info->client;
 	int i;
 	u8 reported = 0;
 	u8 sub_status;
@@ -2401,9 +2391,9 @@ static void clear_report_data(struct bt532_ts_info *info)
 				input_report_key(info->input_dev, BUTTON_MAPPING_KEY[i], 0);
 				reported = true;
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
-				input_info(true, &client->dev, "Button up = %d\n", i);
+				input_info(true, &info->client->dev, "Button up = %d\n", i);
 #else
-				input_info(true, &client->dev, "Button up\n");
+				input_info(true, &info->client->dev, "Button up\n");
 #endif
 			}
 		}
@@ -2420,7 +2410,7 @@ static void clear_report_data(struct bt532_ts_info *info)
 			input_mt_report_slot_state(info->input_dev,	MT_TOOL_FINGER, 0);
 			reported = true;
 			if (!m_ts_debug_mode && TSP_NORMAL_EVENT_MSG)
-				input_info(true, &client->dev, "[TSP] R [%02d] mc=%d\n", i, info->move_count[i]);
+				input_info(true, &info->client->dev, "[TSP] R [%02d] mc=%d\n", i, info->move_count[i]);
 		}
 		info->reported_touch_info.coord[i].sub_status = 0;
 		info->move_count[i] = 0;
@@ -3785,8 +3775,6 @@ static void get_module_vendor(void *device_data)
 static void get_chip_vendor(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[16] = { 0 };
 
 	sec_cmd_set_default_result(sec);
@@ -3797,7 +3785,7 @@ static void get_chip_vendor(void *device_data)
 		sec_cmd_set_cmd_result_all(sec, buff, strnlen(buff, sizeof(buff)), "IC_VENDOR");
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -3810,7 +3798,6 @@ static void get_chip_name(void *device_data)
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct i2c_client *client = info->client;
 	const char *name_buff;
 	char buff[16] = { 0 };
 
@@ -3827,7 +3814,7 @@ static void get_chip_name(void *device_data)
 		sec_cmd_set_cmd_result_all(sec, buff, strnlen(buff, sizeof(buff)), "IC_NAME");
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -3884,8 +3871,6 @@ static void get_y_num(void *device_data)
 static void not_support_cmd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[2] = { 0 };
 
 	sec_cmd_set_default_result(sec);
@@ -3898,7 +3883,7 @@ static void not_support_cmd(void *device_data)
 	sec->cmd_is_running = false;
 	mutex_unlock(&sec->cmd_lock);
 
-	input_info(true, &client->dev, "%s: \"%s(%d)\"\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: \"%s(%d)\"\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -4029,7 +4014,6 @@ static void run_trx_short_test(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	u8 temp[10];
@@ -4060,7 +4044,7 @@ static void run_trx_short_test(void *device_data)
 		strlcat(buff, temp, SEC_CMD_STR_LEN);
 
 		check_trx_channel_test(info, buff);
-		input_info(true, &client->dev, "%s\n", buff);
+		input_info(true, &info->client->dev, "%s\n", buff);
 
 	} else if (sec->cmd_param[0] == 1 && sec->cmd_param[1] == 2) {
 		/* 1,2 : short  */
@@ -4072,7 +4056,7 @@ static void run_trx_short_test(void *device_data)
 		strlcat(buff, temp, SEC_CMD_STR_LEN);
 
 		check_trx_channel_test(info, buff);
-		input_info(true, &client->dev, "%s\n", buff);
+		input_info(true, &info->client->dev, "%s\n", buff);
 
 	} else if (sec->cmd_param[0] == 2) {
 		/* 2 : micro open(pattern open)  */
@@ -4084,7 +4068,7 @@ static void run_trx_short_test(void *device_data)
 		strlcat(buff, temp, SEC_CMD_STR_LEN);
 
 		check_trx_channel_test(info, buff);
-		input_info(true, &client->dev, "%s\n", buff);
+		input_info(true, &info->client->dev, "%s\n", buff);
 
 	} else if (sec->cmd_param[0] == 3) {
 		/* 3 : bridge short  */
@@ -4092,7 +4076,7 @@ static void run_trx_short_test(void *device_data)
 		sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 		sec->cmd_state = SEC_CMD_STATUS_NOT_APPLICABLE;
 
-		input_info(true, &client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
+		input_info(true, &info->client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
 				(int)strlen(sec->cmd_result));
 		return;
 	} else {
@@ -4105,7 +4089,7 @@ static void run_trx_short_test(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_FAIL;
 
-	input_info(true, &client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
 				(int)strlen(sec->cmd_result));
 	return;
 
@@ -4115,7 +4099,7 @@ OK:
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: \"%s\"(%d)\n", __func__, sec->cmd_result,
 				(int)strlen(sec->cmd_result));
 	return;
 
@@ -4193,7 +4177,6 @@ static void get_dnd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -4220,7 +4203,7 @@ static void get_dnd(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -4318,7 +4301,6 @@ static void run_dnd_v_gap_read(void *device_data)
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	char buff_onecmd_1[SEC_CMD_STR_LEN] = { 0 };
@@ -4373,12 +4355,12 @@ static void run_dnd_v_gap_read(void *device_data)
 		printk("\n");
 	}
 	if (pdata->support_touchkey) {
-		input_info(true, &client->dev, "DND V Gap screen_max %d touchkey_max %d\n", screen_max, touchkey_max);
+		input_info(true, &info->client->dev, "DND V Gap screen_max %d touchkey_max %d\n", screen_max, touchkey_max);
 		snprintf(buff, sizeof(buff), "%d,%d", screen_max, touchkey_max);
 		snprintf(buff_onecmd_1, sizeof(buff_onecmd_1), "%d,%d", 0, screen_max);
 		snprintf(buff_onecmd_2, sizeof(buff_onecmd_2), "%d,%d", 0, touchkey_max);
 	} else {
-		input_info(true, &client->dev, "DND V Gap screen_max %d\n", screen_max);
+		input_info(true, &info->client->dev, "DND V Gap screen_max %d\n", screen_max);
 		snprintf(buff, sizeof(buff), "%d", screen_max);
 		snprintf(buff_onecmd_1, sizeof(buff_onecmd_1), "%d,%d", 0, screen_max);
 	}
@@ -4402,7 +4384,6 @@ static void run_dnd_h_gap_read(void *device_data)
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	char buff_onecmd_1[SEC_CMD_STR_LEN] = { 0 };
@@ -4470,12 +4451,12 @@ static void run_dnd_h_gap_read(void *device_data)
 		printk("\n");
 	}
 	if (pdata->support_touchkey) {
-		input_info(true, &client->dev, "DND H Gap screen_max %d, touchkey_max %d\n", screen_max, touchkey_max);
+		input_info(true, &info->client->dev, "DND H Gap screen_max %d, touchkey_max %d\n", screen_max, touchkey_max);
 		snprintf(buff, sizeof(buff), "%d,%d", screen_max, touchkey_max);
 		snprintf(buff_onecmd_1, sizeof(buff_onecmd_1), "%d,%d", 0, screen_max);
 		snprintf(buff_onecmd_2, sizeof(buff_onecmd_2), "%d,%d", 0, touchkey_max);
 	} else {
-		input_info(true, &client->dev, "DND H Gap screen_max %d\n", screen_max);
+		input_info(true, &info->client->dev, "DND H Gap screen_max %d\n", screen_max);
 		snprintf(buff, sizeof(buff), "%d", screen_max);
 		snprintf(buff_onecmd_1, sizeof(buff_onecmd_1), "%d,%d", 0, screen_max);
 	}
@@ -4738,7 +4719,6 @@ static void get_delta(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -4766,7 +4746,7 @@ static void get_delta(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -4843,7 +4823,6 @@ static void get_hfdnd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -4870,7 +4849,7 @@ static void get_hfdnd(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true,&client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 		(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5289,7 +5268,6 @@ static void get_rxshort(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -5316,7 +5294,7 @@ static void get_rxshort(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true,&client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 		(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5373,7 +5351,6 @@ static void get_txshort(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -5400,7 +5377,7 @@ static void get_txshort(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true,&client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 		(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5620,7 +5597,6 @@ static void get_selfdnd_rx(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -5644,7 +5620,7 @@ static void get_selfdnd_rx(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5654,7 +5630,6 @@ static void get_selfdnd_tx(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -5678,7 +5653,7 @@ static void get_selfdnd_tx(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5829,7 +5804,6 @@ static void get_ssr_rx(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	u16 val;
@@ -5853,7 +5827,7 @@ static void get_ssr_rx(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5863,7 +5837,6 @@ static void get_ssr_tx(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	u16 val;
@@ -5887,7 +5860,7 @@ static void get_ssr_tx(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -5950,7 +5923,6 @@ static void run_selfdnd_v_gap_read(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	char buff_onecmd[SEC_CMD_STR_LEN] = { 0 };
@@ -5991,7 +5963,7 @@ static void run_selfdnd_v_gap_read(void *device_data)
 	}
 	printk("\n");
 
-	input_info(true, &client->dev, "SELFDND V Gap screen_max %d\n", screen_max);
+	input_info(true, &info->client->dev, "SELFDND V Gap screen_max %d\n", screen_max);
 	snprintf(buff, sizeof(buff), "%d", screen_max);
 	snprintf(buff_onecmd, sizeof(buff_onecmd), "%d,%d", 0, screen_max);
 
@@ -6007,7 +5979,6 @@ static void run_selfdnd_h_gap_read(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	char buff_onecmd[SEC_CMD_STR_LEN] = { 0 };
@@ -6047,7 +6018,7 @@ static void run_selfdnd_h_gap_read(void *device_data)
 	}
 	printk("\n");
 
-	input_info(true, &client->dev, "SELFDND H Gap screen_max %d\n", screen_max);
+	input_info(true, &info->client->dev, "SELFDND H Gap screen_max %d\n", screen_max);
 	snprintf(buff, sizeof(buff), "%d", screen_max);
 	snprintf(buff_onecmd, sizeof(buff_onecmd), "%d,%d", 0, screen_max);
 
@@ -6240,7 +6211,6 @@ static void get_jitter(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -6267,7 +6237,7 @@ static void get_jitter(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -6472,7 +6442,6 @@ static void get_reference(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -6500,7 +6469,7 @@ static void get_reference(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -6568,7 +6537,6 @@ static void get_self_sat_dnd(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	struct tsp_raw_data *raw_data = info->raw_data;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	unsigned int val;
@@ -6592,7 +6560,7 @@ static void get_self_sat_dnd(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -7637,7 +7605,6 @@ err_grip_data:
 static void set_touchable_area(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int val = sec->cmd_param[0];
 
@@ -7656,7 +7623,7 @@ static void set_touchable_area(void *device_data)
 		zinitix_bit_set(m_optional_mode.select_mode.flag, DEF_OPTIONAL_MODE_TOUCHABLE_AREA);
 	else
 		zinitix_bit_clr(m_optional_mode.select_mode.flag, DEF_OPTIONAL_MODE_TOUCHABLE_AREA);
-	
+
 	snprintf(buff, sizeof(buff), "%s", "OK");
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 out:
@@ -7828,14 +7795,13 @@ static void ts_exit_strength_mode(struct bt532_ts_info *info)
 
 static void ts_get_strength_data(struct bt532_ts_info *info)
 {
-	struct i2c_client *client = info->client;
 	int i, j, n;
 	u8 ref_max[2] = {0, 0};
 
 	down(&info->raw_data_lock);
 	read_data(info->client, 0x0308, ref_max, 2);
 
-	input_info(true, &client->dev, "reference max: %X %X\n", ref_max[0], ref_max[1]);
+	input_info(true, &info->client->dev, "reference max: %X %X\n", ref_max[0], ref_max[1]);
 
 	n = 0;
 	for(i = 0 ; i < info->cap_info.x_node_num; i++) {
@@ -7852,7 +7818,6 @@ static void run_cs_raw_read_all(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int retry = 0;
 	char all_cmdbuff[info->cap_info.x_node_num*info->cap_info.y_node_num * 6];
@@ -7869,7 +7834,7 @@ static void run_cs_raw_read_all(void *device_data)
 
 		retry++;
 
-		input_info(true, &client->dev, "%s: retry:%d\n", __func__, retry);
+		input_info(true, &info->client->dev, "%s: retry:%d\n", __func__, retry);
 
 		if (retry > 100)
 			goto out;
@@ -7877,7 +7842,7 @@ static void run_cs_raw_read_all(void *device_data)
 	ts_get_raw_data(info);
 
 	ts_exit_strength_mode(info);
-	
+
 	enable_irq(info->irq);
 
 	ts_get_strength_data(info);
@@ -7913,7 +7878,6 @@ static void run_cs_delta_read_all(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int retry = 0;
 	char all_cmdbuff[info->cap_info.x_node_num*info->cap_info.y_node_num * 6];
@@ -7930,7 +7894,7 @@ static void run_cs_delta_read_all(void *device_data)
 
 		retry++;
 
-		input_info(true, &client->dev, "%s: retry:%d\n", __func__, retry);
+		input_info(true, &info->client->dev, "%s: retry:%d\n", __func__, retry);
 
 		if (retry > 100)
 			goto out;
@@ -7938,7 +7902,7 @@ static void run_cs_delta_read_all(void *device_data)
 	ts_get_raw_data(info);
 
 	ts_exit_strength_mode(info);
-	
+
 	enable_irq(info->irq);
 
 	ts_get_strength_data(info);
@@ -8051,8 +8015,6 @@ static void run_ref_calibration(void *device_data)
 static void dead_zone_enable(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int val = sec->cmd_param[0];
 
@@ -8067,7 +8029,7 @@ static void dead_zone_enable(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s, %s\n", __func__, sec->cmd_result);
+	input_info(true, &info->client->dev, "%s, %s\n", __func__, sec->cmd_result);
 
 	return;
 }
@@ -8076,7 +8038,6 @@ static void spay_enable(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int val = sec->cmd_param[0];
 
@@ -8099,7 +8060,7 @@ static void spay_enable(void *device_data)
 
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s, %s\n", __func__, sec->cmd_result);
+	input_info(true, &info->client->dev, "%s, %s\n", __func__, sec->cmd_result);
 
 	return;
 }
@@ -8108,10 +8069,9 @@ static void aot_enable(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int val = sec->cmd_param[0];
-	
+
 	sec_cmd_set_default_result(sec);
 
 	if (val == info->aot_enable) {
@@ -8138,7 +8098,7 @@ result:
 
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s, %s\n", __func__, sec->cmd_result);
+	input_info(true, &info->client->dev, "%s, %s\n", __func__, sec->cmd_result);
 
 	return;
 }
@@ -8147,7 +8107,6 @@ static void aod_enable(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	int val = sec->cmd_param[0];
 
@@ -8171,7 +8130,7 @@ static void aod_enable(void *device_data)
 
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s, %s\n", __func__, sec->cmd_result);
+	input_info(true, &info->client->dev, "%s, %s\n", __func__, sec->cmd_result);
 
 	return;
 }
@@ -8180,7 +8139,6 @@ static void set_aod_rect(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 
 	sec_cmd_set_default_result(sec);
@@ -8205,7 +8163,7 @@ static void set_aod_rect(void *device_data)
 
 	sec->cmd_state = SEC_CMD_STATUS_OK;
 
-	input_info(true, &client->dev, "%s, %s\n", __func__, sec->cmd_result);
+	input_info(true, &info->client->dev, "%s, %s\n", __func__, sec->cmd_result);
 
 	return;
 }
@@ -8247,9 +8205,7 @@ static void get_wet_mode(void *device_data)
 static void glove_mode(void *device_data)
 {
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
-	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	static bool glove_mode_enabled = false;
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 
 	sec_cmd_set_default_result(sec);
@@ -8288,7 +8244,7 @@ result:
 	mutex_unlock(&sec->cmd_lock);
 
 	sec->cmd_state = SEC_CMD_STATUS_WAITING;
-	input_info(true, &client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
+	input_info(true, &info->client->dev, "%s: %s(%d)\n", __func__, sec->cmd_result,
 				(int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 
 	return;
@@ -8334,7 +8290,6 @@ static void factory_cmd_result_all(void *device_data)
 	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct i2c_client *client = info->client;
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 
 	sec->item_count = 0;
@@ -8414,7 +8369,7 @@ static void factory_cmd_result_all(void *device_data)
 	sec->cmd_all_factory_state = SEC_CMD_STATUS_OK;
 
 out:
-	input_info(true, &client->dev, "%s: %d%s\n", __func__, sec->item_count,
+	input_info(true, &info->client->dev, "%s: %d%s\n", __func__, sec->item_count,
 				sec->cmd_result_all);
 }
 
@@ -8525,11 +8480,10 @@ static ssize_t scrub_position_show(struct device *dev,
 {
 	struct sec_cmd_data *sec = dev_get_drvdata(dev);
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
 
 	char buff[256] = { 0 };
 
-	input_info(true, &client->dev, "%s: scrub_id: %d, X:%d, Y:%d \n", __func__,
+	input_info(true, &info->client->dev, "%s: scrub_id: %d, X:%d, Y:%d \n", __func__,
 				info->scrub_id, info->scrub_x, info->scrub_y);
 
 	snprintf(buff, sizeof(buff), "%d %d %d", info->scrub_id, info->scrub_x, info->scrub_y);
@@ -8790,8 +8744,7 @@ static ssize_t read_support_feature(struct device *dev,
 {
 	struct sec_cmd_data *sec = dev_get_drvdata(dev);
 	struct bt532_ts_info *info = container_of(sec, struct bt532_ts_info, sec);
-	struct i2c_client *client = info->client;
-	
+
 	char buff[SEC_CMD_STR_LEN] = { 0 };
 	u32 feature = 0;
 
@@ -8799,7 +8752,7 @@ static ssize_t read_support_feature(struct device *dev,
 		feature |= INPUT_FEATURE_SUPPORT_AOT;
 
 	snprintf(buff, sizeof(buff), "%d", feature);
-	input_info(true, &client->dev, "%s: %s\n", __func__, buff);
+	input_info(true, &info->client->dev, "%s: %s\n", __func__, buff);
 
 	return snprintf(buf, SEC_CMD_BUF_SIZE, "%s\n", buff);
 }
@@ -9590,11 +9543,10 @@ fail_hw_cal:
 #ifdef CONFIG_OF
 static int bt532_pinctrl_configure(struct bt532_ts_info *info, bool active)
 {
-	struct device *dev = &info->client->dev;
 	struct pinctrl_state *pinctrl_state;
 	int retval = 0;
 
-	input_dbg(true, dev, "%s: pinctrl %d\n", __func__, active);
+	input_dbg(true, &info->dev, "%s: pinctrl %d\n", __func__, active);
 
 	if (active)
 		pinctrl_state = pinctrl_lookup_state(info->pinctrl, "on_state");
@@ -9602,11 +9554,11 @@ static int bt532_pinctrl_configure(struct bt532_ts_info *info, bool active)
 		pinctrl_state = pinctrl_lookup_state(info->pinctrl, "off_state");
 
 	if (IS_ERR(pinctrl_state)) {
-		input_err(true, dev, "%s: Failed to lookup pinctrl.\n", __func__);
+		input_err(true, &info->dev, "%s: Failed to lookup pinctrl.\n", __func__);
 	} else {
 		retval = pinctrl_select_state(info->pinctrl, pinctrl_state);
 		if (retval)
-			input_err(true, dev, "%s: Failed to configure pinctrl.\n", __func__);
+			input_err(true, &info->dev, "%s: Failed to configure pinctrl.\n", __func__);
 	}
 	return 0;
 }
@@ -9615,7 +9567,6 @@ static int bt532_power_ctrl(void *data, bool on)
 {
 	struct bt532_ts_info* info = (struct bt532_ts_info*)data;
 	struct bt532_ts_platform_data *pdata = info->pdata;
-	struct device *dev = &info->client->dev;
 	struct regulator *regulator_dvdd = NULL;
 	struct regulator *regulator_avdd;
 	int retval = 0;
@@ -9638,7 +9589,7 @@ static int bt532_power_ctrl(void *data, bool on)
 		return PTR_ERR(regulator_avdd);
 	}
 
-	input_info(true, dev, "%s: %s\n", __func__, on ? "on" : "off");
+	input_info(true, &info->dev, "%s: %s\n", __func__, on ? "on" : "off");
 
 	if (on) {
 		retval = regulator_enable(regulator_avdd);

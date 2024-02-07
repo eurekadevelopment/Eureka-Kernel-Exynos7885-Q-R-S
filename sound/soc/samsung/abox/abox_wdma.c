@@ -89,7 +89,6 @@ static int abox_wdma_hw_params(struct snd_pcm_substream *substream,
 	struct device *dev = platform->dev;
 	struct abox_platform_data *data = dev_get_drvdata(dev);
 	struct device *dev_abox = &data->pdev_abox->dev;
-	struct snd_pcm_runtime *runtime = substream->runtime;
 	int id = data->id;
 	int result;
 	ABOX_IPC_MSG msg;
@@ -424,11 +423,9 @@ static int abox_wdma_mmap(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_platform *platform = rtd->platform;
 	struct device *dev = platform->dev;
-	struct abox_platform_data *data = dev_get_drvdata(dev);
-	int id = data->id;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(dev, "%s[%d]\n", __func__);
 
 	return dma_mmap_writecombine(dev, vma,
 			runtime->dma_area,

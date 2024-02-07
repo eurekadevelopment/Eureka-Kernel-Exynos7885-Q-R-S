@@ -133,6 +133,7 @@ enum smc_error_flag {
 static inline void start_tx_timer(struct mem_link_device *mld,
 				  struct hrtimer *timer);
 
+/*
 static char *smc_err_string[32] = {
 	"CP_NO_ERROR",
 	"CP_NOT_ALIGN_64KB",
@@ -156,6 +157,7 @@ static char *smc_err_string[32] = {
 	"CP_INVALID_CP_BASE",
 	"CP_CORRUPTED_CP_MEM_INFO",
 };
+*/
 
 #ifdef GROUP_MEM_LINK_COMMAND
 

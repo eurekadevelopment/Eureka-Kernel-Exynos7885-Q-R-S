@@ -241,11 +241,10 @@ static int abox_rdma_compr_isr_handler(void *priv)
 	struct device *dev = &pdev->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	unsigned long flags;
 	u32 val, fw_stat;
 
-	dev_dbg(dev, "%s[%d]\n", __func__, id);
+	dev_dbg(dev, "%s[%d]\n", __func__);
 
 	val = abox_rdma_mailbox_read(dev, COMPR_RETURN_CMD);
 
@@ -475,9 +474,8 @@ static int abox_rdma_compr_open(struct snd_compr_stream *stream)
 	struct device *dev = platform->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(dev, "%s[%d]\n", __func__);
 
 	/* init runtime data */
 	data->cstream = stream;
@@ -505,11 +503,10 @@ static int abox_rdma_compr_free(struct snd_compr_stream *stream)
 	struct device *dev = platform->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	unsigned long flags;
 	int ret = 0;
 
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(dev, "%s[%d]\n", __func__);
 
 	if (data->eos) {
 		/* ALSA Framework callback to notify drain complete */
@@ -578,10 +575,9 @@ static int abox_rdma_compr_set_params(struct snd_compr_stream *stream,
 	struct platform_device *pdev = to_platform_device(dev);
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	int ret = 0;
 
-	dev_dbg(dev, "%s[%d]\n", __func__, id);
+	dev_dbg(dev, "%s[%d]\n", __func__);
 
 	/* COMPR set_params */
 	memcpy(&data->codec_param, params, sizeof(data->codec_param));
@@ -629,22 +625,16 @@ static int abox_rdma_compr_set_params(struct snd_compr_stream *stream,
 static int abox_rdma_compr_set_metadata(struct snd_compr_stream *stream,
 			      struct snd_compr_metadata *metadata)
 {
-	struct snd_soc_pcm_runtime *rtd = stream->private_data;
-	struct snd_soc_platform *platform = rtd->platform;
-	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
-	int id = platform_data->id;
-
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__);
 
 	if (!metadata)
 		return -EINVAL;
 
 	if (metadata->key == SNDRV_COMPRESS_ENCODER_PADDING) {
-		dev_dbg(dev, "%s: got encoder padding %u", __func__,
+		dev_dbg(&pdev->dev, "%s: got encoder padding %u", __func__,
 				metadata->value[0]);
 	} else if (metadata->key == SNDRV_COMPRESS_ENCODER_DELAY) {
-		dev_dbg(dev, "%s: got encoder delay %u", __func__,
+		dev_dbg(&pdev->dev, "%s: got encoder delay %u", __func__,
 				metadata->value[0]);
 	}
 
@@ -658,10 +648,9 @@ static int abox_rdma_compr_trigger(struct snd_compr_stream *stream, int cmd)
 	struct device *dev = platform->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	int ret = 0;
 
-	dev_info(dev, "%s[%d](%d)\n", __func__, id, cmd);
+	dev_info(dev, "%s[%d](%d)\n", __func__, cmd);
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
@@ -763,12 +752,11 @@ static int abox_rdma_compr_pointer(struct snd_compr_stream *stream,
 	struct device *dev = platform->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	unsigned int num_channel;
 	u32 pcm_size;
 	unsigned long flags;
 
-	dev_dbg(dev, "%s[%d]\n", __func__, id);
+	dev_dbg(dev, "%s[%d]\n", __func__);
 
 	spin_lock_irqsave(&data->lock, flags);
 
@@ -845,11 +833,9 @@ static int abox_rdma_compr_mmap(struct snd_compr_stream *stream,
 	struct snd_soc_pcm_runtime *rtd = stream->private_data;
 	struct snd_soc_platform *platform = rtd->platform;
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
-	int id = platform_data->id;
 	struct snd_compr_runtime *runtime = stream->runtime;
 
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(dev, "%s[%d]\n", __func__);
 
 	return dma_mmap_writecombine(dev, vma,
 			runtime->buffer,
@@ -864,11 +850,10 @@ static int abox_rdma_compr_ack(struct snd_compr_stream *stream, size_t bytes)
 	struct device *dev = platform->dev;
 	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct abox_compr_data *data = &platform_data->compr_data;
-	int id = platform_data->id;
 	unsigned long flags;
 	int ret;
 
-	dev_dbg(dev, "%s[%d]\n", __func__, id);
+	dev_dbg(dev, "%s[%d]\n", __func__);
 
 	/* write mp3 data to firmware */
 	spin_lock_irqsave(&data->lock, flags);
@@ -886,13 +871,7 @@ static int abox_rdma_compr_ack(struct snd_compr_stream *stream, size_t bytes)
 static int abox_rdma_compr_get_caps(struct snd_compr_stream *stream,
 		struct snd_compr_caps *caps)
 {
-	struct snd_soc_pcm_runtime *rtd = stream->private_data;
-	struct snd_soc_platform *platform = rtd->platform;
-	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
-	int id = platform_data->id;
-
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__);
 
 	memcpy(caps, &abox_rdma_compr_caps, sizeof(*caps));
 
@@ -902,13 +881,7 @@ static int abox_rdma_compr_get_caps(struct snd_compr_stream *stream,
 static int abox_rdma_compr_get_codec_caps(struct snd_compr_stream *stream,
 		struct snd_compr_codec_caps *codec)
 {
-	struct snd_soc_pcm_runtime *rtd = stream->private_data;
-	struct snd_soc_platform *platform = rtd->platform;
-	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
-	int id = platform_data->id;
-
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(&pdev->dev, "%s[%d]\n", __func__);
 
 	return 0;
 }
@@ -919,11 +892,9 @@ static int abox_rdma_compr_get_hw_params(struct snd_compr_stream *stream,
 	struct snd_soc_pcm_runtime *rtd = stream->private_data;
 	struct snd_soc_platform *platform = rtd->platform;
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
-	int id = platform_data->id;
 	unsigned int upscale;
 
-	dev_dbg(dev, "%s[%d]\n", __func__, id);
+	dev_dbg(dev, "%s[%d]\n", __func__);
 
 	hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS)->min = 2;
 
@@ -993,16 +964,14 @@ static int abox_rdma_compr_vol_put(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_platform *platform = snd_soc_kcontrol_platform(kcontrol);
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct soc_mixer_control *mc =
 			(struct soc_mixer_control *)kcontrol->private_value;
-	int id = platform_data->id;
 	unsigned int volumes[2];
 
 	volumes[0] = (unsigned int)ucontrol->value.integer.value[0];
 	volumes[1] = (unsigned int)ucontrol->value.integer.value[1];
 	dev_dbg(dev, "%s[%d]: left_vol=%d right_vol=%d\n",
-			__func__, id, volumes[0], volumes[1]);
+			__func__, volumes[0], volumes[1]);
 
 	abox_rdma_mailbox_write(dev, mc->reg, volumes[0]);
 	abox_rdma_mailbox_write(dev, mc->rreg, volumes[1]);
@@ -1015,16 +984,14 @@ static int abox_rdma_compr_vol_get(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_platform *platform = snd_soc_kcontrol_platform(kcontrol);
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct soc_mixer_control *mc =
 			(struct soc_mixer_control *)kcontrol->private_value;
-	int id = platform_data->id;
 	unsigned int volumes[2];
 
 	volumes[0] = abox_rdma_mailbox_read(dev, mc->reg);
 	volumes[1] = abox_rdma_mailbox_read(dev, mc->rreg);
 	dev_dbg(dev, "%s[%d]: left_vol=%d right_vol=%d\n",
-			__func__, id, volumes[0], volumes[1]);
+			__func__, volumes[0], volumes[1]);
 
 	ucontrol->value.integer.value[0] = volumes[0];
 	ucontrol->value.integer.value[1] = volumes[1];
@@ -1040,13 +1007,11 @@ static int abox_rdma_compr_format_put(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_platform *platform = snd_soc_kcontrol_platform(kcontrol);
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	int id = platform_data->id;
 	unsigned int upscale;
 
 	upscale = ucontrol->value.enumerated.item[0];
-	dev_dbg(dev, "%s[%d]: scale=%u\n", __func__, id, upscale);
+	dev_dbg(dev, "%s[%d]: scale=%u\n", __func__, upscale);
 
 	abox_rdma_mailbox_write(dev, e->reg, upscale);
 
@@ -1058,13 +1023,11 @@ static int abox_rdma_compr_format_get(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_platform *platform = snd_soc_kcontrol_platform(kcontrol);
 	struct device *dev = platform->dev;
-	struct abox_platform_data *platform_data = dev_get_drvdata(dev);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	int id = platform_data->id;
 	unsigned int upscale;
 
 	upscale = abox_rdma_mailbox_read(dev, e->reg);
-	dev_dbg(dev, "%s[%d]: upscale=%u\n", __func__, id, upscale);
+	dev_dbg(dev, "%s[%d]: upscale=%u\n", __func__, upscale);
 
 	ucontrol->value.enumerated.item[0] = upscale;
 
@@ -1140,7 +1103,6 @@ static int abox_rdma_hw_params(struct snd_pcm_substream *substream,
 	struct snd_soc_platform *platform = rtd->platform;
 	struct device *dev = platform->dev;
 	struct abox_platform_data *data = dev_get_drvdata(dev);
-	struct snd_pcm_runtime *runtime = substream->runtime;
 	int id = data->id;
 	unsigned int lit, big, hmp;
 	int result;
@@ -1479,11 +1441,9 @@ static int abox_rdma_mmap(struct snd_pcm_substream *substream,
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_platform *platform = rtd->platform;
 	struct device *dev = platform->dev;
-	struct abox_platform_data *data = dev_get_drvdata(dev);
-	int id = data->id;
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
-	dev_info(dev, "%s[%d]\n", __func__, id);
+	dev_info(dev, "%s[%d]\n", __func__);
 
 	return dma_mmap_writecombine(dev, vma,
 			runtime->dma_area,
