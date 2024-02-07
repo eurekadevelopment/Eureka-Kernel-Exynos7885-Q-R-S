@@ -124,8 +124,8 @@ static inline u64 __raw_readq(const volatile void __iomem *addr)
 }
 
 /* IO barriers */
-#define __iormb()		rmb()
-#define __iowmb()		wmb()
+#define __iormb()		dma_rmb()
+#define __iowmb()		dma_wmb()
 
 #define mmiowb()		do { } while (0)
 
