@@ -26,6 +26,7 @@
 #include <linux/list.h>
 #include <linux/printk.h>
 #include <linux/hrtimer.h>
+#include <linux/binfmts.h>
 #include "governor.h"
 
 #include <soc/samsung/exynos-devfreq.h>
@@ -1076,6 +1077,8 @@ static ssize_t name##_store					\
 	struct devfreq *devfreq = to_devfreq(dev);	\
 	unsigned int freq;	\
 	int ret;	\
+	if (task_is_booster()) \
+		return count; \
 	\
 	if (!devfreq->governor)	\
 		return -EINVAL;	\
