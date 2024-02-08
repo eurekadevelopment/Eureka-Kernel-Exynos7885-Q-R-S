@@ -5791,9 +5791,7 @@ static inline int hmp_family_boost(void)
 
 static inline int hmp_semiboost(void)
 {
-	if (hmp_semiboost_val)
-		return 1;
-	return 0;
+	return !!hmp_semiboost_val;
 }
 
 #ifdef CONFIG_SCHED_HMP_SELECTIVE_BOOST_WITH_NITP
@@ -6143,21 +6141,12 @@ static int hmp_boostpulse_duration_from_sysfs(int duration)
 static int hmp_boost_from_sysfs(int value)
 {
 	unsigned long flags;
-	int ret = 0;
 
 	raw_spin_lock_irqsave(&hmp_boost_lock, flags);
-	if (value == 1)
-		hmp_boost_val++;
-	else if (value == 0)
-		if (hmp_boost_val >= 1)
-			hmp_boost_val--;
-		else
-			ret = -EINVAL;
-	else
-		ret = -EINVAL;
+	hmp_boost_val = !!value;
 	raw_spin_unlock_irqrestore(&hmp_boost_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 static int hmp_family_boost_from_sysfs(int value)
@@ -6178,81 +6167,45 @@ static int hmp_family_boost_from_sysfs(int value)
 static int hmp_semiboost_from_sysfs(int value)
 {
 	unsigned long flags;
-	int ret = 0;
 
 	raw_spin_lock_irqsave(&hmp_semiboost_lock, flags);
-	if (value == 1)
-		hmp_semiboost_val++;
-	else if (value == 0)
-		if (hmp_semiboost_val >= 1)
-			hmp_semiboost_val--;
-		else
-			ret = -EINVAL;
-	else
-		ret = -EINVAL;
+	hmp_semiboost_val = !!value;
 	raw_spin_unlock_irqrestore(&hmp_semiboost_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 static int hmp_active_dm_from_sysfs(int value)
 {
 	unsigned long flags;
-	int ret = 0;
 
 	raw_spin_lock_irqsave(&hmp_sysfs_lock, flags);
-	if (value == 1)
-		hmp_active_down_migration++;
-	else if (value == 0)
-		if (hmp_active_down_migration >= 1)
-			hmp_active_down_migration--;
-		else
-			ret = -EINVAL;
-	else
-		ret = -EINVAL;
+	hmp_active_down_migration = !!value;
 	raw_spin_unlock_irqrestore(&hmp_sysfs_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 static int hmp_aggressive_up_migration_from_sysfs(int value)
 {
 	unsigned long flags;
-	int ret = 0;
 
 	raw_spin_lock_irqsave(&hmp_sysfs_lock, flags);
-	if (value == 1)
-		hmp_aggressive_up_migration++;
-	else if (value == 0)
-		if (hmp_aggressive_up_migration >= 1)
-			hmp_aggressive_up_migration--;
-		else
-			ret = -EINVAL;
-	else
-		ret = -EINVAL;
+	hmp_aggressive_up_migration = !!value;
 	raw_spin_unlock_irqrestore(&hmp_sysfs_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 static int hmp_aggressive_yield_from_sysfs(int value)
 {
 	unsigned long flags;
-	int ret = 0;
 
 	raw_spin_lock_irqsave(&hmp_sysfs_lock, flags);
-	if (value == 1)
-		hmp_aggressive_yield++;
-	else if (value == 0)
-		if (hmp_aggressive_yield >= 1)
-			hmp_aggressive_yield--;
-		else
-			ret = -EINVAL;
-	else
-		ret = -EINVAL;
+	hmp_aggressive_yield = !!value;
 	raw_spin_unlock_irqrestore(&hmp_sysfs_lock, flags);
 
-	return ret;
+	return 0;
 }
 
 #ifdef CONFIG_SCHED_HMP_TASK_BASED_SOFTLANDING
