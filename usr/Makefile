@@ -72,3 +72,7 @@ $(deps_initramfs): klibcdirs
 $(obj)/initramfs_data.cpio$(suffix_y): $(obj)/gen_init_cpio $(deps_initramfs) klibcdirs
 	$(Q)$(initramfs) -l $(ramfs-input) > $(obj)/.initramfs_data.cpio.d
 	$(call if_changed,initfs)
+
+# optimise for size
+ccflags-y += $(call cc-option, -g0)
+ccflags-y += $(call cc-option, -Os)
