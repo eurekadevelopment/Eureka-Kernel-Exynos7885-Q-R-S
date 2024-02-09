@@ -159,6 +159,7 @@ static void devfreq_unboost_all(struct df_boost_drv *d)
 {
 	int i;
 
+	return;
 	for (i = 0; i < DEVFREQ_MAX; i++) {
 		struct boost_dev *b = d->devices + i;
 		struct devfreq *df;
