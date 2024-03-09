@@ -70,13 +70,17 @@ $(obj-vdso-s): %.o: %.S FORCE
 $(obj-vdso-c): %.o: %.c FORCE
 	$(call if_changed_dep,vdsocc)
 
+ifeq ($(ld-name),lld)
+lld_flags := -fuse-ld=lld
+endif
+
 # Actual build commands
 quiet_cmd_vdsold = VDSOL   $@
-      cmd_vdsold = $(CC) $(c_flags) -Wl,-n -Wl,-T $^ -o $@
+      cmd_vdsold = $(CC) $(c_flags) $(lld_flags) -Wl,-n -Wl,-T $^ -o $@
 quiet_cmd_vdsocc = VDSOC   $@
-      cmd_vdsocc = ${CC} $(c_flags) -c -o $@ $<
+      cmd_vdsocc = $(CC) $(c_flags) $(lld_flags) -c -o $@ $<
 quiet_cmd_vdsoas = VDSOA   $@
-      cmd_vdsoas = $(CC) $(a_flags) -c -o $@ $<
+      cmd_vdsoas = $(CC) $(a_flags) $(lld_flags) -c -o $@ $<
 
 # Install commands for the unstripped file
 quiet_cmd_vdso_install = INSTALL $@
